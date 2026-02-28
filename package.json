@@ -1,0 +1,39 @@
+{
+  "name": "proptech-manager",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.6.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:web": "pnpm --filter mobile-web dev",
+    "dev:api": "pnpm --filter api dev",
+    "mobile:sync:dev": "bash scripts/mobile/cap-sync.sh dev",
+    "mobile:sync:prod": "bash scripts/mobile/cap-sync.sh prod",
+    "mobile:android:release": "bash scripts/mobile/android-build-release.sh",
+    "mobile:ios:release": "bash scripts/mobile/ios-build-release.sh",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "pnpm": "^10.6.1",
+    "prettier": "^3.5.3",
+    "turbo": "^2.5.6",
+    "typescript": "^5.8.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}

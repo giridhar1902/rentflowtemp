@@ -1,0 +1,5 @@
+{
+  "name": "RentFlow",
+  "description": "RentFlow - A dual-sided property management platform for landlords and tenants. featuring rent tracking, maintenance requests, financial reports, and communication tools.",
+  "requestFramePermissions": ["geolocation"]
+}

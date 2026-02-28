@@ -1,0 +1,4 @@
+ALTER TABLE "Property"
+ADD COLUMN "floors" INTEGER,
+ADD COLUMN "totalUnits" INTEGER,
+ADD COLUMN "amenities" TEXT[] DEFAULT ARRAY[]::TEXT[] NOT NULL;

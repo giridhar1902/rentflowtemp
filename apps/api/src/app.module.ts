@@ -1,0 +1,66 @@
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
+import { AppAuthGuard } from "./common/auth/app-auth.guard";
+import { AppRolesGuard } from "./common/auth/app-roles.guard";
+import { GlobalExceptionFilter } from "./common/filters/global-exception.filter";
+import { RequestLoggingInterceptor } from "./common/interceptors/request-logging.interceptor";
+import { RequestIdMiddleware } from "./common/middleware/request-id.middleware";
+import { AuthModule } from "./auth/auth.module";
+import { BillingModule } from "./billing/billing.module";
+import { ChatModule } from "./chat/chat.module";
+import { DocumentsModule } from "./documents/documents.module";
+import { HealthModule } from "./health/health.module";
+import { LeasesModule } from "./leases/leases.module";
+import { MaintenanceModule } from "./maintenance/maintenance.module";
+import { NotificationsModule } from "./notifications/notifications.module";
+import { PrismaModule } from "./prisma/prisma.module";
+import { PropertiesModule } from "./properties/properties.module";
+import { UsersModule } from "./users/users.module";
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    HealthModule,
+    AuthModule,
+    UsersModule,
+    PropertiesModule,
+    LeasesModule,
+    BillingModule,
+    MaintenanceModule,
+    ChatModule,
+    NotificationsModule,
+    DocumentsModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AppAuthGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AppRolesGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RequestLoggingInterceptor,
+    },
+  ],
+})
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RequestIdMiddleware)
+      .forRoutes({ path: "*path", method: RequestMethod.ALL });
+  }
+}

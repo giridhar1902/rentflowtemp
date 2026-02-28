@@ -1,0 +1,31 @@
+{
+  "last_updated": "2026-02-26",
+  "phase": "phase_8_in_progress",
+  "project": "proptech-manager",
+  "summary": "Phase 8 remains in progress: Capacitor Android/iOS projects, deep-link and push plumbing, and release scripts are wired; post-login regressions were fixed via auth-state hydration guards, ADMIN default-route correction, and backend Supabase JWT compatibility upgrade (legacy HS256 + JWKS for new signing keys); tenant bottom-nav visibility was restored on Pay Rent and Lease/Documents pages; signup UX now handles Supabase email-rate-limit errors with clear guidance and temporary cooldown; landlord Add Property now validates required `state`, exposes actionable API errors, uploads property/deed/template files end-to-end, and persists floors/totalUnits/amenities to backend; tenant-landlord invite flow is wired end-to-end with tenant inbox endpoint (`GET /v1/leases/invitations/mine`), tenant signup + post-login invite-code entry paths, invitee-account detection, in-app notifications for existing users, and non-blocking Supabase invite-email dispatch for non-registered emails; lease documents page now shows lease-bound docs plus property-level `LEASE` docs; landlord dashboard occupancy now computes from active leases; landlord property cards/details now render uploaded photos; tenant property details route (`/tenant/property/:propertyId`) now shows property photo + amenities + overview; tenant maintenance request form now provides explicit validation errors and improved API error parsing instead of silent submit failures; landlord maintenance status workflow now supports completion from open states (including `SUBMITTED -> COMPLETED`) and dropdown choices are constrained to valid transitions; migration `0002_property_metadata` has been applied locally; runtime checks for API/mobile-web typecheck/lint/test/build are passing.",
+  "current_build_todo_initialized": true,
+  "current_build_todo_locked": true,
+  "future_items_todo_initialized": false,
+  "active_phase": "phase_8_mobile_packaging_native_readiness_started",
+  "current_build_todo": [
+    "Add Capacitor Android and iOS projects in apps/mobile-web and sync built web assets.",
+    "Configure deep links and app permissions for both platforms (Android intent filters + iOS URL types).",
+    "Wire push-notification registration plumbing in mobile app runtime and backend token registration call.",
+    "Implement environment separation for mobile builds (dev/prod) and production-safe Capacitor config strategy.",
+    "Add release-signing pipeline docs/scripts for Android and iOS build candidates.",
+    "Validate Phase 8 (workspace lint/typecheck/test/build + Capacitor sync/build checks) and update project memory/docs."
+  ],
+  "open_decisions": [
+    "Confirm deploy targets for API/frontend",
+    "Confirm first launch geography and compliance assumptions",
+    "Finalize object storage provider for production document persistence (R2/S3/Supabase Storage)",
+    "Choose final deep-link production host/domain and Apple associated-domain rollout strategy"
+  ],
+  "blockers": [
+    "Xcode local toolchain has plugin integrity issue (xcodebuild requires first-launch/framework fix) before iOS archive validation.",
+    "Gradle wrapper task validation requires outbound access to services.gradle.org in this environment.",
+    "Store-signing credentials/profiles are required to produce actual signed release artifacts.",
+    "Supabase Auth default email sender/rate limits can suppress invitation mail delivery unless SMTP is configured and quota cooldown has elapsed."
+  ],
+  "next_action": "User retests landlord maintenance status updates (especially SUBMITTED -> COMPLETED) and confirms no raw JSON error is rendered; if any transition still fails, capture request status before/after plus exact on-screen message."
+}
