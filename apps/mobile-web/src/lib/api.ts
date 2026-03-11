@@ -8,6 +8,7 @@ export type MeResponse = {
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;
+  isNRI?: boolean;
   landlordProfile?: {
     id: string;
     companyName?: string | null;
@@ -153,6 +154,8 @@ export type ChargeLeaseSnapshot = {
   dueDay: number;
   landlordId: string;
   tenantId: string;
+  hasTdsObligation?: boolean;
+  tdsRate?: number;
   property?: {
     id: string;
     name: string;
@@ -190,6 +193,8 @@ export type PaymentRecord = {
   provider?: string | null;
   providerPaymentId?: string | null;
   reference?: string | null;
+  razorpayPaymentLinkId?: string | null;
+  razorpayPaymentLinkUrl?: string | null;
   paidAt?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -586,6 +591,51 @@ const withQuery = (
   return serialized ? `${path}?${serialized}` : path;
 };
 
+export type NriIncomeSummaryResponse = {
+  totalINR: number;
+  totalForeignCurrency: number;
+  exchangeRate: number;
+  foreignCurrency: string;
+  monthlyBreakdown: {
+    month: string;
+    amountINR: number;
+    amountForeign: number;
+  }[];
+  propertySummary: {
+    propertyName: string;
+    amountINR: number;
+    amountForeign: number;
+    healthScore: number;
+    healthStatus: string;
+  }[];
+};
+
+export type NriTdsSummaryResponse = {
+  financialYear: string;
+  quarters: {
+    quarter: string;
+    totalRent: number;
+    totalTdsDeducted: number;
+    netReceived: number;
+    form27QDueDate: string;
+    form27QFiled: boolean;
+    tenants: {
+      name: string;
+      pan: string;
+      rentPaid: number;
+      tdsDeducted: number;
+      tdsDepositConfirmed: boolean;
+    }[];
+  }[];
+  annualSummary: {
+    totalRentINR: number;
+    totalTdsINR: number;
+    netReceivedINR: number;
+    totalRentForeign: number;
+    foreignCurrency: string;
+  };
+};
+
 const getMockDataForPath = (path: string, method?: string): any => {
   if (path.includes("/users/me")) {
     return {
@@ -773,9 +823,23 @@ const apiFetch = async <T>(
   });
 
   if (!response.ok) {
-    const body = await response.text();
+    const text = await response.text();
+    let parsedBody: any = null;
+    try {
+      parsedBody = JSON.parse(text);
+    } catch (e) {}
+
+    if (response.status === 402 && parsedBody?.error === "UPGRADE_REQUIRED") {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("upgrade-required", { detail: parsedBody }),
+        );
+      }
+      throw new Error("UPGRADE_REQUIRED");
+    }
+
     throw new Error(
-      body || `API request failed (${response.status}) for ${path}`,
+      text || `API request failed (${response.status}) for ${path}`,
     );
   }
 
@@ -1315,6 +1379,19 @@ export const api = {
         method: "DELETE",
       },
     ),
+  checkUnitEmailConflicts: (token: string, unitId: string, email: string) =>
+    apiFetch<{ conflict: boolean }>(
+      withQuery(`/leases/check-email-conflicts/${unitId}`, { email }),
+      token,
+    ),
+
+  getNriIncomeSummary: (token: string) =>
+    apiFetch<NriIncomeSummaryResponse>("/nri/income-summary", token),
+  getNriTdsSummary: (token: string, year?: string) =>
+    apiFetch<NriTdsSummaryResponse>(
+      withQuery("/nri/tds-summary", { year }),
+      token,
+    ),
 
   listExpenses: (
     token: string,
@@ -1419,4 +1496,43 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+
+  addTenantAtProperty: (
+    token: string,
+    propertyId: string,
+    payload: {
+      name: string;
+      phone: string;
+      email?: string;
+      rentAmount: number;
+      depositAmount: number;
+      startDate: string;
+      unitLabel: string;
+      bedLabel?: string;
+    },
+  ) =>
+    apiFetch<any>(`/properties/${propertyId}/tenants`, token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  // ─── WEEK 2: RENT REMINDERS & RAZORPAY ────────────────────────────────
+
+  triggerAllReminders: (token: string) =>
+    apiFetch<any>("/payments/reminders/send-all", token, {
+      method: "POST",
+    }),
+
+  sendReminder: (token: string, paymentId: string) =>
+    apiFetch<any>(`/payments/${paymentId}/remind`, token, {
+      method: "POST",
+    }),
+
+  markCashPaid: (token: string, paymentId: string) =>
+    apiFetch<any>(`/payments/${paymentId}/mark-cash-paid`, token, {
+      method: "POST",
+    }),
+
+  getPaymentsForLease: (token: string, leaseId: string) =>
+    apiFetch<any[]>(`/payments/lease/${leaseId}`, token),
 };

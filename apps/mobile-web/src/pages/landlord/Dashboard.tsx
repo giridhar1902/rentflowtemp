@@ -7,17 +7,32 @@ import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { cn } from "../../lib/cn";
 import { formatINR } from "../../lib/currency";
 import {
+  api,
   type BillingSummaryResponse,
   type PaymentRecord,
   type PropertyRecord,
+  type NriIncomeSummaryResponse,
 } from "../../lib/api";
 import { getRevealDelay } from "../../theme/motion";
 
-const money = (value: string | number | null | undefined) =>
-  formatINR(value, {
+const money = (
+  value: string | number | null | undefined,
+  currency?: string,
+) => {
+  if (value == null) return;
+  if (!currency || currency === "INR") {
+    return formatINR(value, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+  }
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  });
+  }).format(Number(value));
+};
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -25,9 +40,15 @@ const Dashboard: React.FC = () => {
   const reducedMotion = useReducedMotion();
 
   const [summary, setSummary] = useState<BillingSummaryResponse | null>(null);
+  const [nriSummary, setNriSummary] = useState<NriIncomeSummaryResponse | null>(
+    null,
+  );
   const [properties, setProperties] = useState<PropertyRecord[]>([]);
   const [pendingReviews, setPendingReviews] = useState<PaymentRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const [showForeign, setShowForeign] = useState(false);
+  const isNRI = profile?.isNRI === true;
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -79,6 +100,18 @@ const Dashboard: React.FC = () => {
         setSummary(mockSummary);
         setProperties(mockProperties);
         setPendingReviews(mockPending);
+
+        if (isNRI) {
+          try {
+            // In real app, we fetch from API. We might intercept 402 Upgrade required via apiFetch
+            const nriRes = await api.getNriIncomeSummary(session.access_token);
+            setNriSummary(nriRes);
+          } catch (e: any) {
+            if (e.message !== "UPGRADE_REQUIRED") {
+              console.error("NRI Summary fetch error", e);
+            }
+          }
+        }
       } catch (dashboardError) {
         setError(
           dashboardError instanceof Error
@@ -140,6 +173,32 @@ const Dashboard: React.FC = () => {
   const revealClass = (baseClass: string) =>
     cn(baseClass, !reducedMotion && "motion-number-reveal");
 
+  const displayCurrency =
+    showForeign && nriSummary ? nriSummary.foreignCurrency : "INR";
+
+  // Calculate dynamic displayed values based on selected currency toggle
+  const displayCollected =
+    showForeign && nriSummary
+      ? nriSummary.totalForeignCurrency
+      : (summary?.totals.collected ?? 0);
+
+  const displayBilled =
+    showForeign && nriSummary && nriSummary.monthlyBreakdown?.length > 0
+      ? nriSummary.monthlyBreakdown.reduce((sum, m) => sum + m.amountForeign, 0)
+      : (summary?.totals.billed ?? 0);
+
+  // Re-map the chart using alternative currency numbers if toggled
+  const activeChartData = useMemo(() => {
+    if (showForeign && nriSummary) {
+      return nriSummary.monthlyBreakdown.map((row) => ({
+        name: row.month.split(" ")[0], // e.g. "Sep"
+        income: Number(row.amountForeign),
+        expense: 0, // Simplified for NRI breakdown that just returns income
+      }));
+    }
+    return chartData;
+  }, [showForeign, nriSummary, chartData]);
+
   return (
     <AppLayout
       title="Command Center"
@@ -151,6 +210,44 @@ const Dashboard: React.FC = () => {
       {error && (
         <div className="rounded-[12px] border border-[#EF4444]/20 bg-[#EF4444]/10 p-4 mb-2">
           <p className="text-[13px] font-medium text-[#EF4444]">{error}</p>
+        </div>
+      )}
+
+      {isNRI && nriSummary && (
+        <div className="flex items-center justify-between rounded-[12px] border border-primary/20 bg-primary/5 p-3 mb-2 shadow-sm">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-primary">
+              Live Exchange Rate
+            </p>
+            <p className="text-[13px] font-medium">
+              1 INR = {nriSummary.exchangeRate.toFixed(4)}{" "}
+              {nriSummary.foreignCurrency}
+            </p>
+          </div>
+          <div className="flex bg-white/60 p-1 rounded-lg border border-slate-200">
+            <button
+              onClick={() => setShowForeign(false)}
+              className={cn(
+                "px-3 py-1.5 text-[11px] font-bold rounded-md transition-colors",
+                !showForeign
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-slate-500",
+              )}
+            >
+              INR
+            </button>
+            <button
+              onClick={() => setShowForeign(true)}
+              className={cn(
+                "px-3 py-1.5 text-[11px] font-bold rounded-md transition-colors",
+                showForeign
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-slate-500",
+              )}
+            >
+              {nriSummary.foreignCurrency}
+            </button>
+          </div>
         </div>
       )}
 
@@ -168,17 +265,19 @@ const Dashboard: React.FC = () => {
               )}
               style={revealStyle(0)}
             >
-              {money(summary?.totals.collected ?? 0)}
+              {money(displayCollected, displayCurrency)}
             </h2>
           </div>
-          <div className="relative z-10 mt-3 inline-flex items-center gap-1.5 self-start bg-[#EF4444]/15 text-[#EF4444] px-2 py-1 rounded-md border border-[#EF4444]/20 shadow-sm">
-            <span className="material-symbols-outlined text-[12px]">
-              warning
-            </span>
-            <p className="text-[10px] font-bold uppercase tracking-wider">
-              Overdue {money(summary?.totals.overdue ?? 0)}
-            </p>
-          </div>
+          {!showForeign && (
+            <div className="relative z-10 mt-3 inline-flex items-center gap-1.5 self-start bg-[#EF4444]/15 text-[#EF4444] px-2 py-1 rounded-md border border-[#EF4444]/20 shadow-sm">
+              <span className="material-symbols-outlined text-[12px]">
+                warning
+              </span>
+              <p className="text-[10px] font-bold uppercase tracking-wider">
+                Overdue {money(summary?.totals.overdue ?? 0, "INR")}
+              </p>
+            </div>
+          )}
         </div>
 
         <div
@@ -238,14 +337,14 @@ const Dashboard: React.FC = () => {
             )}
             style={revealStyle(2)}
           >
-            {money(summary?.totals.billed ?? 0)}
+            {money(displayBilled, displayCurrency)}
           </div>
         </div>
 
         <div className="relative z-10 h-48 w-full -mx-3">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
-              data={chartData}
+              data={activeChartData}
               margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
             >
               <defs>
@@ -285,7 +384,7 @@ const Dashboard: React.FC = () => {
                   letterSpacing: "0.05em",
                   marginBottom: "4px",
                 }}
-                formatter={(value: number) => money(value)}
+                formatter={(value: number) => money(value, displayCurrency)}
               />
               <Area
                 type="monotone"
@@ -348,7 +447,7 @@ const Dashboard: React.FC = () => {
                 )}
                 style={revealStyle(3)}
               >
-                {money(firstPendingReview.amount)}
+                {money(firstPendingReview.amount, "INR")}
               </p>
               <button
                 onClick={() => navigate("/landlord/payments")}

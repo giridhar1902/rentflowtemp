@@ -42,14 +42,25 @@ export const usePgData = (propertyId: string) => {
               label: b.label,
               tenantId: b.tenantId || undefined,
             })),
-            tenants: tenantsRes.map((t: any) => ({
-              id: t.id,
-              name: t.name,
-              phone: t.phone || "",
-              rentAmount: Number(t.rentAmount),
-              bedId: t.bedId || undefined,
-              unitId: u.id,
-            })),
+            tenants: tenantsRes.map((t: any) => {
+              const latestPayment = t.leases?.[0]?.payments?.[0];
+              return {
+                id: t.id,
+                name: t.name,
+                phone: t.phone || "",
+                rentAmount: Number(t.rentAmount),
+                bedId: t.bedId || undefined,
+                unitId: u.id,
+                latestPaymentId: latestPayment?.id,
+                latestPaymentStatus: latestPayment?.status,
+                latestPaymentAmount: latestPayment?.amount
+                  ? Number(latestPayment.amount)
+                  : undefined,
+                razorpayPaymentLinkUrl: latestPayment?.razorpayPaymentLinkUrl,
+                receiptPdfUrl: latestPayment?.receiptPdfUrl,
+                reminderSentAt: latestPayment?.reminderSentAt,
+              };
+            }),
           };
         }),
       );
@@ -154,6 +165,20 @@ export const usePgData = (propertyId: string) => {
     [fetchPropertyData, token],
   );
 
+  const addTenantUnified = useCallback(
+    async (payload: any) => {
+      if (!token) return;
+      try {
+        await api.addTenantAtProperty(token, propertyId, payload);
+        await fetchPropertyData();
+      } catch (err) {
+        console.error(err);
+        throw err;
+      }
+    },
+    [propertyId, fetchPropertyData, token],
+  );
+
   const addUtility = useCallback(
     async (utilityPayload: Omit<PgUtility, "id">) => {
       if (!token) return;
@@ -240,7 +265,7 @@ export const usePgData = (propertyId: string) => {
     fetchPropertyData,
     addUnit,
     addBed,
-    addTenant,
+    addTenant: addTenantUnified,
     removeTenant,
     addUtility,
   };

@@ -21,6 +21,8 @@ type AuthContextValue = {
     password: string,
     role: AppRole,
   ) => Promise<SignUpResult>;
+  signInWithPhone: (phone: string) => Promise<void>;
+  verifyPhoneOTP: (phone: string, token: string) => Promise<MeResponse>;
   signOut: () => Promise<void>;
   sendResetPasswordEmail: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
@@ -189,6 +191,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return me;
   };
 
+  const signInWithPhone = async (phone: string) => {
+    if (
+      !isSupabaseConfigured ||
+      !supabase ||
+      phone === "+910000000000" ||
+      phone === "+911111111111"
+    ) {
+      // Just simulate success for the investor demo bypass
+      return;
+    }
+    const { error: otpError } = await supabase.auth.signInWithOtp({ phone });
+    if (otpError) {
+      throw otpError;
+    }
+  };
+
+  const verifyPhoneOTP = async (phone: string, token: string) => {
+    if (
+      !isSupabaseConfigured ||
+      !supabase ||
+      phone === "+910000000000" ||
+      phone === "+911111111111"
+    ) {
+      const role = phone === "+911111111111" ? "TENANT" : "LANDLORD";
+      const fakeSession = {
+        access_token: "fake-token",
+        user: { id: `fake-${role.toLowerCase()}-id` },
+      } as any;
+      const fakeProfile = {
+        id: `fake-${role.toLowerCase()}-id`,
+        phone,
+        role,
+        firstName: role === "TENANT" ? "Demo Tenant" : "Demo Landlord",
+      } as unknown as MeResponse;
+      setSession(fakeSession);
+      setProfile(fakeProfile);
+      return fakeProfile;
+    }
+
+    const { data, error: verifyError } = await supabase.auth.verifyOtp({
+      phone,
+      token,
+      type: "sms",
+    });
+
+    if (verifyError) {
+      throw verifyError;
+    }
+    if (!data.session) {
+      throw new Error("Verification succeeded but no session was returned.");
+    }
+
+    const me = await loadProfile(data.session);
+    setSession(data.session);
+    return me;
+  };
+
   const signUp = async (email: string, password: string, role: AppRole) => {
     if (!supabase) {
       throw new Error("Supabase is not configured");
@@ -289,6 +348,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     error,
     signIn,
     signUp,
+    signInWithPhone,
+    verifyPhoneOTP,
     signOut,
     sendResetPasswordEmail,
     updatePassword,

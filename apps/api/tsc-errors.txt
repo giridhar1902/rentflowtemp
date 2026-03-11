@@ -1,0 +1,9 @@
+src/nri/nri.service.ts(26,35): error TS2448: Block-scoped variable 'now' used before its declaration.
+src/nri/nri.service.ts(26,54): error TS2448: Block-scoped variable 'now' used before its declaration.
+src/nri/nri.service.ts(38,32): error TS2448: Block-scoped variable 'now' used before its declaration.
+src/nri/nri.service.ts(107,45): error TS2345: Argument of type '{ amountINR: number; healthScore: number; healthStatus: string; }' is not assignable to parameter of type 'number'.
+src/nri/nri.service.ts(126,26): error TS2339: Property 'amountINR' does not exist on type 'number'.
+src/nri/nri.service.ts(127,38): error TS2339: Property 'amountINR' does not exist on type 'number'.
+src/nri/nri.service.ts(128,28): error TS2339: Property 'healthScore' does not exist on type 'number'.
+src/nri/nri.service.ts(129,29): error TS2339: Property 'healthStatus' does not exist on type 'number'.
+src/nri/nri.service.ts(212,39): error TS2339: Property 'pan' does not exist on type '{ id: string; authUserId: string; email: string; role: UserRole; firstName: string; lastName: string; phone: string; isActive: boolean; createdAt: Date; updatedAt: Date; isNRI: boolean; ... 7 more ...; subscriptionEnd: Date; }'.

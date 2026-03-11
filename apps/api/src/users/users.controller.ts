@@ -7,6 +7,7 @@ import {
 } from "../common/auth/request-user";
 import { SetOnboardingRoleDto } from "./dto/set-onboarding-role.dto";
 import { UpdateMeDto } from "./dto/update-me.dto";
+import { UpdateNriSettingsDto } from "./dto/update-nri-settings.dto";
 import { UsersService } from "./users.service";
 
 @Controller("users")
@@ -28,6 +29,15 @@ export class UsersController {
   updateMe(@Req() request: Request, @Body() payload: UpdateMeDto) {
     const user = getRequestUser(request);
     return this.usersService.updateMe(user.id, payload);
+  }
+
+  @Patch("me/nri-settings")
+  updateNriSettings(
+    @Req() request: Request,
+    @Body() payload: UpdateNriSettingsDto,
+  ) {
+    const user = getRequestUser(request);
+    return this.usersService.updateNriSettings(user.id, payload);
   }
 
   @Post("me/role")

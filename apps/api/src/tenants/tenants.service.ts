@@ -78,7 +78,17 @@ export class TenantsService {
     return this.prisma.tenant.findMany({
       where: { unitId },
       orderBy: { createdAt: "desc" },
-      include: { user: true, bed: true },
+      include: {
+        user: {
+          include: {
+            leasesAsTenant: {
+              include: { payments: true },
+              orderBy: { createdAt: "desc" },
+            },
+          },
+        },
+        bed: true,
+      },
     });
   }
 

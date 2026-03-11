@@ -11,6 +11,7 @@ enum UserRole {
   LANDLORD
   TENANT
   ADMIN
+  LOCAL_CONTACT
 }
 
 enum PropertyOwnership {
@@ -60,6 +61,8 @@ enum PaymentStatus {
   CANCELED
   REFUNDED
   REQUIRES_REVIEW
+  PAID
+  OVERDUE
 }
 
 enum OfflineRentPaymentStatus {
@@ -72,6 +75,7 @@ enum PaymentMethodType {
   CARD
   BANK_TRANSFER
   CASH
+  UPI
   OTHER
 }
 
@@ -153,6 +157,13 @@ enum RentSplitMode {
   MANUAL
 }
 
+enum SubscriptionTier {
+  FREE
+  LOCAL_PRO
+  NRI_ESSENTIAL
+  NRI_PREMIUM
+}
+
 model User {
   id                String     @id @default(cuid())
   authUserId        String     @unique
@@ -164,6 +175,16 @@ model User {
   isActive          Boolean    @default(true)
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
+
+  isNRI             Boolean    @default(false)
+  country           String?
+  timezone          String?
+  currency          String?
+  nroAccountFlag    Boolean    @default(false)
+  poaHolderPhone    String?
+  subscriptionTier  SubscriptionTier @default(FREE)
+  subscriptionStart DateTime?
+  subscriptionEnd   DateTime?
 
   landlordProfile   LandlordProfile?
   tenantProfile     TenantProfile?
@@ -356,6 +377,8 @@ model Lease {
   cashPaymentsAllowed    Boolean     @default(false)
   cashApprovalRequired   Boolean     @default(true)
   autoRemindersEnabled   Boolean     @default(true)
+  hasTdsObligation       Boolean     @default(false)
+  tdsRate                Float       @default(0.312)
   createdAt              DateTime    @default(now())
   updatedAt              DateTime    @updatedAt
 
@@ -369,6 +392,7 @@ model Lease {
   maintenanceRequests MaintenanceRequest[]
   chatThreads         ChatThread[]
   documents           Document[]
+  payments            Payment[]
 
   @@index([propertyId, status])
   @@index([tenantId, status])
@@ -460,6 +484,24 @@ model Payment {
   charge  RentCharge?    @relation(fields: [chargeId], references: [id], onDelete: SetNull)
   payer   User?          @relation("PaymentPayer", fields: [payerId], references: [id], onDelete: SetNull)
   method  PaymentMethod? @relation(fields: [methodId], references: [id], onDelete: SetNull)
+  
+  // Week 2 Appended Fields
+  leaseId           String?
+  lease             Lease?        @relation(fields: [leaseId], references: [id], onDelete: SetNull)
+  dueDate           DateTime?
+  notes             String?
+  
+  razorpayPaymentLinkId  String?
+  razorpayPaymentLinkUrl String?
+  razorpayPaymentId      String?
+  receiptPdfUrl          String?
+  reminderSentAt         DateTime?
+  
+  tdsAmount              Float?
+  netAmountReceived      Float?
+  tdsDepositedAt         DateTime?
+  tdsConfirmedByLandlord Boolean @default(false)
+
   events  PaymentEvent[]
 
   @@index([chargeId, status])

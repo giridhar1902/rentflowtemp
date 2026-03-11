@@ -12,6 +12,7 @@ import NativeBridge from "./components/NativeBridge";
 import { defaultRouteForRole } from "./lib/routes";
 import { cn } from "./lib/cn";
 import { useReducedMotion } from "./hooks/useReducedMotion";
+import { UpgradeModal } from "./components/UpgradeModal";
 
 // Splash stays eager for app boot and test expectations.
 import Splash from "./pages/Splash.tsx";
@@ -47,6 +48,7 @@ const TenantPropertyDetails = lazy(
 const RentAdvance = lazy(() => import("./pages/tenant/RentAdvance.tsx"));
 const DepositEmi = lazy(() => import("./pages/tenant/DepositEmi.tsx"));
 const Marketplace = lazy(() => import("./pages/tenant/Marketplace.tsx"));
+const TdsConsent = lazy(() => import("./pages/tenant/TdsConsent.tsx"));
 const Chat = lazy(() => import("./pages/shared/Chat.tsx"));
 const Profile = lazy(() => import("./pages/shared/Profile.tsx"));
 const AccountInformation = lazy(
@@ -242,6 +244,14 @@ const AppRoutes: React.FC = () => {
             element={
               <ProtectedRoute allowedRoles={["TENANT", "ADMIN"]}>
                 <Marketplace />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tds-consent/:id"
+            element={
+              <ProtectedRoute allowedRoles={["TENANT", "ADMIN"]}>
+                <TdsConsent />
               </ProtectedRoute>
             }
           />

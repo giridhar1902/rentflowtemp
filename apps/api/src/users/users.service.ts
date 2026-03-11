@@ -7,6 +7,7 @@ import { Prisma, User, UserRole } from "@prisma/client";
 import { AuthClaims } from "../common/auth/auth-claims";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpdateMeDto } from "./dto/update-me.dto";
+import { UpdateNriSettingsDto } from "./dto/update-nri-settings.dto";
 
 @Injectable()
 export class UsersService {
@@ -118,6 +119,57 @@ export class UsersService {
         },
       });
     }
+
+    return this.getMe(userId);
+  }
+
+  async updateNriSettings(userId: string, payload: UpdateNriSettingsDto) {
+    const existing = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existing) {
+      throw new NotFoundException("User profile not found");
+    }
+
+    const userData: Prisma.UserUpdateInput = {};
+
+    if (payload.isNRI !== undefined) userData.isNRI = payload.isNRI;
+    if (payload.country !== undefined)
+      userData.country = payload.country.trim();
+    if (payload.timezone !== undefined)
+      userData.timezone = payload.timezone.trim();
+    if (payload.currency !== undefined)
+      userData.currency = payload.currency.trim();
+    if (payload.nroAccountFlag !== undefined)
+      userData.nroAccountFlag = payload.nroAccountFlag;
+    if (payload.poaHolderPhone !== undefined) {
+      const phoneStr = payload.poaHolderPhone.trim();
+      userData.poaHolderPhone = phoneStr;
+
+      if (phoneStr) {
+        const existingContact = await this.prisma.user.findFirst({
+          where: { phone: phoneStr },
+        });
+        if (!existingContact) {
+          await this.prisma.user.create({
+            data: {
+              authUserId: `proxy_${Date.now()}_${phoneStr}`,
+              phone: phoneStr,
+              role: "LOCAL_CONTACT",
+              isActive: true,
+              firstName: "Local",
+              lastName: "Contact",
+            },
+          });
+        }
+      }
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: userData,
+    });
 
     return this.getMe(userId);
   }

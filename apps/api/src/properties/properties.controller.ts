@@ -63,4 +63,19 @@ export class PropertiesController {
     const user = getRequestUser(request);
     return this.propertiesService.createInvitation(user, propertyId, payload);
   }
+
+  @Post(":propertyId/tenants")
+  addTenant(
+    @Req() request: Request,
+    @Param("propertyId") propertyId: string,
+    @Body()
+    payload: import("./dto/create-tenant-payload.dto").CreateTenantPayloadDto,
+  ) {
+    const user = getRequestUser(request);
+    return this.propertiesService.addTenantAtProperty(
+      user,
+      propertyId,
+      payload,
+    );
+  }
 }

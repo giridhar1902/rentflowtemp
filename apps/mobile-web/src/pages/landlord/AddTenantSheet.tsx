@@ -2,18 +2,34 @@ import React, { useState } from "react";
 import { cn } from "../../lib/cn";
 import type { PgTenant, PgUnit } from "../../lib/pgTypes";
 
+export interface UnifiedTenantPayload {
+  name: string;
+  phone: string;
+  email?: string;
+  rentAmount: number;
+  depositAmount: number;
+  startDate: string;
+  unitLabel: string;
+  bedLabel?: string;
+}
+
 interface Props {
   open: boolean;
   unit: PgUnit;
-  onSave: (tenant: PgTenant) => void;
+  onSave: (payload: UnifiedTenantPayload) => void;
   onClose: () => void;
 }
 
 const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [bedId, setBedId] = useState<string>("");
   const [rentAmount, setRentAmount] = useState("");
+  const [depositAmount, setDepositAmount] = useState("");
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const vacantBeds = unit.beds.filter((b) => !b.tenantId);
@@ -21,8 +37,11 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
   const reset = () => {
     setName("");
     setPhone("");
+    setEmail("");
     setBedId("");
     setRentAmount("");
+    setDepositAmount("");
+    setStartDate(new Date().toISOString().split("T")[0]);
     setErrors({});
   };
 
@@ -35,22 +54,31 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
   const handleSave = () => {
     const e: Record<string, string> = {};
     if (!name.trim()) e.name = "Tenant name is required";
+    if (!phone.trim()) e.phone = "Phone number is required";
     const rent = parseFloat(rentAmount);
     if (isNaN(rent) || rent < 0) e.rent = "Enter a valid rent amount";
+    const deposit = parseFloat(depositAmount);
+    if (isNaN(deposit) || deposit < 0)
+      e.deposit = "Enter a valid deposit amount";
+    if (!startDate) e.startDate = "Start date is required";
+
     if (Object.keys(e).length) {
       setErrors(e);
       return;
     }
 
-    const tenant: PgTenant = {
-      id: `tenant-${Date.now()}`,
+    const bed = unit.beds.find((b) => b.id === bedId);
+
+    onSave({
       name: name.trim(),
-      phone: phone.trim() || undefined,
+      phone: phone.trim(),
+      email: email.trim() || undefined,
       rentAmount: rent,
-      unitId: unit.id,
-      bedId: bedId || undefined,
-    };
-    onSave(tenant);
+      depositAmount: deposit,
+      startDate,
+      unitLabel: unit.name,
+      bedLabel: bed?.label,
+    });
     reset();
     onClose();
   };
@@ -105,6 +133,20 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
             )}
           </div>
 
+          {/* Email */}
+          <div>
+            <label className="block text-[12px] font-bold text-slate-600 mb-1.5 uppercase tracking-wider">
+              Email Address
+            </label>
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="e.g. rahul@example.com"
+              type="email"
+              className="w-full rounded-[14px] bg-slate-50 border border-slate-200 px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40"
+            />
+          </div>
+
           {/* Phone */}
           <div>
             <label className="block text-[12px] font-bold text-slate-600 mb-1.5 uppercase tracking-wider">
@@ -115,8 +157,14 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
               onChange={(e) => setPhone(e.target.value)}
               placeholder="e.g. +91 98765 43210"
               type="tel"
-              className="w-full rounded-[14px] bg-slate-50 border border-slate-200 px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40"
+              className={cn(
+                "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40",
+                errors.phone ? "border-red-300" : "border-slate-200",
+              )}
             />
+            {errors.phone && (
+              <p className="text-[11px] text-red-500 mt-1">{errors.phone}</p>
+            )}
           </div>
 
           {/* Bed Assignment */}
@@ -189,6 +237,51 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
             {errors.rent && (
               <p className="text-[11px] text-red-500 mt-1">{errors.rent}</p>
             )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            {/* Deposit Amount */}
+            <div>
+              <label className="block text-[12px] font-bold text-slate-600 mb-1.5 uppercase tracking-wider">
+                Deposit (₹) *
+              </label>
+              <input
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+                placeholder="0"
+                type="number"
+                className={cn(
+                  "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40",
+                  errors.deposit ? "border-red-300" : "border-slate-200",
+                )}
+              />
+              {errors.deposit && (
+                <p className="text-[11px] text-red-500 mt-1">
+                  {errors.deposit}
+                </p>
+              )}
+            </div>
+
+            {/* Start Date */}
+            <div>
+              <label className="block text-[12px] font-bold text-slate-600 mb-1.5 uppercase tracking-wider">
+                Start Date *
+              </label>
+              <input
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                type="date"
+                className={cn(
+                  "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40",
+                  errors.startDate ? "border-red-300" : "border-slate-200",
+                )}
+              />
+              {errors.startDate && (
+                <p className="text-[11px] text-red-500 mt-1">
+                  {errors.startDate}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 

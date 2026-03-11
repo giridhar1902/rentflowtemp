@@ -20,6 +20,14 @@ export interface PgTenant {
   rentAmount: number;
   unitId: string;
   bedId?: string;
+
+  // Week 2: Payments & Reminders Mapping
+  latestPaymentId?: string;
+  latestPaymentStatus?: string;
+  latestPaymentAmount?: number;
+  razorpayPaymentLinkUrl?: string;
+  receiptPdfUrl?: string;
+  reminderSentAt?: string;
 }
 
 export interface PgUnit {

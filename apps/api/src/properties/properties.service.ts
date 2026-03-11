@@ -17,6 +17,7 @@ import { RequestUser } from "../common/auth/request-user";
 import { NotificationsService } from "../notifications/notifications.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
+import { CreateTenantPayloadDto } from "./dto/create-tenant-payload.dto";
 import { CreatePropertyDto } from "./dto/create-property.dto";
 import { CreateUnitDto } from "./dto/create-unit.dto";
 import { UpdatePropertyDto } from "./dto/update-property.dto";
@@ -562,6 +563,129 @@ export class PropertiesService {
     }
 
     throw new ForbiddenException("You do not have access to this property");
+  }
+
+  async addTenantAtProperty(
+    user: RequestUser,
+    propertyId: string,
+    payload: CreateTenantPayloadDto,
+  ) {
+    await this.mustGetManagedProperty(user, propertyId);
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Find or Create Base User Record
+      const phoneToSearch = payload.phone.trim();
+      let userRecord = await tx.user.findFirst({
+        where: { phone: phoneToSearch },
+      });
+
+      if (!userRecord) {
+        userRecord = await tx.user.create({
+          data: {
+            authUserId: `temp_${Date.now()}_${Math.random()
+              .toString(36)
+              .substring(7)}`,
+            role: UserRole.TENANT,
+            phone: phoneToSearch,
+            email: payload.email?.toLowerCase().trim(),
+            firstName: payload.name.trim().split(" ")[0],
+            lastName: payload.name.trim().split(" ").slice(1).join(" "),
+          },
+        });
+      }
+
+      // 2. Find or Create Unit
+      const unitName = payload.unitLabel.trim();
+      let unit = await tx.unit.findFirst({
+        where: { propertyId, name: unitName },
+      });
+
+      if (!unit) {
+        unit = await tx.unit.create({
+          data: {
+            propertyId,
+            name: unitName,
+            monthlyRent: payload.rentAmount,
+          },
+        });
+      }
+
+      // 3. Find or Create Bed (Optional)
+      let bedId: string | undefined;
+      const bedLabel = payload.bedLabel?.trim();
+      if (bedLabel) {
+        let bed = await tx.bed.findFirst({
+          where: { unitId: unit.id, label: bedLabel },
+        });
+
+        if (!bed) {
+          bed = await tx.bed.create({
+            data: {
+              unitId: unit.id,
+              label: bedLabel,
+            },
+          });
+        }
+        bedId = bed.id;
+      }
+
+      // 4. Create PG Tenant Specific Record
+      const pgTenant = await tx.tenant.create({
+        data: {
+          userId: userRecord.id,
+          unitId: unit.id,
+          bedId,
+          name: payload.name.trim(),
+          phone: phoneToSearch,
+          rentAmount: payload.rentAmount,
+        },
+      });
+
+      if (bedId) {
+        await tx.bed.update({
+          where: { id: bedId },
+          data: { tenantId: pgTenant.id },
+        });
+      }
+
+      // 5. Create Root Lease connecting to User
+      const startDate = new Date(payload.startDate);
+      const endDate = new Date(startDate);
+      endDate.setFullYear(endDate.getFullYear() + 1);
+
+      const landlord = await tx.user.findUnique({ where: { id: user.id } });
+      const hasTdsObligation = landlord?.isNRI || false;
+
+      const lease = await tx.lease.create({
+        data: {
+          landlordId: user.id,
+          propertyId,
+          unitId: unit.id,
+          tenantId: userRecord.id,
+          monthlyRent: payload.rentAmount,
+          securityDeposit: payload.depositAmount,
+          startDate,
+          endDate,
+          dueDay: 1,
+          status: LeaseStatus.ACTIVE,
+          hasTdsObligation,
+        },
+      });
+
+      // 6. Return exact payload required by Week 1 Spec
+      return {
+        leaseId: lease.id,
+        tenant: {
+          name: payload.name.trim(),
+          phone: phoneToSearch,
+        },
+        unit: unit.name,
+        bed: bedLabel,
+        rentAmount: Number(lease.monthlyRent),
+        startDate: lease.startDate,
+        status: lease.status,
+      };
+    });
   }
 }
 

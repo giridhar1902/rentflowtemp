@@ -1,0 +1,1 @@
+src/payments/payments.service.ts(272,33): error TS2339: Property 'razorpay' does not exist on type 'PaymentsService'.

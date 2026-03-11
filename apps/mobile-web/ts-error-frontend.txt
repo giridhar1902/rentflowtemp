@@ -1,0 +1,1 @@
+src/components/UpgradeModal.tsx(101,23): error TS2322: Type '"outline"' is not assignable to type 'ButtonVariant'.

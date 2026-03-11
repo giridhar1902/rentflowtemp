@@ -65,6 +65,7 @@ const PayRent: React.FC = () => {
   const [cashReference, setCashReference] = useState("");
   const [isSubmittingCash, setIsSubmittingCash] = useState(false);
   const [isLaunchingOnline, setIsLaunchingOnline] = useState(false);
+  const [tdsAccepted, setTdsAccepted] = useState(false);
 
   const loadBilling = useCallback(async () => {
     if (!session) {
@@ -391,8 +392,84 @@ const PayRent: React.FC = () => {
 
           {paymentStatus !== "paid" && activeCharge && (
             <div className="fixed bottom-0 left-0 right-0 p-5 bg-white/40 backdrop-blur-[30px] border-t border-white/40 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] flex flex-col gap-3 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
+              {activeCharge.lease?.hasTdsObligation && (
+                <div className="bg-warning/10 border border-warning/20 rounded-[16px] p-4 mb-1">
+                  <div className="flex gap-2 items-start mb-3">
+                    <span className="material-symbols-outlined text-warning text-[18px]">
+                      warning
+                    </span>
+                    <div>
+                      <h4 className="text-[13px] font-bold text-warning mb-1">
+                        TDS Obligation Notice
+                      </h4>
+                      <p className="text-[11px] text-text-secondary leading-relaxed">
+                        Your landlord is an NRI. As per Indian tax law, you must
+                        deduct {(activeCharge.lease.tdsRate || 0.312) * 100}%
+                        TDS from this rent payment.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5 mb-3 bg-white/50 rounded-[8px] p-3 border border-white/40">
+                    <div className="flex justify-between text-[11px] font-bold text-text-secondary">
+                      <span className="uppercase tracking-wide">
+                        Rent Amount:
+                      </span>{" "}
+                      <span className="text-text-primary text-[12px]">
+                        {toCurrency(activeCharge.balanceAmount)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-[11px] font-bold text-text-secondary">
+                      <span className="uppercase tracking-wide">
+                        TDS to Deduct:
+                      </span>{" "}
+                      <span className="text-danger text-[12px]">
+                        {toCurrency(
+                          amountToNumber(activeCharge.balanceAmount) *
+                            (activeCharge.lease.tdsRate || 0.312),
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-[11px] font-bold text-text-secondary pt-1.5 mt-1.5 border-t border-black/5">
+                      <span className="uppercase tracking-wide">
+                        Amount to pay now:
+                      </span>{" "}
+                      <span className="text-primary text-[13px]">
+                        {toCurrency(
+                          amountToNumber(activeCharge.balanceAmount) *
+                            (1 - (activeCharge.lease.tdsRate || 0.312)),
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <div
+                      className={`size-5 rounded-[6px] border flex items-center justify-center transition-colors ${tdsAccepted ? "bg-primary border-primary" : "bg-white/50 border-black/20 group-hover:border-primary/50"}`}
+                    >
+                      {tdsAccepted && (
+                        <span className="material-symbols-outlined text-[14px] text-white">
+                          check
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      type="checkbox"
+                      className="hidden"
+                      checked={tdsAccepted}
+                      onChange={(e) => setTdsAccepted(e.target.checked)}
+                    />
+                    <span className="text-[12px] font-bold text-text-primary select-none mt-0.5">
+                      I understand my TDS obligation
+                    </span>
+                  </label>
+                </div>
+              )}
+
               <button
-                disabled={paymentStatus === "pending" || isLaunchingOnline}
+                disabled={
+                  paymentStatus === "pending" ||
+                  isLaunchingOnline ||
+                  (activeCharge.lease?.hasTdsObligation && !tdsAccepted)
+                }
                 onClick={() => void handleOnlinePayment()}
                 className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-4 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
               >
@@ -409,7 +486,10 @@ const PayRent: React.FC = () => {
               </button>
 
               <button
-                disabled={paymentStatus === "pending"}
+                disabled={
+                  paymentStatus === "pending" ||
+                  (activeCharge.lease?.hasTdsObligation && !tdsAccepted)
+                }
                 onClick={openCashModal}
                 className="w-full flex items-center justify-center gap-2 rounded-full bg-white/60 border border-white/50 py-3.5 text-text-primary font-bold text-[14px] hover:bg-white/80 active:scale-[0.98] transition-all disabled:opacity-50 shadow-sm"
               >

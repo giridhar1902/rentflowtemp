@@ -13,7 +13,7 @@ import {
 import { usePgData } from "../../hooks/usePgData";
 import type { PgUnit, PgTenant } from "../../lib/pgTypes";
 import AddUnitSheet from "./AddUnitSheet";
-import AddTenantSheet from "./AddTenantSheet";
+import AddTenantSheet, { type UnifiedTenantPayload } from "./AddTenantSheet";
 
 // ─── Utility Billing Card ───────────────────────────────────────────────
 const currentMonthStr = () => {
@@ -193,7 +193,15 @@ const UnitCard: React.FC<{
   unit: PgUnit;
   onAddTenant: (unit: PgUnit) => void;
   onRemoveTenant: (unitId: string, tenantId: string) => void;
-}> = ({ unit, onAddTenant, onRemoveTenant }) => {
+  onSendReminder: (paymentId: string) => void;
+  onMarkCashPaid: (paymentId: string) => void;
+}> = ({
+  unit,
+  onAddTenant,
+  onRemoveTenant,
+  onSendReminder,
+  onMarkCashPaid,
+}) => {
   const occupiedBeds = unit.beds.filter((b) => b.tenantId).length;
   const bedLabel = (tenantId?: string) => {
     const bed = unit.beds.find((b) => b.tenantId === tenantId);
@@ -244,42 +252,116 @@ const UnitCard: React.FC<{
             No tenants yet
           </p>
         ) : (
-          unit.tenants.map((tenant) => (
-            <div
-              key={tenant.id}
-              className="flex items-center justify-between gap-3 bg-white/50 rounded-[14px] px-3 py-2.5 border border-white/60"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="size-8 rounded-full bg-gradient-to-br from-[#FF9A3D]/20 to-[#FF7A00]/10 flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[16px] text-[#FF7A00]">
-                    person
-                  </span>
+          unit.tenants.map((tenant) => {
+            const hasPayment = !!tenant.latestPaymentId;
+            const isPaid =
+              tenant.latestPaymentStatus === "SUCCEEDED" ||
+              tenant.latestPaymentStatus === "PAID";
+            const isOverdue = tenant.latestPaymentStatus === "OVERDUE";
+            const isPending = tenant.latestPaymentStatus === "PENDING";
+
+            return (
+              <div
+                key={tenant.id}
+                className="flex flex-col gap-2 bg-white/50 rounded-[14px] px-3 py-2.5 border border-white/60"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="size-8 rounded-full bg-gradient-to-br from-[#FF9A3D]/20 to-[#FF7A00]/10 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[16px] text-[#FF7A00]">
+                        person
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-[#1e293b] leading-tight flex items-center gap-1.5">
+                        {tenant.name}
+                        {bedLabel(tenant.id)}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        {tenant.phone && (
+                          <p className="text-[10px] text-slate-400">
+                            {tenant.phone}
+                          </p>
+                        )}
+                        {hasPayment && (
+                          <span
+                            className={cn(
+                              "text-[8px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wider",
+                              isPaid
+                                ? "bg-[#10B981]/15 text-[#10B981]"
+                                : isOverdue
+                                  ? "bg-red-500/15 text-red-500"
+                                  : "bg-[#F59E0B]/15 text-[#F59E0B]",
+                            )}
+                          >
+                            {isPaid
+                              ? "🟢 PAID"
+                              : isOverdue
+                                ? "🔴 OVERDUE"
+                                : "🟡 PENDING"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="text-right">
+                      <p className="text-[13px] font-black text-[#10B981]">
+                        {formatINRWhole(
+                          tenant.latestPaymentAmount || tenant.rentAmount,
+                        )}
+                      </p>
+                      {tenant.receiptPdfUrl && (
+                        <a
+                          href={tenant.receiptPdfUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[9px] font-bold text-[#FF7A00] underline"
+                        >
+                          View Receipt
+                        </a>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => onRemoveTenant(unit.id, tenant.id)}
+                      className="size-6 flex items-center justify-center rounded-full bg-red-50 border border-red-100 text-red-400 hover:bg-red-100 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[13px]">
+                        close
+                      </span>
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[13px] font-bold text-[#1e293b] leading-tight">
-                    {tenant.name}
-                    {bedLabel(tenant.id)}
-                  </p>
-                  {tenant.phone && (
-                    <p className="text-[11px] text-slate-400">{tenant.phone}</p>
-                  )}
-                </div>
+
+                {hasPayment && !isPaid && (
+                  <div className="flex items-center gap-2 mt-1 border-t border-white/50 pt-2">
+                    <button
+                      onClick={() => onSendReminder(tenant.latestPaymentId!)}
+                      className="flex-1 rounded-[10px] bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 py-1.5 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+                    >
+                      <svg
+                        className="size-3.5"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.489-1.761-1.663-2.06-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                      </svg>
+                      {tenant.reminderSentAt ? "Reminded" : "Remind"}
+                    </button>
+                    <button
+                      onClick={() => onMarkCashPaid(tenant.latestPaymentId!)}
+                      className="flex-1 rounded-[10px] bg-white text-slate-600 border border-slate-200 py-1.5 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all outline-none"
+                    >
+                      <span className="material-symbols-outlined text-[13px] text-[#FF7A00]">
+                        payments
+                      </span>
+                      Accept Cash
+                    </button>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <p className="text-[13px] font-black text-[#10B981]">
-                  {formatINRWhole(tenant.rentAmount)}
-                </p>
-                <button
-                  onClick={() => onRemoveTenant(unit.id, tenant.id)}
-                  className="size-6 flex items-center justify-center rounded-full bg-red-50 border border-red-100 text-red-400 hover:bg-red-100 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[12px]">
-                    close
-                  </span>
-                </button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
 
         <button
@@ -317,6 +399,7 @@ const PropertyDetails: React.FC = () => {
     removeTenant,
     isLoading: pgLoading,
     error: pgError,
+    fetchPropertyData,
   } = usePgData(id ?? "");
   const [showAddUnit, setShowAddUnit] = useState(false);
   const [addTenantUnit, setAddTenantUnit] = useState<PgUnit | null>(null);
@@ -395,11 +478,35 @@ const PropertyDetails: React.FC = () => {
   const handleAddUnit = (unit: PgUnit) => {
     addUnit(unit);
   };
-  const handleAddTenant = (unit: PgUnit, tenant: PgTenant) => {
-    addTenant(unit.id, tenant);
+  const handleAddTenant = (tenant: UnifiedTenantPayload) => {
+    addTenant(tenant);
   };
   const handleRemoveTenant = (unitId: string, tenantId: string) => {
     removeTenant(unitId, tenantId);
+  };
+
+  const handleSendReminder = async (paymentId: string) => {
+    if (!session) return;
+    try {
+      await api.sendReminder(session.access_token, paymentId);
+      await fetchData(); // refresh payments mapping
+      fetchPropertyData(); // update tenants inside pgData
+    } catch (e) {
+      console.error(e);
+      alert("Failed to send reminder.");
+    }
+  };
+
+  const handleMarkCashPaid = async (paymentId: string) => {
+    if (!session) return;
+    try {
+      await api.markCashPaid(session.access_token, paymentId);
+      await fetchData(); // refresh payments mapping
+      fetchPropertyData();
+    } catch (e) {
+      console.error(e);
+      alert("Failed to mark as cash paid.");
+    }
   };
 
   const handleSaveUtility = async (utility: {
@@ -609,6 +716,8 @@ const PropertyDetails: React.FC = () => {
                 unit={unit}
                 onAddTenant={(u) => setAddTenantUnit(u)}
                 onRemoveTenant={handleRemoveTenant}
+                onSendReminder={handleSendReminder}
+                onMarkCashPaid={handleMarkCashPaid}
               />
             ))
           )}
@@ -684,7 +793,7 @@ const PropertyDetails: React.FC = () => {
         <AddTenantSheet
           open={!!addTenantUnit}
           unit={addTenantUnit}
-          onSave={(tenant) => handleAddTenant(addTenantUnit, tenant)}
+          onSave={handleAddTenant}
           onClose={() => setAddTenantUnit(null)}
         />
       )}

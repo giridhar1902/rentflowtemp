@@ -4,6 +4,7 @@ import {
   NestModule,
   RequestMethod,
 } from "@nestjs/common";
+import { ScheduleModule } from "@nestjs/schedule";
 import { ConfigModule } from "@nestjs/config";
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { AppAuthGuard } from "./common/auth/app-auth.guard";
@@ -27,10 +28,14 @@ import { UnitsModule } from "./units/units.module";
 import { BedsModule } from "./beds/beds.module";
 import { TenantsModule } from "./tenants/tenants.module";
 import { UtilitiesModule } from "./utilities/utilities.module";
+import { SharedModule } from "./shared/shared.module";
+import { NriModule } from "./nri/nri.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
+    SharedModule,
     PrismaModule,
     HealthModule,
     AuthModule,
@@ -47,6 +52,7 @@ import { UtilitiesModule } from "./utilities/utilities.module";
     BedsModule,
     TenantsModule,
     UtilitiesModule,
+    NriModule,
   ],
   providers: [
     {

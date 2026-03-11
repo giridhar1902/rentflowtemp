@@ -124,6 +124,13 @@ export class BillingService {
       );
     }
 
+    let finalAmount = amount;
+    let tdsAmount = zeroMoney;
+    if (charge.lease.hasTdsObligation) {
+      tdsAmount = amount.mul(charge.lease.tdsRate).toDecimalPlaces(0);
+      finalAmount = amount.sub(tdsAmount);
+    }
+
     const tenant = await this.prisma.user.findUnique({
       where: { id: user.id },
       select: {
@@ -169,12 +176,16 @@ export class BillingService {
           status: PaymentStatus.PENDING,
           provider: "cashfree",
           reference: orderId,
+          ...(charge.lease.hasTdsObligation && {
+            tdsAmount: tdsAmount.toNumber(),
+            netAmountReceived: finalAmount.toNumber(),
+          }),
         },
       });
 
       const order = await this.cashfreeService.createOrder({
         orderId,
-        orderAmount: Number(amount.toFixed(2)),
+        orderAmount: Number(finalAmount.toFixed(2)),
         customerId: user.id,
         customerEmail: tenant.email,
         customerPhone,
