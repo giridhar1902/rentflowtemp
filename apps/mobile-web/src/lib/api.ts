@@ -231,6 +231,37 @@ export type RentChargeRecord = {
   payments: PaymentRecord[];
 };
 
+export type OfflineRentPaymentStatus =
+  | "PENDING_APPROVAL"
+  | "APPROVED"
+  | "REJECTED";
+
+export type OfflineRentPaymentRecord = {
+  id: string;
+  tenantId: string;
+  propertyId: string;
+  unitId: string;
+  amount: string | number;
+  rentMonth: string;
+  paymentDate: string;
+  paymentMode: string;
+  proofUrl?: string | null;
+  status: OfflineRentPaymentStatus;
+  createdAt: string;
+  updatedAt: string;
+  property?: {
+    name: string;
+  };
+  unit?: {
+    name: string;
+  };
+  tenant?: {
+    firstName: string | null;
+    lastName: string | null;
+    email?: string | null;
+  };
+};
+
 export type BillingSummaryResponse = {
   range: {
     from: string;
@@ -253,6 +284,26 @@ export type BillingSummaryResponse = {
     billed: string;
     collected: string;
   }>;
+};
+
+export type ExpenseCategory =
+  | "MAINTENANCE"
+  | "TAX"
+  | "UTILITIES"
+  | "INSURANCE"
+  | "OTHER";
+
+export type ExpenseRecord = {
+  id: string;
+  propertyId: string;
+  leaseId?: string | null;
+  createdById?: string | null;
+  category: ExpenseCategory;
+  amount: string | number;
+  description?: string | null;
+  incurredAt: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type MaintenanceStatus =
@@ -535,11 +586,183 @@ const withQuery = (
   return serialized ? `${path}?${serialized}` : path;
 };
 
+const getMockDataForPath = (path: string, method?: string): any => {
+  if (path.includes("/users/me")) {
+    return {
+      id: "fake-id",
+      authUserId: "auth-fake-id",
+      email: "demo@demo.com",
+      role: "LANDLORD", // Fallback, context sets it via cache anyway if possible
+      firstName: "Demo",
+      lastName: "User",
+    };
+  }
+
+  // If this is a POST request, returning an array breaks properties like response.id
+  if (method === "POST" || method === "PATCH") {
+    if (path.includes("/documents")) {
+      return {
+        uploadUrl: "fake-upload-url",
+        document: { id: "fake-doc-id", storagePath: "fake" },
+      };
+    }
+    return { id: "fake-generated-id" };
+  }
+
+  if (path.includes("/properties")) return [];
+  if (path.includes("/leases")) {
+    return [
+      {
+        id: "mock-lease-1",
+        propertyId: "mock-property",
+        unitId: "mock-unit",
+        landlordId: "mock-landlord",
+        tenantId: "mock-tenant",
+        status: "ACTIVE",
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 300 * 24 * 3600_000).toISOString(),
+        monthlyRent: 24500,
+        dueDay: 5,
+        property: {
+          id: "mock-property",
+          name: "Prestige Falcon City",
+          city: "Bangalore",
+          state: "Karnataka",
+          addressLine1: "Kanakapura Road",
+          postalCode: "560062",
+        },
+        unit: {
+          id: "mock-unit",
+          name: "B-402",
+          monthlyRent: 24500,
+          bedrooms: 2,
+          bathrooms: 2,
+          occupancy: 1,
+        },
+      },
+    ];
+  }
+  if (path.includes("/billing/charges")) return [];
+  if (path.includes("/billing/payments")) return [];
+  if (path.includes("/payments/tenant")) return [];
+  if (path.includes("/payments/pending")) return [];
+  if (path.includes("/billing/payment-methods")) return [];
+  if (path.includes("/billing/payment-methods")) return [];
+  if (path.includes("/billing/reports/summary")) {
+    return {
+      range: { from: new Date().toISOString(), to: new Date().toISOString() },
+      totals: {
+        billed: "0",
+        collected: "0",
+        outstanding: "0",
+        overdue: "0",
+        pendingReview: "0",
+      },
+      counts: { openCharges: 0, overdueCharges: 0, pendingCashApprovals: 0 },
+      monthly: [],
+    };
+  }
+  if (path.includes("/maintenance")) return [];
+  if (path.includes("/communication")) return [];
+  if (path.includes("/documents")) return [];
+
+  // Fallback for list endpoints (ending in 's') vs object endpoints
+  if (path.split("?")[0].endsWith("s")) return [];
+  return {};
+};
+
+let mockProperties: any[] = [];
+
 const apiFetch = async <T>(
   path: string,
   token: string,
   init?: RequestInit,
 ): Promise<T> => {
+  if (token === "fake-token") {
+    // Intercept development mock requests to avoid "failed to fetch"
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Special case for properties to make the demo feel alive
+        if (path === "/properties" && init?.method === "POST") {
+          const body = init.body ? JSON.parse(init.body as string) : {};
+          const newProperty = {
+            id: `prop-${Date.now()}`,
+            ownerId: "fake-id",
+            name: body.name || "Newly Created Property",
+            propertyType: body.propertyType || "Apartment",
+            status: "ACTIVE",
+            ownership: body.ownership || "SELF_OWNED",
+            addressLine1: body.addressLine1 || "Address",
+            city: body.city || "City",
+            state: body.state || "State",
+            postalCode: body.postalCode || "000000",
+            country: "US",
+            units: [],
+            _count: { units: body.totalUnits || 0, leases: 0 },
+          };
+          mockProperties.unshift(newProperty);
+          resolve(newProperty as unknown as T);
+          return;
+        }
+
+        if (
+          path === "/properties" &&
+          (!init?.method || init?.method === "GET")
+        ) {
+          resolve(mockProperties as unknown as T);
+          return;
+        }
+
+        // Single property GET — return matching mock or a safe stub with units: []
+        if (
+          /^\/properties\/[^/]+$/.test(path) &&
+          (!init?.method || init?.method === "GET")
+        ) {
+          const propertyId = path.split("/").pop();
+          const found = mockProperties.find((p) => p.id === propertyId);
+          resolve(
+            (found ?? {
+              id: propertyId,
+              ownerId: "fake-id",
+              name: "Property",
+              propertyType: "Apartment",
+              status: "ACTIVE",
+              ownership: "SELF_OWNED",
+              addressLine1: "",
+              city: "",
+              state: "",
+              postalCode: "",
+              country: "IN",
+              units: [],
+              leases: [],
+              _count: { units: 0, leases: 0 },
+            }) as unknown as T,
+          );
+          return;
+        }
+
+        if (path.includes("/payments/submit") && init?.method === "POST") {
+          const body = init.body ? JSON.parse(init.body as string) : {};
+          resolve({
+            id: `mock-payment-${Date.now()}`,
+            tenantId: "mock-tenant",
+            propertyId: body.propertyId || "mock-property",
+            unitId: body.unitId || "mock-unit",
+            amount: body.amount || 24500,
+            rentMonth: body.rentMonth || "November 2023",
+            paymentDate: body.paymentDate || new Date().toISOString(),
+            paymentMode: body.paymentMode || "CASH",
+            status: "PENDING_APPROVAL",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as unknown as T);
+          return;
+        }
+
+        resolve(getMockDataForPath(path, init?.method) as unknown as T);
+      }, 300); // simulate tiny network delay
+    });
+  }
   const response = await fetch(`${assertBaseUrl()}${path}`, {
     ...init,
     headers: {
@@ -959,6 +1182,25 @@ export const api = {
     payload: Blob,
     mimeType: string,
   ) => {
+    if (uploadUrl === "fake-upload-url") {
+      // Simulate successful upload for demo
+      return new Promise<{
+        uploaded: boolean;
+        documentId: string;
+        sizeBytes: number;
+      }>((resolve) =>
+        setTimeout(
+          () =>
+            resolve({
+              uploaded: true,
+              documentId: "fake-doc-id",
+              sizeBytes: payload.size,
+            }),
+          300,
+        ),
+      );
+    }
+
     const response = await fetch(uploadUrl, {
       method: "PUT",
       headers: {
@@ -1027,6 +1269,44 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+
+  submitOfflinePayment: (
+    token: string,
+    payload: {
+      propertyId: string;
+      unitId: string;
+      amount: number;
+      rentMonth: string;
+      paymentDate: string;
+      paymentMode: string;
+      proofUrl?: string;
+      status: "PENDING_APPROVAL";
+    },
+  ) =>
+    apiFetch<OfflineRentPaymentRecord>("/payments/submit", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  listPendingOfflinePayments: (token: string) =>
+    apiFetch<OfflineRentPaymentRecord[]>("/payments/pending", token),
+
+  listTenantOfflinePayments: (token: string) =>
+    apiFetch<OfflineRentPaymentRecord[]>("/payments/tenant", token),
+
+  reviewOfflinePayment: (
+    token: string,
+    paymentId: string,
+    payload: { action: OfflineRentPaymentStatus },
+  ) =>
+    apiFetch<{ message: string; payment: OfflineRentPaymentRecord }>(
+      `/payments/${paymentId}/review`,
+      token,
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+    ),
   removePushDevice: (token: string, deviceId: string) =>
     apiFetch<{ removed: boolean }>(
       `/notifications/push-devices/${deviceId}`,
@@ -1035,4 +1315,108 @@ export const api = {
         method: "DELETE",
       },
     ),
+
+  listExpenses: (
+    token: string,
+    query?: {
+      propertyId?: string;
+      category?: ExpenseCategory;
+      from?: string;
+      to?: string;
+      limit?: number;
+    },
+  ) =>
+    apiFetch<ExpenseRecord[]>(
+      withQuery("/billing/expenses", {
+        propertyId: query?.propertyId,
+        category: query?.category,
+        from: query?.from,
+        to: query?.to,
+        limit: query?.limit,
+      }),
+      token,
+    ),
+  createExpense: (
+    token: string,
+    payload: {
+      propertyId: string;
+      leaseId?: string;
+      category: ExpenseCategory;
+      amount: number;
+      description?: string;
+      incurredAt: string;
+    },
+  ) =>
+    apiFetch<ExpenseRecord>("/billing/expenses", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  listUnits: (token: string, propertyId: string) =>
+    apiFetch<any[]>(`/properties/${propertyId}/units`, token),
+
+  createPgUnit: (
+    token: string,
+    payload: {
+      propertyId: string;
+      name: string;
+      floor?: string;
+      meterNumber?: string;
+    },
+  ) =>
+    apiFetch<any>("/units", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  listBeds: (token: string, unitId: string) =>
+    apiFetch<any[]>(`/units/${unitId}/beds`, token),
+
+  createBed: (token: string, payload: { unitId: string; label: string }) =>
+    apiFetch<any>("/beds", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  listTenants: (token: string, unitId: string) =>
+    apiFetch<any[]>(`/units/${unitId}/tenants`, token),
+
+  createTenant: (
+    token: string,
+    payload: {
+      unitId: string;
+      name: string;
+      phone?: string;
+      rentAmount?: number;
+      bedId?: string;
+    },
+  ) =>
+    apiFetch<any>("/tenants", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  removeTenant: (token: string, tenantId: string) =>
+    apiFetch<any>(`/tenants/${tenantId}`, token, {
+      method: "DELETE",
+    }),
+
+  listUtilities: (token: string, propertyId: string) =>
+    apiFetch<any[]>(`/properties/${propertyId}/utilities`, token),
+
+  createUtility: (
+    token: string,
+    payload: {
+      propertyId: string;
+      unitId?: string;
+      type: string;
+      amount: number;
+      billingMonth: string;
+      splitMethod: string;
+    },
+  ) =>
+    apiFetch<any>("/utilities", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 };

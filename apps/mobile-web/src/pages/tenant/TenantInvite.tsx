@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { PageLayout } from "../../components/layout";
-import { Button, InstitutionCard, TextField } from "../../components/ui";
+import { PremiumPageLayout } from "../../components/layout/PremiumPageLayout";
+import { PremiumCard } from "../../components/ui/PremiumCard";
+import { PremiumButton } from "../../components/ui/PremiumButton";
+import { TextField } from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
 
@@ -61,68 +63,77 @@ const TenantInvite: React.FC = () => {
   };
 
   return (
-    <PageLayout
-      className="min-h-screen"
-      contentClassName="mx-auto flex w-full max-w-lg flex-col gap-5 !px-4 !py-6"
-    >
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
+    <PremiumPageLayout title="Join Property" greeting="INVITE" showNav={false}>
+      <div className="flex items-center gap-3 mb-6">
+        <PremiumButton
+          variant="secondary"
           onClick={() => navigate(-1)}
-          className="motion-press flex size-10 items-center justify-center rounded-[var(--radius-pill)] border border-border-subtle bg-surface text-text-secondary shadow-base"
+          className="!p-3 !rounded-full !size-12 shadow-sm bg-white/60 border-white/50 hover:bg-white/80 transition-colors"
         >
-          <span className="material-symbols-outlined text-base">
+          <span className="material-symbols-outlined text-[18px] translate-x-1 text-text-secondary group-hover:text-primary">
             arrow_back_ios
           </span>
-        </button>
-        <h1 className="text-lg font-semibold tracking-tight text-text-primary">
-          Join Property
-        </h1>
-        <span className="size-10" aria-hidden />
+        </PremiumButton>
       </div>
 
-      <InstitutionCard accentSpine elevation="raised" className="section-stack">
-        <div className="mx-auto flex size-16 items-center justify-center rounded-[var(--radius-control)] bg-surface-subtle text-primary">
-          <span className="material-symbols-outlined text-3xl">domain_add</span>
+      <PremiumCard
+        variant="glass"
+        className="flex flex-col gap-6 relative overflow-hidden bg-white/40 backdrop-blur-[20px] shadow-sm border border-white/50"
+      >
+        <div className="absolute top-0 right-0 -mr-6 -mt-6 size-32 bg-primary/10 rounded-full blur-[40px] pointer-events-none"></div>
+        <div className="mx-auto flex size-20 items-center justify-center rounded-[24px] bg-gradient-to-br from-[#FF9A3D] to-[#FF7A00] text-white shadow-[0_8px_30px_rgba(255,122,0,0.3)] ring-4 ring-white/50">
+          <span className="material-symbols-outlined text-[40px]">
+            domain_add
+          </span>
         </div>
 
         <div className="text-center">
-          <h2 className="text-2xl font-semibold tracking-tight text-text-primary">
+          <h2 className="text-2xl font-black tracking-tight text-text-primary">
             Welcome Home
           </h2>
-          <p className="mt-1 text-sm text-text-secondary">
-            Enter the invite code your landlord shared.
+          <p className="mt-2 text-[13px] font-bold text-text-secondary max-w-[240px] mx-auto">
+            Enter the unique invite code your landlord shared with you.
           </p>
-          <p className="mt-1 text-xs text-text-secondary">
-            Signed in as {profile?.email ?? "tenant account"}
-          </p>
+          <div className="mt-4 py-2 px-4 rounded-[16px] bg-white/50 inline-block border border-white/50 shadow-inner">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">
+              Signed in as{" "}
+              <span className="text-primary font-black">
+                {profile?.email ?? "tenant account"}
+              </span>
+            </p>
+          </div>
         </div>
 
-        <TextField
-          label="Invite Code"
-          value={code}
-          placeholder="A7C9D2"
-          className="font-numeric h-14 text-center text-lg tracking-[0.28em] uppercase"
-          onChange={(event) => setCode(event.target.value.toUpperCase())}
-        />
+        <div className="mt-2 text-center flex flex-col items-center">
+          <TextField
+            label=""
+            value={code}
+            placeholder="A7C9D2"
+            className="!font-numeric h-16 text-center text-3xl font-black tracking-[0.3em] uppercase bg-white/50 border-2 border-white/50 focus:border-primary focus:ring-1 focus:ring-primary text-text-primary rounded-[20px] shadow-sm w-full transition-all backdrop-blur-md"
+            onChange={(event) => setCode(event.target.value.toUpperCase())}
+          />
+        </div>
 
-        {error && <p className="text-sm font-medium text-danger">{error}</p>}
+        {error && (
+          <p className="text-[13px] font-bold text-danger bg-danger/10 p-3 rounded-[16px] border border-danger/20 text-center">
+            {error}
+          </p>
+        )}
         {success && (
-          <p className="text-sm font-medium text-success">{success}</p>
+          <p className="text-[13px] font-bold text-success bg-success/10 p-3 rounded-[16px] border border-success/20 text-center drop-shadow-sm">
+            {success}
+          </p>
         )}
 
-        <Button
-          type="button"
-          onClick={handleComplete}
-          disabled={code.trim().length < 4}
-          loading={isSubmitting}
-          size="lg"
-          className="w-full"
+        <PremiumButton
+          disabled={code.trim().length < 4 || isSubmitting}
+          onClick={() => void handleComplete()}
+          className="mt-2 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 active:scale-[0.98] transition-all"
         >
           {isSubmitting ? "Validating..." : "Accept Invite"}
-        </Button>
-      </InstitutionCard>
-    </PageLayout>
+        </PremiumButton>
+      </PremiumCard>
+    </PremiumPageLayout>
   );
 };
 

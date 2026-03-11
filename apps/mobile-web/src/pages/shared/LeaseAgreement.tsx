@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "../../components/BottomNav";
-import { PageLayout } from "../../components/layout";
-import { Badge, Button, InstitutionCard, KpiValue } from "../../components/ui";
 import { formatINRWhole } from "../../lib/currency";
 import { api, type DocumentRecord, type LeaseRecord } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
@@ -46,9 +44,7 @@ const LeaseAgreement: React.FC = () => {
 
   useEffect(() => {
     const fetchLeases = async () => {
-      if (!session) {
-        return;
-      }
+      if (!session) return;
       setLoading(true);
       setError(null);
       try {
@@ -64,7 +60,6 @@ const LeaseAgreement: React.FC = () => {
         setLoading(false);
       }
     };
-
     void fetchLeases();
   }, [session]);
 
@@ -80,7 +75,6 @@ const LeaseAgreement: React.FC = () => {
         setDocuments([]);
         return;
       }
-
       try {
         const docs = await api.listDocuments(session.access_token, {
           propertyId: activeLease.propertyId,
@@ -95,15 +89,12 @@ const LeaseAgreement: React.FC = () => {
         );
       }
     };
-
     void fetchDocuments();
   }, [activeLease, session]);
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !session || !activeLease) {
-      return;
-    }
+    if (!file || !session || !activeLease) return;
 
     setUploading(true);
     setError(null);
@@ -145,10 +136,7 @@ const LeaseAgreement: React.FC = () => {
   };
 
   const handleDownload = async (documentId: string) => {
-    if (!session) {
-      return;
-    }
-
+    if (!session) return;
     try {
       const signed = await api.getDocumentDownloadUrl(
         session.access_token,
@@ -165,122 +153,163 @@ const LeaseAgreement: React.FC = () => {
   };
 
   return (
-    <PageLayout withDockInset className="pb-6" contentClassName="!px-0 !pt-0">
-      <header className="sticky top-0 z-20 border-b border-border-subtle bg-background px-4 pb-4 pt-5">
+    <div className="min-h-screen font-sans pb-[100px] text-text-primary selection:bg-primary/30">
+      <header className="sticky top-0 z-20 border-b border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm px-5 pb-4 pt-6">
         <div className="flex items-center justify-between gap-3">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => navigate(-1)}
-            leadingIcon={
-              <span className="material-symbols-outlined text-[18px]">
-                arrow_back_ios_new
-              </span>
-            }
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 text-text-secondary hover:text-primary hover:bg-white/80 transition-colors shadow-sm"
           >
-            Back
-          </Button>
-          <h1 className="text-base font-semibold text-text-primary">
+            <span className="material-symbols-outlined text-[20px]">
+              arrow_back
+            </span>
+          </button>
+
+          <h1 className="text-[17px] font-black tracking-tight text-text-primary">
             Lease Agreement
           </h1>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
+
+          <button
             onClick={() => navigate("/chat")}
+            className="flex h-9 items-center justify-center rounded-full bg-primary/10 border border-primary/20 px-4 text-[12px] font-bold text-primary hover:bg-primary/20 transition-colors shadow-sm"
           >
             Chat
-          </Button>
+          </button>
         </div>
       </header>
 
-      <main className="section-stack px-4 pb-8 pt-4">
+      <main className="px-5 pt-6 pb-8 flex flex-col gap-6 motion-page-enter">
         {loading ? (
-          <InstitutionCard>
-            <p className="text-sm text-text-secondary">
-              Loading lease details...
-            </p>
-          </InstitutionCard>
+          <div className="flex items-center justify-center p-12">
+            <div className="size-8 rounded-full border-2 border-white/50 border-t-primary animate-spin"></div>
+          </div>
         ) : error ? (
-          <InstitutionCard>
-            <p className="text-sm text-danger">{error}</p>
-          </InstitutionCard>
+          <div className="rounded-[16px] border border-danger/20 bg-danger/10 p-4 shadow-sm">
+            <p className="text-[13px] font-bold text-danger">{error}</p>
+          </div>
         ) : !activeLease ? (
-          <InstitutionCard>
-            <p className="text-sm text-text-secondary">
-              No lease assigned yet.
+          <div className="rounded-[24px] border border-white/50 bg-white/40 backdrop-blur-[20px] p-8 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-primary/10 shadow-inner">
+              <span className="material-symbols-outlined text-[32px] text-primary">
+                description
+              </span>
+            </div>
+            <p className="text-[15px] font-black text-text-primary mb-1">
+              No Active Lease
             </p>
-          </InstitutionCard>
+            <p className="text-[13px] font-bold text-text-secondary">
+              You don't have an active lease agreement assigned yet.
+            </p>
+          </div>
         ) : (
           <>
-            <InstitutionCard accentSpine elevation="raised">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <Badge tone="success">{activeLease.status} Lease</Badge>
-                <p className="text-xs text-text-secondary">
-                  ID: {activeLease.id}
-                </p>
+            <div className="relative overflow-hidden rounded-[24px] border border-primary/30 bg-primary/5 shadow-sm backdrop-blur-[20px] flex flex-col group">
+              <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] opacity-80"></div>
+              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                <span className="material-symbols-outlined text-[100px] text-primary">
+                  description
+                </span>
               </div>
 
-              <div className="mb-4 grid grid-cols-2 gap-3">
-                <KpiValue
-                  label="Monthly Rent"
-                  value={
-                    <span className="font-numeric">
+              <div className="p-5 flex flex-col gap-6 relative z-10">
+                {/* Header Status & ID */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-2 rounded-full bg-[#10B981] animate-pulse"></span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#10B981]">
+                      {activeLease.status} Lease
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-80">
+                    ID: {activeLease.id.split("-")[0]}
+                  </span>
+                </div>
+
+                {/* Financials KPIs */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="rounded-[20px] bg-white/60 backdrop-blur-md p-4 border border-white/50 shadow-inner">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">
+                      Monthly Rent
+                    </p>
+                    <p className="font-numeric text-[20px] font-black tracking-tight text-text-primary">
                       {formatINRWhole(activeLease.monthlyRent)}
-                    </span>
-                  }
-                  valueClassName="text-[1.5rem]"
-                />
-                <KpiValue
-                  label="Security Deposit"
-                  value={
-                    <span className="font-numeric">
+                    </p>
+                  </div>
+                  <div className="rounded-[20px] bg-white/60 backdrop-blur-md p-4 border border-white/50 shadow-inner">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">
+                      Deposit
+                    </p>
+                    <p className="font-numeric text-[20px] font-black tracking-tight text-text-primary">
                       {formatINRWhole(activeLease.securityDeposit)}
-                    </span>
-                  }
-                  valueClassName="text-[1.5rem]"
-                />
-              </div>
+                    </p>
+                  </div>
+                </div>
 
-              <div className="section-stack border-t border-border-subtle pt-4">
-                <p className="text-sm font-semibold text-text-primary">
-                  {activeLease.property?.name}
-                </p>
-                <p className="text-xs text-text-secondary">
-                  {activeLease.property?.addressLine1},{" "}
-                  {activeLease.property?.city}, {activeLease.property?.state}{" "}
-                  {activeLease.property?.postalCode}
-                </p>
-                <p className="text-sm text-text-secondary">
-                  Unit:{" "}
-                  <span className="font-medium text-text-primary">
-                    {activeLease.unit?.name}
-                  </span>
-                </p>
-                <p className="text-sm text-text-secondary">
-                  Lease Term:{" "}
-                  <span className="font-medium text-text-primary">
-                    {new Date(activeLease.startDate).toLocaleDateString()} -{" "}
-                    {new Date(activeLease.endDate).toLocaleDateString()}
-                  </span>
-                </p>
-                <p className="text-sm text-text-secondary">
-                  Due Day:{" "}
-                  <span className="font-medium text-text-primary">
-                    {activeLease.dueDay}
-                  </span>
-                </p>
-              </div>
-            </InstitutionCard>
+                {/* Details */}
+                <div className="flex flex-col gap-4 border-t border-white/40 pt-5">
+                  <div>
+                    <p className="text-[14px] font-black text-text-primary mb-0.5">
+                      {activeLease.property?.name}
+                    </p>
+                    <p className="text-[12px] font-bold text-text-secondary">
+                      {activeLease.property?.addressLine1},{" "}
+                      {activeLease.property?.city},{" "}
+                      {activeLease.property?.state}{" "}
+                      {activeLease.property?.postalCode}
+                    </p>
+                  </div>
 
-            <InstitutionCard>
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold text-text-primary">
+                  <div className="grid grid-cols-2 gap-y-4 gap-x-2">
+                    <div>
+                      <p className="text-[10px] uppercase font-bold text-text-secondary opacity-80 tracking-widest mb-1">
+                        Unit
+                      </p>
+                      <p className="text-[13px] font-bold text-text-primary">
+                        {activeLease.unit?.name}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase font-bold text-text-secondary opacity-80 tracking-widest mb-1">
+                        Due Day
+                      </p>
+                      <p className="text-[13px] font-bold text-text-primary">
+                        {activeLease.dueDay}th of month
+                      </p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-[10px] uppercase font-bold text-text-secondary opacity-80 tracking-widest mb-1">
+                        Lease Term
+                      </p>
+                      <p className="text-[13px] font-bold text-text-primary">
+                        {new Date(activeLease.startDate).toLocaleDateString(
+                          undefined,
+                          { month: "short", day: "numeric", year: "numeric" },
+                        )}{" "}
+                        -{" "}
+                        {new Date(activeLease.endDate).toLocaleDateString(
+                          undefined,
+                          { month: "short", day: "numeric", year: "numeric" },
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <section className="flex flex-col gap-4 mt-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-[12px] font-bold uppercase tracking-widest text-text-secondary pl-1">
                   Lease Documents
                 </h2>
+
                 <label className="cursor-pointer">
-                  <span className="text-xs font-semibold text-primary">
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1.5 text-[10px] font-bold text-primary uppercase tracking-wider hover:bg-primary/20 transition-colors shadow-sm ${uploading ? "opacity-50 pointer-events-none" : ""}`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">
+                      upload
+                    </span>
                     {uploading ? "Uploading..." : "Upload"}
                   </span>
                   <input
@@ -293,44 +322,72 @@ const LeaseAgreement: React.FC = () => {
               </div>
 
               {documents.length === 0 ? (
-                <p className="text-sm text-text-secondary">
-                  No documents uploaded yet.
-                </p>
+                <div className="rounded-[24px] border border-white/50 bg-white/40 backdrop-blur-[20px] p-8 text-center shadow-sm">
+                  <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-white/60 border border-white/50 shadow-inner">
+                    <span className="material-symbols-outlined text-[24px] text-text-secondary">
+                      folder_open
+                    </span>
+                  </div>
+                  <p className="text-[13px] font-bold text-text-secondary">
+                    No documents uploaded yet.
+                  </p>
+                </div>
               ) : (
-                <div className="section-stack">
+                <div className="rounded-[24px] border border-white/50 bg-white/40 backdrop-blur-[20px] overflow-hidden shadow-sm">
                   {documents.map((document) => (
                     <div
                       key={document.id}
-                      className="flex items-center justify-between gap-3 rounded-[var(--radius-control)] border border-border-subtle bg-surface-subtle px-3 py-2"
+                      className="flex items-center justify-between gap-3 border-b border-white/40 px-4 py-4 last:border-b-0 hover:bg-white/60 active:bg-white/70 transition-all group"
                     >
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-text-primary">
-                          {document.fileName}
-                        </p>
-                        <p className="text-xs text-text-secondary">
-                          {(document.sizeBytes / 1024).toFixed(1)} KB •{" "}
-                          {new Date(document.createdAt).toLocaleDateString()}
-                        </p>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex size-10 items-center justify-center rounded-full bg-white/60 border border-white/50 shadow-inner text-text-secondary group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
+                          <span className="material-symbols-outlined text-[20px]">
+                            {document.fileName.endsWith(".pdf")
+                              ? "picture_as_pdf"
+                              : "description"}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-[14px] font-black text-text-primary group-hover:text-primary transition-colors mb-0.5">
+                            {document.fileName}
+                          </p>
+                          <p className="text-[11px] font-bold text-text-secondary flex items-center gap-1.5">
+                            <span>
+                              {(document.sizeBytes / 1024).toFixed(1)} KB
+                            </span>
+                            <span className="size-1 rounded-full bg-text-secondary/50"></span>
+                            <span className="uppercase tracking-wider">
+                              {new Date(
+                                document.createdAt,
+                              ).toLocaleDateString()}
+                            </span>
+                          </p>
+                        </div>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
+
+                      <button
                         onClick={() => void handleDownload(document.id)}
+                        className="flex size-8 items-center justify-center rounded-full bg-white/60 border border-white/50 shadow-sm text-text-secondary hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all active:scale-[0.98] shrink-0"
                       >
-                        Download
-                      </Button>
+                        <span className="material-symbols-outlined text-[18px]">
+                          download
+                        </span>
+                      </button>
                     </div>
                   ))}
                 </div>
               )}
-            </InstitutionCard>
+            </section>
           </>
         )}
       </main>
 
-      <BottomNav role={profile?.role === "LANDLORD" ? "landlord" : "tenant"} />
-    </PageLayout>
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <BottomNav
+          role={profile?.role === "LANDLORD" ? "landlord" : "tenant"}
+        />
+      </div>
+    </div>
   );
 };
 

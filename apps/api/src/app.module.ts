@@ -21,7 +21,12 @@ import { MaintenanceModule } from "./maintenance/maintenance.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { PropertiesModule } from "./properties/properties.module";
+import { PaymentsModule } from "./payments/payments.module";
 import { UsersModule } from "./users/users.module";
+import { UnitsModule } from "./units/units.module";
+import { BedsModule } from "./beds/beds.module";
+import { TenantsModule } from "./tenants/tenants.module";
+import { UtilitiesModule } from "./utilities/utilities.module";
 
 @Module({
   imports: [
@@ -37,6 +42,11 @@ import { UsersModule } from "./users/users.module";
     ChatModule,
     NotificationsModule,
     DocumentsModule,
+    PaymentsModule,
+    UnitsModule,
+    BedsModule,
+    TenantsModule,
+    UtilitiesModule,
   ],
   providers: [
     {

@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Switch } from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import {
+  LocationPicker,
+  ExtractedAddress,
+} from "../../components/ui/LocationPicker";
 
 interface Tenant {
   id: number;
@@ -59,6 +63,7 @@ const AddProperty: React.FC = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [nameError, setNameError] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -203,10 +208,7 @@ const AddProperty: React.FC = () => {
         }
         return true;
       case 6:
-        if (!documentFiles.propertyDeed) {
-          setValidationError("Property deed PDF is required.");
-          return false;
-        }
+        // Property Deed is optional for smoother demo experience
         return true;
       default:
         return true;
@@ -566,9 +568,20 @@ const AddProperty: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-text-primary">
-                Full Address <span className="text-danger">*</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-bold text-text-primary">
+                  Full Address <span className="text-danger">*</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowLocationPicker(true)}
+                  className="flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">map</span>
+                  Choose on Map
+                </button>
+              </div>
+
               <textarea
                 value={formData.address}
                 onChange={(e) => handleInputChange("address", e.target.value)}
@@ -1353,7 +1366,7 @@ const AddProperty: React.FC = () => {
                         Property Deed
                       </p>
                       <p className="text-xs text-text-secondary">
-                        PDF • Required
+                        PDF • Optional
                       </p>
                     </div>
                   </div>
@@ -1410,13 +1423,13 @@ const AddProperty: React.FC = () => {
                     className={`text-xs ${
                       documentFiles.propertyDeed
                         ? "text-success"
-                        : "text-danger"
+                        : "text-text-secondary"
                     }`}
                   >
                     Property Deed:{" "}
                     {documentFiles.propertyDeed
                       ? documentFiles.propertyDeed.name
-                      : "Required PDF not selected"}
+                      : "Optional PDF not selected"}
                   </p>
                   {documentFiles.rentAgreementTemplate && (
                     <p className="text-xs text-text-secondary">
@@ -1445,22 +1458,22 @@ const AddProperty: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen text-[#1e293b] font-sans selection:bg-[#FF9A3D]/30">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background border-b border-border-subtle ">
+      <div className="sticky top-0 z-20 bg-white/40 backdrop-blur-[20px] border-b border-white/40 shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
         <div className="flex items-center justify-between px-4 py-4">
           <button
             onClick={handleBack}
             disabled={isSubmitting}
-            className="text-text-primary flex items-center justify-center"
+            className="text-slate-500 hover:bg-white/60 hover:text-[#1e293b] rounded-full p-2 flex items-center justify-center transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
           <div className="flex flex-col items-center">
-            <h1 className="text-base font-bold text-text-primary">
+            <h1 className="text-base font-black text-[#1e293b] tracking-tight">
               Add New Property
             </h1>
-            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
               {steps[currentStep - 1]}
             </p>
           </div>
@@ -1468,28 +1481,28 @@ const AddProperty: React.FC = () => {
             id="save-draft-btn"
             onClick={handleManualSave}
             disabled={isSubmitting}
-            className="text-primary font-bold text-sm transition-all w-16 text-right"
+            className="text-[#FF7A00] font-bold text-[13px] hover:text-[#FF9A3D] transition-colors w-16 text-right"
           >
-            Save Draft
+            Save
           </button>
         </div>
 
         {/* Progress Bar */}
-        <div className="h-1 w-full bg-surface-subtle">
+        <div className="h-1 w-full bg-white/40">
           <div
-            className="h-full bg-primary transition-all duration-300 ease-out"
+            className="h-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] transition-all duration-300 ease-out shadow-[0_0_10px_rgba(255,122,0,0.5)]"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           ></div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-5 pb-32">
-        <h2 className="text-2xl font-bold text-text-primary mb-2">
+      <div className="flex-1 p-5 pb-32 max-w-lg mx-auto w-full motion-page-enter">
+        <h2 className="text-2xl font-black text-[#1e293b] tracking-tight mb-2">
           {steps[currentStep - 1]}
         </h2>
         {lastSaved && (
-          <p className="text-[10px] text-text-secondary mb-4 font-medium flex items-center gap-1">
+          <p className="text-[10px] text-slate-500 mb-4 font-bold flex items-center gap-1 uppercase tracking-wider">
             <span className="material-symbols-outlined text-[12px]">
               cloud_done
             </span>
@@ -1502,7 +1515,7 @@ const AddProperty: React.FC = () => {
         )}
 
         {validationError && (
-          <div className="mb-4 bg-surface-subtle border border-danger text-danger p-3 rounded-lg text-sm font-bold flex items-center gap-2">
+          <div className="mb-4 bg-[#EF4444]/10 border border-[#EF4444]/20 text-[#EF4444] p-3 rounded-xl text-[13px] font-bold flex items-center gap-2">
             <span className="material-symbols-outlined text-lg">error</span>
             {validationError}
           </div>
@@ -1512,41 +1525,59 @@ const AddProperty: React.FC = () => {
       </div>
 
       {/* Footer Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto p-5 bg-background border-t border-border-subtle flex gap-4 z-20">
-        {currentStep > 1 && (
-          <button
-            onClick={handleBack}
-            disabled={isSubmitting}
-            className="flex-1 py-4 rounded-xl font-bold border border-border-subtle text-text-secondary hover:bg-surface-subtle transition-colors disabled:opacity-50"
-          >
-            Back
-          </button>
-        )}
-        <button
-          onClick={handleNext}
-          disabled={isSubmitting}
-          className="flex-1 py-4 rounded-xl font-bold bg-primary text-white shadow-base hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 disabled:bg-surface-subtle disabled:text-text-secondary disabled:shadow-none"
-        >
-          {isSubmitting ? (
-            <>
-              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-              <span>Creating...</span>
-            </>
-          ) : currentStep === totalSteps ? (
-            <>
-              <span>Create Property</span>
-              <span className="material-symbols-outlined text-lg">check</span>
-            </>
-          ) : (
-            <>
-              <span>Next Step</span>
-              <span className="material-symbols-outlined text-lg">
-                arrow_forward
-              </span>
-            </>
+      <div className="fixed bottom-0 left-0 right-0 p-5 bg-white/40 backdrop-blur-[20px] border-t border-white/40 shadow-[0_-4px_30px_rgba(0,0,0,0.03)] flex gap-4 z-20">
+        <div className="max-w-lg mx-auto w-full flex gap-4">
+          {currentStep > 1 && (
+            <button
+              onClick={handleBack}
+              disabled={isSubmitting}
+              className="flex-1 py-3.5 rounded-full font-bold bg-white/60 text-slate-500 shadow-sm border border-white/50 hover:border-[#FF9A3D]/50 hover:text-[#1e293b] transition-colors disabled:opacity-50 text-[14px]"
+            >
+              Back
+            </button>
           )}
-        </button>
+          <button
+            onClick={handleNext}
+            disabled={isSubmitting}
+            className="flex-1 py-3.5 rounded-full font-bold bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:shadow-none text-[14px] active:scale-[0.98]"
+          >
+            {isSubmitting ? (
+              <>
+                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span>Creating...</span>
+              </>
+            ) : currentStep === totalSteps ? (
+              <>
+                <span>Create Property</span>
+                <span className="material-symbols-outlined text-[18px]">
+                  check
+                </span>
+              </>
+            ) : (
+              <>
+                <span>Next Step</span>
+                <span className="material-symbols-outlined text-[18px]">
+                  arrow_forward
+                </span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
+
+      <LocationPicker
+        isOpen={showLocationPicker}
+        onClose={() => setShowLocationPicker(false)}
+        onSelect={(addr: ExtractedAddress) => {
+          setFormData((prev) => ({
+            ...prev,
+            address: addr.addressLine1,
+            city: addr.city,
+            state: addr.state,
+            pincode: addr.pincode,
+          }));
+        }}
+      />
     </div>
   );
 };

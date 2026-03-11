@@ -62,6 +62,12 @@ enum PaymentStatus {
   REQUIRES_REVIEW
 }
 
+enum OfflineRentPaymentStatus {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+}
+
 enum PaymentMethodType {
   CARD
   BANK_TRANSFER
@@ -129,6 +135,24 @@ enum PushPlatform {
   WEB
 }
 
+enum UtilityType {
+  ELECTRICITY
+  WATER
+  INTERNET
+  OTHER
+}
+
+enum UtilitySplitMethod {
+  PER_TENANT
+  PER_UNIT
+  MANUAL
+}
+
+enum RentSplitMode {
+  EQUAL
+  MANUAL
+}
+
 model User {
   id                String     @id @default(cuid())
   authUserId        String     @unique
@@ -150,6 +174,7 @@ model User {
   invitationsRecv   TenantInvitation[]    @relation("InvitationInvitee")
   chargesCreated    RentCharge[]          @relation("ChargeCreator")
   payments          Payment[]             @relation("PaymentPayer")
+  offlineRentPayments OfflineRentPayment[]
   paymentMethods    PaymentMethod[]
   expensesCreated   Expense[]             @relation("ExpenseCreator")
   maintenanceReqs   MaintenanceRequest[]  @relation("MaintenanceRequester")
@@ -160,6 +185,7 @@ model User {
   notifications     Notification[]
   pushDevices       PushDevice[]
   auditLogs         AuditLog[]            @relation("AuditActor")
+  tenantRecords     Tenant[]
 
   @@index([role, isActive])
 }
@@ -212,6 +238,8 @@ model Property {
   maintenanceRequests MaintenanceRequest[]
   documents           Document[]
   chatThreads         ChatThread[]
+  offlineRentPayments OfflineRentPayment[]
+  utilities           Utility[]
 
   @@index([ownerId, status])
 }
@@ -220,6 +248,8 @@ model Unit {
   id                String    @id @default(cuid())
   propertyId        String
   name              String
+  floor             String?
+  meterNumber       String?
   bedrooms          Int       @default(0)
   bathrooms         Int       @default(0)
   occupancy         Int       @default(1)
@@ -235,9 +265,79 @@ model Unit {
   leases              Lease[]
   invitations         TenantInvitation[]
   maintenanceRequests MaintenanceRequest[]
+  offlineRentPayments OfflineRentPayment[]
+  beds                Bed[]
+  tenants             Tenant[]
+  utilities           Utility[]
 
   @@unique([propertyId, name])
   @@index([propertyId, status])
+}
+
+model Bed {
+  id        String   @id @default(cuid())
+  unitId    String
+  label     String
+  tenantId  String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unit   Unit    @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation("BedTenant")
+
+  @@unique([unitId, label])
+}
+
+model Tenant {
+  id          String   @id @default(cuid())
+  userId      String?
+  unitId      String
+  bedId       String?  @unique
+  name        String
+  phone       String?
+  rentAmount  Decimal? @db.Decimal(12, 2)
+  splitMode   RentSplitMode @default(EQUAL)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  unit          Unit           @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  bed           Bed?           @relation("BedTenant", fields: [bedId], references: [id], onDelete: SetNull)
+  utilitySplits UtilitySplit[]
+}
+
+model Utility {
+  id           String             @id @default(cuid())
+  propertyId   String
+  unitId       String?
+  type         UtilityType
+  billingMonth String
+  amount       Decimal            @db.Decimal(12, 2)
+  splitMethod  UtilitySplitMethod
+  description  String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  property Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  unit     Unit?          @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  splits   UtilitySplit[]
+
+  @@index([propertyId, billingMonth])
+}
+
+model UtilitySplit {
+  id        String   @id @default(cuid())
+  utilityId String
+  tenantId  String
+  amount    Decimal  @db.Decimal(12, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  utility Utility @relation(fields: [utilityId], references: [id], onDelete: Cascade)
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([utilityId, tenantId])
 }
 
 model Lease {
@@ -364,6 +464,28 @@ model Payment {
 
   @@index([chargeId, status])
   @@index([payerId, status])
+}
+
+model OfflineRentPayment {
+  id          String                   @id @default(cuid())
+  tenantId    String
+  propertyId  String
+  unitId      String
+  amount      Decimal                  @db.Decimal(12, 2)
+  rentMonth   String                   // e.g. "November 2023"
+  paymentDate DateTime
+  paymentMode String                   // "UPI", "CASH", "BANK", "OTHER"
+  proofUrl    String?
+  status      OfflineRentPaymentStatus @default(PENDING_APPROVAL)
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+
+  tenant   User     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  unit     Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, status])
+  @@index([tenantId, status])
 }
 
 model PaymentEvent {

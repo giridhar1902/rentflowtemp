@@ -1,12 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageLayout } from "../../components/layout";
-import {
-  Badge,
-  Button,
-  InstitutionCard,
-  TextareaField,
-} from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
 import {
   api,
@@ -14,6 +7,7 @@ import {
   type ChatThreadRecord,
   type LeaseRecord,
 } from "../../lib/api";
+import { AppLayout } from "../../components/layout/AppLayout";
 
 const Chat: React.FC = () => {
   const navigate = useNavigate();
@@ -32,14 +26,10 @@ const Chat: React.FC = () => {
   const selfUserId = profile?.id;
 
   const counterpart = useMemo(() => {
-    if (!thread || !selfUserId) {
-      return null;
-    }
-
+    if (!thread || !selfUserId) return null;
     const member = thread.participants.find(
       (participant) => participant.userId !== selfUserId,
     );
-
     return member?.user ?? null;
   }, [thread, selfUserId]);
 
@@ -49,13 +39,9 @@ const Chat: React.FC = () => {
 
   useEffect(() => {
     const initialize = async () => {
-      if (!session) {
-        return;
-      }
-
+      if (!session) return;
       setLoading(true);
       setError(null);
-
       try {
         const leases = await api.listLeases(session.access_token);
         const selectedLease =
@@ -66,7 +52,6 @@ const Chat: React.FC = () => {
           setLoading(false);
           return;
         }
-
         setLease(selectedLease);
 
         const ensuredThread = await api.ensureLeaseThread(
@@ -78,9 +63,7 @@ const Chat: React.FC = () => {
         const initialMessages = await api.listChatMessages(
           session.access_token,
           ensuredThread.id,
-          {
-            limit: 100,
-          },
+          { limit: 100 },
         );
         setMessages(initialMessages);
       } catch (chatError) {
@@ -93,41 +76,30 @@ const Chat: React.FC = () => {
         setLoading(false);
       }
     };
-
     void initialize();
   }, [session]);
 
   useEffect(() => {
-    if (!session || !thread) {
-      return;
-    }
-
+    if (!session || !thread) return;
     let disposed = false;
-
     const poll = async () => {
       try {
         const since = messages[messages.length - 1]?.createdAt;
         const updates = await api.listChatMessages(
           session.access_token,
           thread.id,
-          {
-            since,
-            limit: 100,
-          },
+          { since, limit: 100 },
         );
-
         if (!disposed && updates.length > 0) {
           setMessages((previous) => [...previous, ...updates]);
         }
       } catch {
-        // Polling should be resilient; ignore transient errors.
+        // Polling resilient
       }
     };
-
     const interval = setInterval(() => {
       void poll();
     }, 3000);
-
     return () => {
       disposed = true;
       clearInterval(interval);
@@ -135,13 +107,9 @@ const Chat: React.FC = () => {
   }, [session, thread, messages]);
 
   const sendMessage = async () => {
-    if (!session || !thread || !draft.trim() || sending) {
-      return;
-    }
-
+    if (!session || !thread || !draft.trim() || sending) return;
     setSending(true);
     setError(null);
-
     try {
       const sent = await api.sendChatMessage(session.access_token, thread.id, {
         content: draft.trim(),
@@ -160,127 +128,158 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <PageLayout
-      className="h-screen"
-      contentClassName="!px-0 !pt-0 !pb-0 h-full"
+    <AppLayout
+      title={
+        counterpart
+          ? `${counterpart.firstName ?? ""} ${counterpart.lastName ?? ""}`.trim() ||
+            counterpart.email ||
+            "Conversation"
+          : "Conversation"
+      }
+      subtitle={
+        lease
+          ? `${lease.unit?.name ?? "Unit"} - ${lease.property?.name ?? "Property"}`
+          : undefined
+      }
+      showBackButton={true}
+      fixedHeight={true}
+      rightAction={
+        <button
+          onClick={() => navigate("/lease")}
+          className="flex h-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 px-3 gap-1.5 text-[12px] font-bold text-text-secondary hover:bg-white/80 hover:text-primary transition-colors shadow-sm"
+        >
+          <span className="material-symbols-outlined text-[16px] text-inherit">
+            description
+          </span>
+          <span className="text-[12px] font-bold">Doc</span>
+        </button>
+      }
+      className="flex-1 flex flex-col pb-2"
     >
-      <header className="sticky top-0 z-20 border-b border-border-subtle bg-background px-4 pb-3 pt-5">
-        <div className="flex items-center justify-between gap-3">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            leadingIcon={
-              <span className="material-symbols-outlined text-[18px]">
-                arrow_back_ios_new
-              </span>
-            }
-          >
-            Back
-          </Button>
-
-          <div className="min-w-0 flex-1 text-center">
-            <h1 className="truncate text-base font-semibold text-text-primary">
-              {counterpart
-                ? `${counterpart.firstName ?? ""} ${counterpart.lastName ?? ""}`.trim() ||
-                  counterpart.email ||
-                  "Conversation"
-                : "Conversation"}
-            </h1>
-            <p className="mt-1 text-xs text-text-secondary">
-              {lease?.unit?.name ?? "Unit"} -{" "}
-              {lease?.property?.name ?? "Property"}
-            </p>
-          </div>
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/lease")}
-          >
-            Doc
-          </Button>
-        </div>
-      </header>
-
-      <main className="section-stack flex-1 overflow-y-auto bg-background px-4 py-4">
+      <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-4">
         {error && (
-          <InstitutionCard>
-            <p className="text-sm text-danger">{error}</p>
-          </InstitutionCard>
+          <div className="rounded-[16px] border border-danger/20 bg-danger/10 p-4 shrink-0 shadow-sm">
+            <p className="text-[13px] font-bold text-danger">{error}</p>
+          </div>
         )}
 
         {loading ? (
-          <InstitutionCard>
-            <p className="text-sm text-text-secondary">Loading chat...</p>
-          </InstitutionCard>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="size-8 rounded-full border-2 border-white/50 border-t-primary animate-spin"></div>
+          </div>
         ) : messages.length === 0 ? (
-          <InstitutionCard>
-            <p className="text-sm text-text-secondary">
-              No messages yet. Start the conversation.
-            </p>
-          </InstitutionCard>
-        ) : (
-          messages.map((message) => {
-            const isMine = message.senderId === selfUserId;
-            return (
-              <div
-                key={message.id}
-                className={`flex ${isMine ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[85%] rounded-[var(--radius-control)] px-3 py-2 text-sm ${
-                    isMine
-                      ? "bg-primary text-[var(--color-accent-contrast)]"
-                      : "bg-surface-subtle text-text-primary"
-                  }`}
-                >
-                  <p>{message.content}</p>
-                  <p
-                    className={`mt-1 text-[10px] ${isMine ? "text-white/75" : "text-text-secondary"}`}
-                  >
-                    {new Date(message.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-              </div>
-            );
-          })
-        )}
-        <div ref={listBottomRef} />
-      </main>
-
-      <footer className="sticky bottom-0 border-t border-border-subtle bg-background px-4 pb-[calc(var(--layout-safe-area-bottom)+0.75rem)] pt-3">
-        <div className="flex items-end gap-2">
-          <TextareaField
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder="Type a message..."
-            className="min-h-[2.75rem] resize-none"
-            containerClassName="flex-1"
-          />
-
-          <Button
-            type="button"
-            className="h-11 w-11 px-0"
-            disabled={!draft.trim() || sending}
-            loading={sending}
-            onClick={() => void sendMessage()}
-            leadingIcon={
-              <span className="material-symbols-outlined text-[18px]">
-                arrow_upward
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-6 mt-10">
+            <div className="flex size-16 items-center justify-center rounded-full bg-white/60 border border-white/50 mb-4 shadow-inner">
+              <span className="material-symbols-outlined text-[32px] text-text-secondary opacity-50">
+                chat
               </span>
-            }
+            </div>
+            <p className="text-[16px] font-black text-text-primary mb-2">
+              No messages yet
+            </p>
+            <p className="text-[13px] font-bold text-text-secondary">
+              Start the conversation about your lease or property.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {messages.map((message, idx) => {
+              const isMine = message.senderId === selfUserId;
+              const prevMsg = idx > 0 ? messages[idx - 1] : null;
+              const showTime =
+                !prevMsg ||
+                new Date(message.createdAt).getTime() -
+                  new Date(prevMsg.createdAt).getTime() >
+                  10 * 60000; // 10 mins
+
+              return (
+                <div key={message.id} className="flex flex-col">
+                  {showTime && (
+                    <div className="flex justify-center my-4">
+                      <span className="bg-white/60 border border-white/50 text-text-secondary text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
+                        {new Date(message.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                  )}
+                  <div
+                    className={`flex w-full ${isMine ? "justify-end" : "justify-start"}`}
+                  >
+                    <div
+                      className={`relative max-w-[80%] rounded-[20px] px-4 py-3 transform transition-transform text-[14px] leading-relaxed shadow-sm ${
+                        isMine
+                          ? "bg-gradient-to-br from-[#FF9A3D] to-[#FF7A00] text-white rounded-br-[6px] font-medium p-[1px]" // Using p-[1px] and inner div for border effect if needed, but simple gradient is better
+                          : "bg-white/60 border border-white/50 text-text-primary rounded-bl-[6px] backdrop-blur-md font-medium"
+                      }`}
+                    >
+                      {/* Inner content wrapper just in case we used gradient border hack, but we didn't */}
+                      <div className="relative z-10">
+                        <p className="whitespace-pre-wrap word-break">
+                          {message.content}
+                        </p>
+                        <div
+                          className={`flex items-center gap-1 mt-1 justify-end ${isMine ? "text-white/80" : "text-text-secondary"}`}
+                        >
+                          <span className="text-[9px] font-bold uppercase tracking-widest">
+                            {new Date(message.createdAt).toLocaleTimeString(
+                              [],
+                              { hour: "2-digit", minute: "2-digit" },
+                            )}
+                          </span>
+                          {isMine && (
+                            <span className="material-symbols-outlined text-[10px]">
+                              done_all
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <div ref={listBottomRef} className="h-4 shrink-0" />
+      </div>
+
+      <footer className="shrink-0 border-t border-white/40 bg-white/40 backdrop-blur-[30px] shadow-[0_-10px_30px_rgba(0,0,0,0.02)] px-4 py-3 relative z-20">
+        <div className="flex items-end gap-3 max-w-[500px] mx-auto">
+          <div className="relative flex-1 bg-white/60 border border-white/50 rounded-[24px] shadow-inner flex items-center transition-all focus-within:bg-white/80 focus-within:ring-1 focus-within:ring-primary">
+            <textarea
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder="Type a message..."
+              className="w-full bg-transparent text-text-primary font-bold text-[14px] px-4 py-3.5 outline-none placeholder:text-text-secondary/50 max-h-[120px] min-h-[50px] resize-none"
+              rows={1}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  void sendMessage();
+                }
+              }}
+            />
+          </div>
+
+          <button
+            type="button"
+            className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white shadow-[0_4px_15px_rgba(255,122,0,0.3)] hover:scale-105 active:scale-[0.95] transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:active:scale-100 disabled:shadow-none"
+            disabled={!draft.trim() || sending}
+            onClick={() => void sendMessage()}
           >
-            <span className="sr-only">Send</span>
-          </Button>
+            {sending ? (
+              <div className="size-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+            ) : (
+              <span className="material-symbols-outlined text-[24px]">
+                send
+              </span>
+            )}
+          </button>
         </div>
       </footer>
-    </PageLayout>
+    </AppLayout>
   );
 };
 

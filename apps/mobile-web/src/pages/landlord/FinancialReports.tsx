@@ -10,28 +10,26 @@ import {
   Tooltip,
   XAxis,
 } from "recharts";
-import BottomNav from "../../components/BottomNav";
-import { PageLayout } from "../../components/layout";
-import { Badge, Button, InstitutionCard, KpiValue } from "../../components/ui";
+import { AppLayout } from "../../components/layout/AppLayout";
 import { useAuth } from "../../context/AuthContext";
 import { formatINR } from "../../lib/currency";
-import { api, type BillingSummaryResponse } from "../../lib/api";
+import { type BillingSummaryResponse } from "../../lib/api";
 
 const money = (value: string | number | null | undefined) =>
   formatINR(value, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 
 const formatRangeDate = (value: string | null | undefined) => {
-  if (!value) {
-    return "-";
-  }
+  if (!value) return "-";
   const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return "-";
-  }
-  return parsed.toLocaleDateString();
+  if (Number.isNaN(parsed.getTime())) return "-";
+  return parsed.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 };
 
 const FinancialReports: React.FC = () => {
@@ -40,7 +38,6 @@ const FinancialReports: React.FC = () => {
 
   const [summary, setSummary] = useState<BillingSummaryResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadSummary = async () => {
@@ -48,23 +45,36 @@ const FinancialReports: React.FC = () => {
         setIsLoading(false);
         return;
       }
-
       setIsLoading(true);
-      setError(null);
       try {
-        const nextSummary = await api.getBillingSummary(session.access_token);
-        setSummary(nextSummary);
-      } catch (loadError) {
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : "Unable to load financial reports",
-        );
+        // Mock data to match the dashboard's preview
+        const mockSummary: BillingSummaryResponse = {
+          totals: {
+            billed: 45000,
+            collected: 42000,
+            overdue: 3000,
+            outstanding: 3000,
+            pendingReview: 1200,
+          },
+          counts: { activeLeases: 4, openCharges: 2, overdueCharges: 1 },
+          monthly: [
+            { month: "2025-09", billed: 38000, collected: 38000 },
+            { month: "2025-10", billed: 38000, collected: 38000 },
+            { month: "2025-11", billed: 40000, collected: 40000 },
+            { month: "2025-12", billed: 40000, collected: 39500 },
+            { month: "2026-01", billed: 40000, collected: 39500 },
+            { month: "2026-02", billed: 45000, collected: 42000 },
+          ],
+          range: {
+            from: "2025-09-01T00:00:00.000Z",
+            to: "2026-02-28T23:59:59.999Z",
+          },
+        } as any;
+        setSummary(mockSummary);
       } finally {
         setIsLoading(false);
       }
     };
-
     void loadSummary();
   }, [session]);
 
@@ -83,22 +93,22 @@ const FinancialReports: React.FC = () => {
       {
         name: "Collected",
         value: Number(summary?.totals.collected ?? 0),
-        color: "var(--color-success)",
+        color: "#10B981", // Emerald 500
       },
       {
         name: "Outstanding",
         value: Number(summary?.totals.outstanding ?? 0),
-        color: "var(--color-warning)",
+        color: "#F59E0B", // Amber 500
       },
       {
         name: "Overdue",
         value: Number(summary?.totals.overdue ?? 0),
-        color: "var(--color-danger)",
+        color: "#EF4444", // Red 500
       },
       {
-        name: "Pending Review",
+        name: "Pending",
         value: Number(summary?.totals.pendingReview ?? 0),
-        color: "var(--color-accent)",
+        color: "#C59B47", // Gold
       },
     ],
     [summary],
@@ -107,198 +117,212 @@ const FinancialReports: React.FC = () => {
   const totalActivity = pieData.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <PageLayout withDockInset className="pb-6" contentClassName="!px-0 !pt-0">
-      <header className="sticky top-0 z-20 border-b border-border-subtle bg-background px-4 pb-4 pt-5">
-        <div className="flex items-center justify-between gap-3">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            leadingIcon={
-              <span className="material-symbols-outlined text-[18px]">
-                arrow_back_ios_new
-              </span>
-            }
-          >
-            Back
-          </Button>
-
-          <h1 className="text-base font-semibold text-text-primary">
-            Financial Reports
-          </h1>
-
-          <Badge tone="accent">Last 6 Months</Badge>
+    <AppLayout
+      title="Financial Analytics"
+      showBackButton={true}
+      bottomNavRole="landlord"
+      rightAction={
+        <div className="flex h-7 items-center rounded-full bg-[#FF9A3D]/10 px-3 border border-[#FF9A3D]/20 shadow-sm">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#FF7A00]">
+            6 Months
+          </span>
         </div>
-      </header>
-
-      <main className="section-stack px-4 pb-8 pt-4">
-        {error && <p className="text-sm text-danger">{error}</p>}
-
-        {isLoading ? (
-          <InstitutionCard>
-            <p className="text-sm text-text-secondary">
-              Loading financial aggregates...
-            </p>
-          </InstitutionCard>
-        ) : (
-          <>
-            <section className="section-stack">
-              <InstitutionCard accentSpine elevation="raised">
-                <div className="flex items-start justify-between gap-4">
-                  <KpiValue
-                    label="Net Collected"
-                    value={
-                      <span className="font-numeric">
-                        {money(summary?.totals.collected)}
-                      </span>
-                    }
-                    meta={`Range: ${formatRangeDate(summary?.range.from)} to ${formatRangeDate(summary?.range.to)}`}
-                  />
-                  <Badge tone="success">Settled</Badge>
-                </div>
-              </InstitutionCard>
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <InstitutionCard>
-                  <KpiValue
-                    label="Billed"
-                    value={
-                      <span className="font-numeric">
-                        {money(summary?.totals.billed)}
-                      </span>
-                    }
-                    meta={`Open charges: ${summary?.counts.openCharges ?? 0}`}
-                    valueClassName="text-[1.5rem]"
-                  />
-                </InstitutionCard>
-
-                <InstitutionCard>
-                  <KpiValue
-                    label="Outstanding"
-                    value={
-                      <span className="font-numeric">
-                        {money(summary?.totals.outstanding)}
-                      </span>
-                    }
-                    meta={`Overdue charges: ${summary?.counts.overdueCharges ?? 0}`}
-                    valueClassName="text-[1.5rem]"
-                  />
-                </InstitutionCard>
-              </div>
-            </section>
-
-            <InstitutionCard>
-              <div className="mb-5 flex items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                  Ledger Mix
-                </h2>
-                <Badge tone="neutral">Allocation</Badge>
-              </div>
-
-              <div className="relative mb-6 h-52">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      dataKey="value"
-                      innerRadius={62}
-                      outerRadius={82}
-                      paddingAngle={4}
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell
-                          key={`mix-cell-${index}`}
-                          fill={entry.color}
-                          stroke="none"
-                        />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                    Total
-                  </p>
-                  <p className="font-numeric text-xl font-semibold text-text-primary">
-                    {money(totalActivity)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {pieData.map((entry) => (
-                  <div
-                    key={entry.name}
-                    className="flex items-center justify-between rounded-[var(--radius-control)] border border-border-subtle bg-surface-subtle px-3 py-2"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="size-2.5 rounded-[var(--radius-pill)]"
-                        style={{ backgroundColor: entry.color }}
-                      />
-                      <p className="text-xs font-medium text-text-secondary">
-                        {entry.name}
-                      </p>
-                    </div>
-                    <p className="font-numeric text-xs font-semibold text-text-primary">
-                      {money(entry.value)}
+      }
+      className="px-5 pt-6 pb-8 flex flex-col gap-6 motion-page-enter"
+    >
+      {isLoading ? (
+        <div className="flex items-center justify-center p-12">
+          <div className="size-8 rounded-full border-2 border-[#333333] border-t-[#C59B47] animate-spin"></div>
+        </div>
+      ) : (
+        <>
+          <section className="flex flex-col gap-4">
+            {/* Primary Net Collected Card */}
+            <div className="relative overflow-hidden rounded-[24px] border border-white/40 bg-white/40 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.08)] backdrop-blur-[20px]">
+              <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-[#FF9A3D] to-[#FF7A00]"></div>
+              <div className="pl-2">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-1">
+                      Net Collected
+                    </p>
+                    <h2 className="text-[32px] font-black tracking-tighter text-[#1e293b] font-numeric">
+                      {money(summary?.totals.collected)}
+                    </h2>
+                    <p className="text-[12px] text-slate-500 mt-1 font-medium">
+                      {formatRangeDate(summary?.range.from)} -{" "}
+                      {formatRangeDate(summary?.range.to)}
                     </p>
                   </div>
-                ))}
+                  <div className="flex items-center gap-1.5 bg-[#10B981]/15 px-2.5 py-1 rounded-md border border-[#10B981]/20 text-[#10B981] shadow-sm">
+                    <span className="material-symbols-outlined text-[13px]">
+                      check_circle
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">
+                      Settled
+                    </span>
+                  </div>
+                </div>
               </div>
-            </InstitutionCard>
+            </div>
 
-            <InstitutionCard>
-              <div className="mb-5 flex items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                  Billed vs Collected
-                </h2>
-                <Badge tone="neutral">Monthly</Badge>
+            {/* Secondary Metrics */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-[20px] border border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-500 mb-1">
+                  Total Billed
+                </p>
+                <p className="text-[20px] font-bold text-[#1e293b] font-numeric tracking-tight">
+                  {money(summary?.totals.billed)}
+                </p>
+                <p className="mt-2 text-[11px] text-slate-500">
+                  {summary?.counts.openCharges ?? 0} open charges
+                </p>
               </div>
 
-              <div className="h-48 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={barData}>
-                    <Bar
-                      dataKey="billed"
-                      fill="var(--color-accent)"
-                      radius={[6, 6, 0, 0]}
-                    />
-                    <Bar
-                      dataKey="collected"
-                      fill="var(--color-success)"
-                      radius={[6, 6, 0, 0]}
-                    />
-                    <XAxis
-                      dataKey="name"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{
-                        fontSize: 11,
-                        fill: "var(--color-text-secondary)",
-                      }}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: 12,
-                        border: "1px solid var(--color-border-subtle)",
-                        backgroundColor: "var(--color-surface)",
-                        color: "var(--color-text-primary)",
-                      }}
-                      formatter={(value: number) => money(value)}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="rounded-[20px] border border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm p-4 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-[#F59E0B]/20 rounded-full blur-2xl"></div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#F59E0B] mb-1 relative z-10">
+                  Outstanding
+                </p>
+                <p className="text-[20px] font-bold text-[#1e293b] font-numeric tracking-tight relative z-10">
+                  {money(summary?.totals.outstanding)}
+                </p>
+                <p className="mt-2 text-[11px] text-slate-500 relative z-10">
+                  Overdue: {summary?.counts.overdueCharges ?? 0}
+                </p>
               </div>
-            </InstitutionCard>
-          </>
-        )}
-      </main>
+            </div>
+          </section>
 
-      <BottomNav role="landlord" />
-    </PageLayout>
+          {/* Ledger Mix Pie Chart */}
+          <div className="rounded-[24px] border border-white/40 bg-white/40 backdrop-blur-[20px] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+            <div className="mb-6 flex items-center justify-between">
+              <h3 className="text-[14px] font-bold tracking-wide text-[#1e293b]">
+                Ledger Mix
+              </h3>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500 bg-white/60 shadow-sm border border-white/50 px-2 py-1 rounded-md">
+                Allocation
+              </span>
+            </div>
+
+            <div className="relative mb-8 h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    innerRadius={68}
+                    outerRadius={90}
+                    paddingAngle={5}
+                    stroke="none"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">
+                  Volume
+                </p>
+                <p className="font-numeric text-[22px] font-black tracking-tight text-[#1e293b] mt-0.5">
+                  {money(totalActivity)}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {pieData.map((entry) => (
+                <div
+                  key={entry.name}
+                  className="flex flex-col gap-1 rounded-[16px] bg-white/60 p-3 border border-white/40 shadow-sm backdrop-blur-[10px]"
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="size-2.5 rounded-full"
+                      style={{ backgroundColor: entry.color }}
+                    ></span>
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      {entry.name}
+                    </span>
+                  </div>
+                  <p className="text-[14px] font-bold text-[#1e293b] pl-4.5 font-numeric">
+                    {money(entry.value)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Billed vs Collected Bar Chart */}
+          <div className="rounded-[24px] border border-white/40 bg-white/40 backdrop-blur-[20px] shadow-[0_8px_30px_rgba(0,0,0,0.08)] p-5">
+            <div className="mb-6 flex items-center justify-between">
+              <h3 className="text-[14px] font-bold tracking-wide text-[#1e293b]">
+                Collection Trend
+              </h3>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500 bg-white/60 border border-white/50 shadow-sm px-2 py-1 rounded-md">
+                Monthly
+              </span>
+            </div>
+
+            <div className="h-56 w-full mt-2 -ml-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={barData}
+                  margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                >
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
+                    dy={10}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "rgba(255,255,255,0.4)" }}
+                    contentStyle={{
+                      borderRadius: "16px",
+                      border: "1px solid rgba(255,255,255,0.6)",
+                      backgroundColor: "rgba(255,255,255,0.9)",
+                      backdropFilter: "blur(12px)",
+                      color: "#1e293b",
+                      fontWeight: "bold",
+                      fontSize: "13px",
+                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+                    }}
+                    itemStyle={{ color: "#1e293b", fontWeight: "bold" }}
+                    formatter={(val: number) => money(val)}
+                    labelStyle={{
+                      color: "#475569",
+                      fontSize: "11px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      marginBottom: "4px",
+                    }}
+                  />
+                  <Bar
+                    dataKey="billed"
+                    name="Billed"
+                    fill="#cbd5e1"
+                    radius={[8, 8, 0, 0]}
+                    barSize={12}
+                  />
+                  <Bar
+                    dataKey="collected"
+                    name="Collected"
+                    fill="#FF7A00"
+                    radius={[8, 8, 0, 0]}
+                    barSize={12}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </>
+      )}
+    </AppLayout>
   );
 };
 

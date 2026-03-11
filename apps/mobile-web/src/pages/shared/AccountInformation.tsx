@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageLayout } from "../../components/layout";
-import { Button, InstitutionCard, TextField } from "../../components/ui";
 import { api } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 
@@ -35,11 +33,9 @@ const AccountInformation: React.FC = () => {
       setError("Session expired. Please login again.");
       return;
     }
-
     setSubmitting(true);
     setError(null);
     setMessage(null);
-
     try {
       await api.updateMe(session.access_token, {
         firstName,
@@ -64,114 +60,133 @@ const AccountInformation: React.FC = () => {
     }
   };
 
+  const InputField = ({
+    label,
+    value,
+    onChange,
+    type = "text",
+    placeholder = "",
+    readOnly = false,
+  }: any) => (
+    <div className="flex flex-col gap-1.5 mb-4 last:mb-0">
+      <label className="text-[11px] font-bold uppercase tracking-[0.1em] text-text-secondary pl-1">
+        {label}
+      </label>
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        readOnly={readOnly}
+        className={`w-full rounded-[16px] border py-3 px-4 text-[14px] font-bold outline-none transition-all ${
+          readOnly
+            ? "border-white/40 bg-white/30 text-text-secondary opacity-70 cursor-not-allowed shadow-none"
+            : "border-white/50 bg-white/50 text-text-primary focus:border-primary focus:bg-white/80 focus:ring-1 focus:ring-primary shadow-inner placeholder:text-text-secondary/50"
+        }`}
+      />
+    </div>
+  );
+
   return (
-    <PageLayout withDockInset className="pb-6" contentClassName="!px-0 !pt-0">
-      <header className="sticky top-0 z-20 border-b border-border-subtle bg-background px-4 pb-4 pt-5">
+    <div className="min-h-screen font-sans pb-[120px] text-text-primary selection:bg-primary/30">
+      <header className="sticky top-0 z-20 border-b border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm px-5 pb-4 pt-6">
         <div className="flex items-center justify-between gap-3">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => navigate(-1)}
-            leadingIcon={
-              <span className="material-symbols-outlined text-[18px]">
-                arrow_back_ios_new
-              </span>
-            }
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 text-text-secondary hover:text-primary hover:bg-white/80 transition-colors shadow-sm"
           >
-            Back
-          </Button>
-          <h1 className="text-base font-semibold text-text-primary">
+            <span className="material-symbols-outlined text-[20px]">
+              arrow_back
+            </span>
+          </button>
+          <h1 className="text-[17px] font-black tracking-tight text-text-primary">
             Account Information
           </h1>
-          <span className="w-16" aria-hidden />
+          <div className="w-9" /> {/* spacer for centering */}
         </div>
       </header>
 
-      <main className="section-stack px-4 pb-8 pt-4">
-        <InstitutionCard>
-          <div className="section-stack">
-            <TextField
-              label="First Name"
-              value={firstName}
-              onChange={(event) => setFirstName(event.target.value)}
-            />
+      <main className="px-5 pt-6 pb-8 flex flex-col gap-6 motion-page-enter">
+        <div className="rounded-[24px] border border-white/50 bg-white/40 backdrop-blur-[20px] shadow-sm p-6">
+          <InputField
+            label="First Name"
+            value={firstName}
+            onChange={(e: any) => setFirstName(e.target.value)}
+          />
+          <InputField
+            label="Last Name"
+            value={lastName}
+            onChange={(e: any) => setLastName(e.target.value)}
+          />
+          <InputField
+            label="Email Address"
+            type="email"
+            value={profile?.email ?? ""}
+            readOnly
+          />
+          <InputField
+            label="Phone Number"
+            type="tel"
+            value={phone}
+            onChange={(e: any) => setPhone(e.target.value)}
+          />
 
-            <TextField
-              label="Last Name"
-              value={lastName}
-              onChange={(event) => setLastName(event.target.value)}
+          {profile?.role === "LANDLORD" && (
+            <InputField
+              label="Company Name"
+              value={companyName}
+              onChange={(e: any) => setCompanyName(e.target.value)}
             />
+          )}
 
-            <TextField
-              label="Email Address"
-              type="email"
-              value={profile?.email ?? ""}
-              readOnly
-              className="bg-surface-subtle text-text-secondary"
-            />
-
-            <TextField
-              label="Phone Number"
-              type="tel"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-            />
-
-            {profile?.role === "LANDLORD" && (
-              <TextField
-                label="Company Name"
-                value={companyName}
-                onChange={(event) => setCompanyName(event.target.value)}
+          {profile?.role === "TENANT" && (
+            <>
+              <div className="my-6 border-t border-white/50"></div>
+              <h2 className="text-[15px] font-black text-text-primary mb-4 drop-shadow-sm">
+                Emergency Contact
+              </h2>
+              <InputField
+                label="Contact Name"
+                value={emergencyContactName}
+                onChange={(e: any) => setEmergencyContactName(e.target.value)}
               />
-            )}
-
-            {profile?.role === "TENANT" && (
-              <>
-                <TextField
-                  label="Emergency Contact Name"
-                  value={emergencyContactName}
-                  onChange={(event) =>
-                    setEmergencyContactName(event.target.value)
-                  }
-                />
-
-                <TextField
-                  label="Emergency Contact Phone"
-                  type="tel"
-                  value={emergencyContactPhone}
-                  onChange={(event) =>
-                    setEmergencyContactPhone(event.target.value)
-                  }
-                />
-              </>
-            )}
-          </div>
-        </InstitutionCard>
+              <InputField
+                label="Contact Phone"
+                type="tel"
+                value={emergencyContactPhone}
+                onChange={(e: any) => setEmergencyContactPhone(e.target.value)}
+              />
+            </>
+          )}
+        </div>
 
         {(error || message) && (
-          <InstitutionCard>
+          <div
+            className={`rounded-[16px] border p-4 shadow-sm ${error ? "border-danger/20 bg-danger/10" : "border-success/20 bg-success/10"}`}
+          >
             <p
-              className={`text-sm font-medium ${error ? "text-danger" : "text-success"}`}
+              className={`text-[13px] font-bold text-center ${error ? "text-danger" : "text-success"}`}
             >
               {error ?? message}
             </p>
-          </InstitutionCard>
+          </div>
         )}
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 mx-auto flex w-full max-w-[430px] border-t border-border-subtle bg-background px-4 pb-[calc(var(--layout-safe-area-bottom)+1rem)] pt-3">
-        <Button
-          type="button"
-          className="w-full"
-          size="lg"
-          loading={submitting}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/40 bg-white/40 backdrop-blur-[30px] shadow-[0_-10px_30px_rgba(0,0,0,0.02)] pb-[calc(env(safe-area-inset-bottom)+20px)] pt-5 px-5">
+        <button
+          disabled={submitting}
           onClick={() => void handleSave()}
+          className="flex w-full items-center justify-center gap-2 rounded-full py-4 text-[15px] font-bold text-white bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
         >
-          Save Changes
-        </Button>
+          {submitting ? (
+            <div className="size-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+          ) : (
+            "Save Changes"
+          )}
+        </button>
       </div>
-    </PageLayout>
+    </div>
   );
 };
 

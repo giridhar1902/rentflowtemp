@@ -3,23 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --color-background: #f3efe9;
-  --color-surface: #ffffff;
-  --color-surface-subtle: #f6f2ec;
-  --color-text-primary: #1e1e1c;
-  --color-text-secondary: #5a5854;
-  --color-border-subtle: rgba(0, 0, 0, 0.06);
-  --color-accent: #8c6a2e;
-  --color-accent-strong: #7a5c29;
+  --color-background: #ffffff; /* We use gradient on body */
+  --color-surface: rgba(255, 255, 255, 0.4);
+  --color-surface-subtle: rgba(255, 255, 255, 0.6);
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-border-subtle: rgba(255, 255, 255, 0.5);
+  --color-accent: #FF7A00;
+  --color-accent-strong: #FF9A3D;
   --color-accent-contrast: #ffffff;
-  --color-focus-ring: rgba(140, 106, 46, 0.45);
-  --color-kpi-highlight: #8c6a2e;
-  --color-card-accent-spine: #8c6a2e;
-  --color-success: #2d7c51;
-  --color-warning: #a06a17;
-  --color-danger: #b64336;
-  --color-info: #33606c;
-  --color-overlay-scrim: rgba(20, 20, 18, 0.38);
+  --color-focus-ring: rgba(255, 122, 0, 0.45);
+  --color-kpi-highlight: #FF7A00;
+  --color-card-accent-spine: #FF7A00;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-info: #3B82F6;
+  --color-overlay-scrim: rgba(255, 255, 255, 0.2);
 
   --font-family-primary: "Inter", "Satoshi", "General Sans", sans-serif;
   --font-family-numeric: "IBM Plex Mono", "JetBrains Mono", "SFMono-Regular",
@@ -56,7 +56,10 @@
   --layout-content-max-width: 1200px;
   --layout-reading-max-width: 920px;
   --layout-sticky-header-height: 72px;
+  --layout-safe-area-top: env(safe-area-inset-top, 0px);
   --layout-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --layout-safe-area-left: env(safe-area-inset-left, 0px);
+  --layout-safe-area-right: env(safe-area-inset-right, 0px);
 
   --card-inner-stroke: inset 0 0 0 1px var(--color-border-subtle);
   --card-accent-spine-width: 3px;
@@ -79,7 +82,8 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background-color: var(--color-background);
+    background: linear-gradient(135deg, #EADCF8 0%, #D7E9FF 50%, #F1E4FF 100%);
+    background-attachment: fixed;
     color: var(--color-text-primary);
     line-height: 1.45;
     letter-spacing: -0.005em;
@@ -126,6 +130,9 @@
     background-color: var(--color-surface);
     border: 1px solid var(--color-border-subtle);
     border-radius: var(--radius-control);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   }
 
   ::placeholder {
@@ -148,7 +155,7 @@
 @layer components {
   .app-shell {
     min-height: 100vh;
-    background-color: var(--color-background);
+    background: transparent;
     color: var(--color-text-primary);
   }
 
@@ -157,8 +164,7 @@
     max-width: var(--layout-app-frame-max-width);
     min-height: 100vh;
     margin-inline: auto;
-    background-color: var(--color-background);
-    box-shadow: var(--elevation-overlay);
+    background: transparent;
   }
 
   .page-content {
@@ -174,11 +180,15 @@
     background-color: var(--color-surface);
     border: 1px solid var(--color-border-subtle);
     box-shadow: var(--elevation-base);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
   .surface-subtle {
     background-color: var(--color-surface-subtle);
     border: 1px solid var(--color-border-subtle);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
   .kpi-value {
@@ -202,12 +212,10 @@
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(2px) scale(0.995);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 

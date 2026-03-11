@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import BottomNav from "../../components/BottomNav";
-import { PageLayout } from "../../components/layout";
-import { Badge, Button, InstitutionCard, KpiValue } from "../../components/ui";
+import { AppLayout } from "../../components/layout/AppLayout";
+import { PremiumCard } from "../../components/ui/PremiumCard";
+import { PremiumButton } from "../../components/ui/PremiumButton";
 import { useAuth } from "../../context/AuthContext";
 import { formatINRWhole } from "../../lib/currency";
 import { api, type PropertyRecord } from "../../lib/api";
@@ -99,172 +99,174 @@ const PropertiesList: React.FC = () => {
   );
 
   return (
-    <PageLayout withDockInset className="pb-6" contentClassName="!px-0 !pt-0">
-      <header className="sticky top-0 z-20 border-b border-border-subtle bg-background px-4 pb-4 pt-5">
-        <div className="flex items-center justify-between gap-3">
-          <h1 className="text-base font-semibold text-text-primary">
-            Properties
-          </h1>
-          {!isLoading && (
-            <Badge tone="neutral" className="font-numeric">
-              {filteredProperties.length}
-            </Badge>
-          )}
-        </div>
-
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {filterOptions.map((status) => (
-            <Button
+    <AppLayout
+      title="Properties"
+      subtitle="PORTFOLIO"
+      bottomNavRole="landlord"
+      showFab
+    >
+      <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
+        {filterOptions.map((status) => {
+          const active = filter === status;
+          return (
+            <button
               key={status}
               type="button"
-              variant={filter === status ? "primary" : "secondary"}
-              size="sm"
+              className={`shrink-0 rounded-full px-5 py-2.5 text-[13px] font-bold transition-all shadow-sm ${active ? "bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white border border-transparent shadow-[0_4px_15px_rgba(255,122,0,0.3)]" : "bg-white/40 text-slate-500 border border-white/60 hover:border-[#FF9A3D]/50 hover:text-[#1e293b] backdrop-blur-md"}`}
               onClick={() => setFilter(status)}
-              className="shrink-0"
             >
-              {status}
-            </Button>
-          ))}
+              {status}{" "}
+              {status === "All" && !isLoading
+                ? `(${filteredProperties.length})`
+                : ""}
+            </button>
+          );
+        })}
+      </div>
+
+      {error && (
+        <p className="mb-4 text-[13px] font-bold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">
+          {error}
+        </p>
+      )}
+
+      <PremiumCard
+        className="flex items-center justify-between gap-3 cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow relative overflow-hidden group !p-4 mb-4 backdrop-blur-[20px]"
+        onClick={() => navigate("/landlord/add-property")}
+      >
+        <div className="absolute -right-4 -bottom-4 size-24 bg-gradient-to-tl from-[#FF9A3D]/20 to-[#FF7A00]/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+        <div className="flex flex-col relative z-10">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
+            Portfolio
+          </p>
+          <h2 className="text-xl font-black text-[#1e293b] tracking-tight">
+            Add Property
+          </h2>
+          <p className="text-[11px] font-medium text-slate-500 mt-1">
+            Register a new income asset
+          </p>
         </div>
-      </header>
-
-      <main className="section-stack px-4 pb-8 pt-4">
-        <InstitutionCard
-          interactive
-          className="cursor-pointer"
+        <PremiumButton
+          variant="secondary"
           onClick={() => navigate("/landlord/add-property")}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              navigate("/landlord/add-property");
-            }
-          }}
+          className="relative z-10 !px-4 !py-2 !h-10 !rounded-full shadow-sm shrink-0"
         >
-          <div className="flex items-center justify-between gap-3">
-            <KpiValue
-              label="Portfolio"
-              value={<span className="font-numeric">Add Property</span>}
-              valueClassName="text-[1.375rem]"
-              meta="Register a new income asset"
-            />
-            <Button
-              type="button"
-              size="sm"
-              leadingIcon={
-                <span className="material-symbols-outlined text-[18px]">
-                  add
-                </span>
-              }
-            >
-              New
-            </Button>
-          </div>
-        </InstitutionCard>
+          <span className="material-symbols-outlined text-[18px] mr-1">
+            add
+          </span>
+          <span className="text-xs font-bold">New</span>
+        </PremiumButton>
+      </PremiumCard>
 
-        {error && <p className="text-sm font-medium text-danger">{error}</p>}
-
+      <div className="flex flex-col gap-4">
         {isLoading ? (
-          <InstitutionCard>
-            <p className="text-sm text-text-secondary">Loading properties...</p>
-          </InstitutionCard>
+          <PremiumCard>
+            <p className="text-[13px] font-medium text-slate-500 animate-pulse">
+              Loading properties...
+            </p>
+          </PremiumCard>
         ) : filteredProperties.length === 0 ? (
-          <InstitutionCard>
-            <p className="text-sm text-text-secondary">No properties found.</p>
-          </InstitutionCard>
+          <PremiumCard>
+            <p className="text-[13px] font-medium text-slate-500">
+              No properties found.
+            </p>
+          </PremiumCard>
         ) : (
           filteredProperties.map((property) => {
             const unit = property.units[0];
             const rent = parseAmount(unit?.monthlyRent);
             const status = toStatusLabel(property);
+            const isOccupied = status === "Occupied";
 
             return (
-              <InstitutionCard
+              <PremiumCard
                 key={property.id}
-                interactive
-                className="cursor-pointer p-0"
+                variant="solid"
+                className="cursor-pointer !p-0 overflow-hidden hover:shadow-lg transition-all border-none relative group"
                 onClick={() => navigate(`/landlord/property/${property.id}`)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    navigate(`/landlord/property/${property.id}`);
-                  }
-                }}
               >
-                <div className="flex min-h-36 gap-0 overflow-hidden rounded-[inherit]">
-                  <div className="relative flex w-[34%] items-center justify-center bg-surface-subtle">
+                <div className="flex h-36">
+                  <div className="relative w-[36%] shrink-0">
                     {propertyImageUrls[property.id] ? (
                       <img
                         src={propertyImageUrls[property.id]}
                         alt={`${property.name} cover`}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover relative z-10"
                       />
                     ) : (
-                      <span className="material-symbols-outlined text-4xl text-text-secondary opacity-70">
-                        apartment
-                      </span>
+                      <div className="flex h-full w-full items-center justify-center bg-slate-100 relative z-10">
+                        <span className="material-symbols-outlined text-4xl text-slate-300">
+                          apartment
+                        </span>
+                      </div>
                     )}
-                    <div className="absolute left-2 top-2">
-                      <Badge
-                        tone={status === "Occupied" ? "success" : "neutral"}
+
+                    {/* Status Badge overlay */}
+                    <div className="absolute top-2 left-2 z-20">
+                      <span
+                        className={`text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border shadow-sm backdrop-blur-md ${isOccupied ? "bg-[#10B981]/15 text-[#10B981] border-[#10B981]/20" : "bg-white/80 text-slate-500 border-white/40 shadow-sm"}`}
                       >
                         {status}
-                      </Badge>
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex flex-1 flex-col justify-between gap-4 p-4">
+                  <div className="flex flex-col justify-between p-4 flex-1 min-w-0 bg-gradient-to-l from-white/60 to-white/40 backdrop-blur-[10px]">
                     <div>
-                      <h2 className="line-clamp-1 text-base font-semibold text-text-primary">
+                      <h2 className="text-[15px] font-black text-[#1e293b] truncate">
                         {property.name}
                       </h2>
-                      <p className="mt-1 line-clamp-1 text-xs text-text-secondary">
+                      <p className="mt-1 text-[11px] font-medium text-slate-500 truncate">
                         {property.addressLine1}, {property.city}
                       </p>
                     </div>
 
-                    <div className="flex items-end justify-between gap-3">
-                      <div className="flex items-center gap-3 text-text-secondary">
-                        <span className="inline-flex items-center gap-1 text-xs font-medium">
-                          <span className="material-symbols-outlined text-[16px]">
+                    <div className="flex items-end justify-between gap-2 mt-2">
+                      {/* Amenities miniaturized */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-0.5 text-slate-500 bg-white/40 px-1.5 py-0.5 rounded-md border border-white/50 shadow-sm backdrop-blur-sm">
+                          <span className="material-symbols-outlined text-[12px]">
                             bed
                           </span>
-                          {unit?.bedrooms ?? 0}
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-xs font-medium">
-                          <span className="material-symbols-outlined text-[16px]">
+                          <span className="text-[10px] font-bold">
+                            {unit?.bedrooms ?? 0}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-0.5 text-slate-500 bg-white/40 px-1.5 py-0.5 rounded-md border border-white/50 shadow-sm backdrop-blur-sm">
+                          <span className="material-symbols-outlined text-[12px]">
                             bathtub
                           </span>
-                          {unit?.bathrooms ?? 0}
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-xs font-medium">
-                          <span className="material-symbols-outlined text-[16px]">
+                          <span className="text-[10px] font-bold">
+                            {unit?.bathrooms ?? 0}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-0.5 text-slate-500 bg-white/40 px-1.5 py-0.5 rounded-md border border-white/50 shadow-sm backdrop-blur-sm">
+                          <span className="material-symbols-outlined text-[12px]">
                             door_front
                           </span>
-                          {property.units.length}
-                        </span>
+                          <span className="text-[10px] font-bold">
+                            {property.units.length}
+                          </span>
+                        </div>
                       </div>
+                    </div>
 
-                      <p className="font-numeric text-lg font-semibold text-primary">
+                    <div className="mt-2 text-right">
+                      <p className="font-numeric text-lg font-black text-[#1e293b] leading-none">
                         {formatINRWhole(rent)}
-                        <span className="ml-1 text-[11px] font-medium text-text-secondary">
+                        <span className="text-[10px] font-bold text-slate-400 ml-0.5">
                           /mo
                         </span>
                       </p>
                     </div>
                   </div>
                 </div>
-              </InstitutionCard>
+              </PremiumCard>
             );
           })
         )}
-      </main>
-
-      <BottomNav role={profile?.role === "LANDLORD" ? "landlord" : "tenant"} />
-    </PageLayout>
+      </div>
+    </AppLayout>
   );
 };
 

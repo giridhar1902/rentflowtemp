@@ -1,14 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageLayout } from "../../components/layout";
-import {
-  Badge,
-  Button,
-  InstitutionCard,
-  SelectField,
-  TextField,
-  TextareaField,
-} from "../../components/ui";
+import { SelectField, TextField, TextareaField } from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
 import {
   api,
@@ -16,6 +8,7 @@ import {
   type MaintenancePriority,
   type MaintenanceRequestRecord,
 } from "../../lib/api";
+import { AppLayout } from "../../components/layout/AppLayout";
 
 const categories = ["Plumbing", "Electrical", "HVAC", "Appliances", "Other"];
 
@@ -166,115 +159,117 @@ const NewRequest: React.FC = () => {
   };
 
   return (
-    <PageLayout withDockInset className="pb-6" contentClassName="!px-0 !pt-0">
-      <header className="sticky top-0 z-20 border-b border-border-subtle bg-background px-4 pb-4 pt-5">
-        <div className="flex items-center justify-between gap-3">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-          >
-            Cancel
-          </Button>
-          <h1 className="text-base font-semibold text-text-primary">
-            New Request
-          </h1>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/chat")}
-          >
-            Chat
-          </Button>
+    <AppLayout
+      title="New Request"
+      showBackButton
+      bottomNavRole="tenant"
+      className="px-5 pt-6 pb-28 flex flex-col gap-6 motion-page-enter"
+    >
+      {activeLease && (
+        <div className="rounded-[24px] bg-white/40 backdrop-blur-[20px] p-5 shadow-sm border border-white/50">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">
+            Submitting for
+          </p>
+          <p className="text-[15px] font-black text-text-primary">
+            {activeLease.property?.name} • {activeLease.unit?.name}
+          </p>
+          <p className="mt-1 text-[12px] font-bold text-text-secondary">
+            Tenant: {profile?.firstName ?? profile?.email ?? "Current user"}
+          </p>
         </div>
-      </header>
+      )}
 
-      <main className="section-stack px-4 pb-8 pt-4">
-        {activeLease && (
-          <InstitutionCard>
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
-              Submitting for
-            </p>
-            <p className="mt-1 text-sm font-semibold text-text-primary">
-              {activeLease.property?.name} • {activeLease.unit?.name}
-            </p>
-            <p className="mt-1 text-xs text-text-secondary">
-              Tenant: {profile?.firstName ?? profile?.email ?? "Current user"}
-            </p>
-          </InstitutionCard>
-        )}
+      {!activeLease && (
+        <div className="rounded-[12px] border border-warning/20 bg-warning/10 p-4">
+          <p className="text-[13px] font-bold text-warning">
+            No lease is linked to your account yet. Invite acceptance is
+            required before creating maintenance requests.
+          </p>
+        </div>
+      )}
 
-        {!activeLease && (
-          <InstitutionCard>
-            <p className="text-sm text-warning">
-              No lease is linked to your account yet. Invite acceptance is
-              required before creating maintenance requests.
-            </p>
-          </InstitutionCard>
-        )}
+      {error && (
+        <div className="rounded-[12px] border border-danger/20 bg-danger/10 p-4">
+          <p className="text-[13px] font-bold text-danger">{error}</p>
+        </div>
+      )}
 
-        {error && (
-          <InstitutionCard>
-            <p className="text-sm text-danger">{error}</p>
-          </InstitutionCard>
-        )}
+      {successMessage && (
+        <div className="rounded-[12px] border border-success/20 bg-success/10 p-4">
+          <p className="text-[13px] font-bold text-success drop-shadow-sm">
+            {successMessage}
+          </p>
+        </div>
+      )}
 
-        {successMessage && (
-          <InstitutionCard>
-            <p className="text-sm text-success">{successMessage}</p>
-          </InstitutionCard>
-        )}
+      <div className="relative overflow-hidden rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm border border-white/50">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] opacity-80"></div>
 
-        <InstitutionCard>
-          <div className="section-stack">
-            <TextField
-              label="Title"
+        <div className="p-6 flex flex-col gap-6">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-text-secondary pl-1">
+              Title
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3 text-[15px] font-black text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="e.g. Leaking Kitchen Sink"
-              hint="Minimum 3 characters."
             />
+            <p className="text-[10px] text-text-secondary opacity-80 font-bold pl-1">
+              Minimum 3 characters.
+            </p>
+          </div>
 
-            <div className="section-stack">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-text-primary">
-                  Category
-                </p>
-                <Badge tone="accent">Required</Badge>
-              </div>
-              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                {categories.map((item) => {
-                  const active = item === category;
-                  return (
-                    <Button
-                      key={item}
-                      type="button"
-                      size="sm"
-                      variant={active ? "primary" : "secondary"}
-                      className="shrink-0"
-                      onClick={() => setCategory(item)}
-                    >
-                      {item}
-                    </Button>
-                  );
-                })}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-secondary pl-1">
+                Category
+              </p>
+              <div className="text-[9px] font-bold uppercase tracking-wider text-warning bg-warning/10 px-2 py-1 rounded-full border border-warning/20">
+                Required
               </div>
             </div>
+            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar px-1 -mx-1">
+              {categories.map((item) => {
+                const active = item === category;
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    className={`shrink-0 rounded-[16px] px-4 py-2.5 text-[13px] font-bold transition-all shadow-sm ${active ? "bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white shadow-[0_4px_15px_rgba(255,122,0,0.3)]" : "bg-white/60 text-text-secondary border border-white/50 hover:border-primary/50 hover:text-primary active:scale-[0.98]"}`}
+                    onClick={() => setCategory(item)}
+                  >
+                    {item}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-            <TextareaField
-              label="Details"
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-text-secondary pl-1">
+              Details
+            </label>
+            <textarea
+              className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3 text-[14px] font-bold text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all min-h-[140px] resize-none"
               value={details}
               onChange={(event) => setDetails(event.target.value)}
               placeholder="Describe the issue in detail..."
-              hint="Minimum 10 characters."
-              className="min-h-[140px]"
             />
+            <p className="text-[10px] text-text-secondary opacity-80 font-bold pl-1">
+              Minimum 10 characters.
+            </p>
+          </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <SelectField
-                label="Priority"
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-text-secondary pl-1">
+                Priority
+              </label>
+              <select
+                className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3.5 text-[14px] font-black text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all appearance-none"
                 value={priority}
                 onChange={(event) =>
                   setPriority(event.target.value as MaintenancePriority)
@@ -284,82 +279,80 @@ const NewRequest: React.FC = () => {
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>
                 <option value="EMERGENCY">Emergency</option>
-              </SelectField>
+              </select>
+            </div>
 
-              <div className="rounded-[var(--radius-control)] border border-border-subtle bg-surface-subtle p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                  Emergency
-                </p>
-                <p className="mt-1 text-xs text-text-secondary">
-                  Immediate risk
-                </p>
-                <div className="mt-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={emergency ? "primary" : "secondary"}
-                    onClick={() => setEmergency((value) => !value)}
-                  >
-                    {emergency ? "Enabled" : "Disabled"}
-                  </Button>
+            <div className="rounded-[16px] border border-white/60 bg-white/40 backdrop-blur-md p-4 shadow-sm relative overflow-hidden flex flex-col justify-center">
+              {emergency && (
+                <div className="absolute inset-0 bg-danger/10 -z-10 animate-pulse"></div>
+              )}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-widest text-danger">
+                    Emergency
+                  </p>
+                  <p className="mt-0.5 text-[10px] text-text-secondary font-bold uppercase tracking-wider">
+                    Immediate risk
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setEmergency((value) => !value)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors border shadow-inner ${emergency ? "bg-danger border-danger" : "bg-white/60 border-white/50"}`}
+                >
+                  <span
+                    className={`inline-block size-4 transform rounded-full bg-white shadow-sm transition-transform ${emergency ? "translate-x-[22px]" : "translate-x-1"}`}
+                  />
+                </button>
               </div>
             </div>
           </div>
-        </InstitutionCard>
+        </div>
+      </div>
 
-        <InstitutionCard>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-text-primary">
-              Recent Requests
-            </h2>
-            <Badge tone="neutral">Last {recentRequests.length}</Badge>
-          </div>
+      <section>
+        <div className="mb-3 pl-1 flex items-center justify-between">
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-text-secondary">
+            Recent Requests
+          </h2>
+          <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-[6px] border border-primary/20 uppercase tracking-widest">
+            Last {recentRequests.length}
+          </span>
+        </div>
 
-          {recentRequests.length === 0 ? (
-            <p className="text-sm text-text-secondary">
+        {recentRequests.length === 0 ? (
+          <div className="rounded-[24px] bg-white/40 backdrop-blur-[20px] p-8 text-center shadow-sm border border-white/50">
+            <span className="material-symbols-outlined text-[32px] text-text-secondary opacity-50 mb-2">
+              library_books
+            </span>
+            <p className="text-[13px] font-bold text-text-secondary">
               No maintenance requests submitted yet.
             </p>
-          ) : (
-            <div className="section-stack">
-              {recentRequests.map((request) => (
-                <div
-                  key={request.id}
-                  className="rounded-[var(--radius-control)] border border-border-subtle bg-surface-subtle px-3 py-2"
-                >
-                  <p className="text-sm font-semibold text-text-primary">
-                    {request.title}
-                  </p>
-                  <p className="mt-1 text-xs text-text-secondary">
-                    {statusLabel(request.status)} • {request.category}
-                  </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {recentRequests.map((request) => (
+              <div
+                key={request.id}
+                className="rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm p-5 border border-white/50 hover:border-primary/40 hover:bg-white/60 transition-colors"
+              >
+                <p className="text-[14px] font-black text-text-primary mb-3">
+                  {request.title}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-bold text-success bg-success/10 px-2.5 py-1 rounded-[6px] border border-success/20 uppercase tracking-widest">
+                    {statusLabel(request.status)}
+                  </span>
+                  <span className="text-[9px] font-bold text-text-secondary bg-white/60 px-2.5 py-1 rounded-[6px] border border-white/50 uppercase tracking-widest">
+                    {request.category}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
-        </InstitutionCard>
-      </main>
-
-      <div className="fixed bottom-0 left-0 right-0 mx-auto flex w-full max-w-[430px] flex-col border-t border-border-subtle bg-background px-4 pb-[calc(var(--layout-safe-area-bottom)+1rem)] pt-3">
-        {validationMessage && (
-          <p className="mb-2 text-xs text-text-secondary">
-            {validationMessage}
-          </p>
+              </div>
+            ))}
+          </div>
         )}
-        <Button
-          type="button"
-          size="lg"
-          loading={submitting}
-          disabled={!session || !activeLease?.propertyId}
-          onClick={() => void handleSubmit()}
-          trailingIcon={
-            <span className="material-symbols-outlined text-[18px]">send</span>
-          }
-        >
-          Submit Request
-        </Button>
-      </div>
-    </PageLayout>
+      </section>
+    </AppLayout>
   );
 };
 

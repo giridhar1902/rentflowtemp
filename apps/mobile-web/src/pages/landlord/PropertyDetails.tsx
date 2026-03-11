@@ -1,20 +1,302 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import BottomNav from "../../components/BottomNav";
-import { PageLayout } from "../../components/layout";
-import { Badge, Button, InstitutionCard, KpiValue } from "../../components/ui";
+import { AppLayout } from "../../components/layout/AppLayout";
 import { useAuth } from "../../context/AuthContext";
 import { formatINRWhole } from "../../lib/currency";
+import { cn } from "../../lib/cn";
 import {
   api,
   type InvitationRecord,
-  type LeaseRecord,
   type PropertyRecord,
+  type ExpenseRecord,
 } from "../../lib/api";
+import { usePgData } from "../../hooks/usePgData";
+import type { PgUnit, PgTenant } from "../../lib/pgTypes";
+import AddUnitSheet from "./AddUnitSheet";
+import AddTenantSheet from "./AddTenantSheet";
 
-const parseAmount = (value: string | number | null | undefined) =>
-  Number(value ?? 0);
+// ─── Utility Billing Card ───────────────────────────────────────────────
+const currentMonthStr = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+};
 
+const UtilityBillingSection: React.FC<{
+  totalTenants: number;
+  totalUnits: number;
+  onSave: (utility: {
+    month: string;
+    electricAmount: number;
+    waterAmount: number;
+    splitMode: "per_tenant" | "per_unit";
+  }) => Promise<void>;
+  latestUtility?: {
+    month: string;
+    electricAmount: number;
+    waterAmount: number;
+    splitMode: string;
+  } | null;
+}> = ({ totalTenants, totalUnits, onSave, latestUtility }) => {
+  const [month, setMonth] = useState(currentMonthStr());
+  const [electric, setElectric] = useState(
+    latestUtility?.electricAmount?.toString() ?? "",
+  );
+  const [water, setWater] = useState(
+    latestUtility?.waterAmount?.toString() ?? "",
+  );
+  const [split, setSplit] = useState<"per_tenant" | "per_unit">("per_tenant");
+  const [saved, setSaved] = useState(false);
+
+  const elec = parseFloat(electric) || 0;
+  const wat = parseFloat(water) || 0;
+  const divisor = split === "per_tenant" ? totalTenants || 1 : totalUnits || 1;
+  const label =
+    split === "per_tenant" ? `${totalTenants} tenants` : `${totalUnits} units`;
+  const perShare = (elec + wat) / divisor;
+
+  const handleSave = async () => {
+    await onSave({
+      month,
+      electricAmount: elec,
+      waterAmount: wat,
+      splitMode: split,
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+          Utility Billing
+        </h3>
+        <input
+          type="month"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          className="text-[11px] font-bold text-[#FF7A00] bg-[#FF9A3D]/10 border border-[#FF9A3D]/20 rounded-full px-3 py-1 outline-none"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {/* Electricity */}
+        <div className="rounded-[18px] border border-white/50 bg-white/50 backdrop-blur p-3 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[16px] text-[#F59E0B]">
+              bolt
+            </span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              Electricity
+            </span>
+          </div>
+          <div className="relative">
+            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+              ₹
+            </span>
+            <input
+              value={electric}
+              onChange={(e) => setElectric(e.target.value)}
+              placeholder="0"
+              type="number"
+              className="w-full bg-slate-50 rounded-[10px] border border-slate-200 pl-5 pr-2 py-2 text-[14px] font-bold text-[#1e293b] outline-none focus:ring-2 focus:ring-[#F59E0B]/30"
+            />
+          </div>
+        </div>
+
+        {/* Water */}
+        <div className="rounded-[18px] border border-white/50 bg-white/50 backdrop-blur p-3 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[16px] text-[#3B82F6]">
+              water_drop
+            </span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              Water
+            </span>
+          </div>
+          <div className="relative">
+            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+              ₹
+            </span>
+            <input
+              value={water}
+              onChange={(e) => setWater(e.target.value)}
+              placeholder="0"
+              type="number"
+              className="w-full bg-slate-50 rounded-[10px] border border-slate-200 pl-5 pr-2 py-2 text-[14px] font-bold text-[#1e293b] outline-none focus:ring-2 focus:ring-[#3B82F6]/30"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Split mode */}
+      <div className="flex gap-2">
+        {(["per_tenant", "per_unit"] as const).map((mode) => (
+          <button
+            key={mode}
+            onClick={() => setSplit(mode)}
+            className={cn(
+              "flex-1 rounded-[14px] border py-2.5 text-[12px] font-bold transition-all",
+              split === mode
+                ? "border-[#FF9A3D] bg-[#FF9A3D]/10 text-[#FF7A00]"
+                : "border-slate-200 bg-slate-50 text-slate-500",
+            )}
+          >
+            {mode === "per_tenant" ? "Split per Tenant" : "Split per Unit"}
+          </button>
+        ))}
+      </div>
+
+      {/* Summary */}
+      {elec + wat > 0 && (
+        <div className="rounded-[16px] bg-gradient-to-br from-slate-50 to-white border border-slate-100 p-4">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+            Calculated Split
+          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[12px] text-slate-500">Total utilities</p>
+              <p className="text-[18px] font-black text-[#1e293b]">
+                {formatINRWhole(elec + wat)}
+              </p>
+            </div>
+            <span className="material-symbols-outlined text-slate-300 text-[20px]">
+              arrow_forward
+            </span>
+            <div className="text-right">
+              <p className="text-[12px] text-slate-500">Per share ({label})</p>
+              <p className="text-[18px] font-black text-[#10B981]">
+                {formatINRWhole(perShare)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <button
+        onClick={handleSave}
+        className={cn(
+          "w-full rounded-[16px] py-3 text-[14px] font-bold transition-all",
+          saved
+            ? "bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30"
+            : "bg-[#FF9A3D]/15 text-[#FF7A00] border border-[#FF9A3D]/30 hover:bg-[#FF9A3D]/25",
+        )}
+      >
+        {saved ? "✓ Saved" : "Save Utility Bill"}
+      </button>
+    </div>
+  );
+};
+
+// ─── Unit Card ──────────────────────────────────────────────────────────
+const UnitCard: React.FC<{
+  unit: PgUnit;
+  onAddTenant: (unit: PgUnit) => void;
+  onRemoveTenant: (unitId: string, tenantId: string) => void;
+}> = ({ unit, onAddTenant, onRemoveTenant }) => {
+  const occupiedBeds = unit.beds.filter((b) => b.tenantId).length;
+  const bedLabel = (tenantId?: string) => {
+    const bed = unit.beds.find((b) => b.tenantId === tenantId);
+    return bed ? ` · ${bed.label}` : "";
+  };
+
+  return (
+    <div className="rounded-[22px] border border-white/50 bg-white/45 backdrop-blur-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden">
+      {/* Unit header */}
+      <div className="px-4 pt-4 pb-3 border-b border-white/40">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[15px] font-black text-[#1e293b]">{unit.name}</p>
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {unit.floor && (
+                <span className="text-[10px] font-bold text-slate-500 bg-white/60 border border-white/50 px-2 py-0.5 rounded-full">
+                  Floor {unit.floor}
+                </span>
+              )}
+              {unit.meterNumber && (
+                <span className="text-[10px] font-bold text-slate-500 bg-white/60 border border-white/50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[10px]">
+                    bolt
+                  </span>
+                  {unit.meterNumber}
+                </span>
+              )}
+              <span className="text-[10px] font-bold text-[#3B82F6] bg-[#3B82F6]/10 border border-[#3B82F6]/20 px-2 py-0.5 rounded-full">
+                {occupiedBeds}/{unit.beds.length} beds
+              </span>
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+              Tenants
+            </p>
+            <p className="text-[20px] font-black text-[#1e293b]">
+              {unit.tenants.length}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Tenants */}
+      <div className="px-4 py-3 flex flex-col gap-2">
+        {unit.tenants.length === 0 ? (
+          <p className="text-[12px] text-slate-400 text-center py-2">
+            No tenants yet
+          </p>
+        ) : (
+          unit.tenants.map((tenant) => (
+            <div
+              key={tenant.id}
+              className="flex items-center justify-between gap-3 bg-white/50 rounded-[14px] px-3 py-2.5 border border-white/60"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="size-8 rounded-full bg-gradient-to-br from-[#FF9A3D]/20 to-[#FF7A00]/10 flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-[16px] text-[#FF7A00]">
+                    person
+                  </span>
+                </div>
+                <div>
+                  <p className="text-[13px] font-bold text-[#1e293b] leading-tight">
+                    {tenant.name}
+                    {bedLabel(tenant.id)}
+                  </p>
+                  {tenant.phone && (
+                    <p className="text-[11px] text-slate-400">{tenant.phone}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <p className="text-[13px] font-black text-[#10B981]">
+                  {formatINRWhole(tenant.rentAmount)}
+                </p>
+                <button
+                  onClick={() => onRemoveTenant(unit.id, tenant.id)}
+                  className="size-6 flex items-center justify-center rounded-full bg-red-50 border border-red-100 text-red-400 hover:bg-red-100 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[12px]">
+                    close
+                  </span>
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+
+        <button
+          onClick={() => onAddTenant(unit)}
+          className="flex items-center justify-center gap-2 w-full rounded-[14px] border border-dashed border-[#FF9A3D]/50 bg-[#FF9A3D]/5 py-2.5 text-[13px] font-bold text-[#FF7A00] hover:bg-[#FF9A3D]/10 transition-colors"
+        >
+          <span className="material-symbols-outlined text-[16px]">
+            person_add
+          </span>
+          Add Tenant
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ─── Main Page ─────────────────────────────────────────────────────────
 const PropertyDetails: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -26,30 +308,65 @@ const PropertyDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
-    if (!session || !id) {
-      return;
-    }
+  // PG local state (for units and tenants temporarily)
+  const {
+    pgData,
+    stats,
+    addUnit,
+    addTenant,
+    removeTenant,
+    isLoading: pgLoading,
+    error: pgError,
+  } = usePgData(id ?? "");
+  const [showAddUnit, setShowAddUnit] = useState(false);
+  const [addTenantUnit, setAddTenantUnit] = useState<PgUnit | null>(null);
 
+  // Utility Expenses from API
+  const [utilityExpenses, setUtilityExpenses] = useState<
+    {
+      month: string;
+      electricAmount: number;
+      waterAmount: number;
+      splitMode: string;
+    }[]
+  >([]);
+
+  const fetchData = useCallback(async () => {
+    if (!session || !id) return;
     setLoading(true);
     setError(null);
-
     try {
-      const [propertyData, invitationData, propertyDocs] = await Promise.all([
-        api.getProperty(session.access_token, id),
-        api.listInvitations(session.access_token, id),
-        api.listDocuments(session.access_token, {
-          propertyId: id,
-          type: "OTHER",
-          limit: 20,
-        }),
-      ]);
-
+      const [propertyData, invitationData, propertyDocs, expensesData] =
+        await Promise.all([
+          api.getProperty(session.access_token, id),
+          api.listInvitations(session.access_token, id),
+          api.listDocuments(session.access_token, {
+            propertyId: id,
+            type: "OTHER",
+            limit: 20,
+          }),
+          api.listExpenses(session.access_token, {
+            propertyId: id,
+            category: "UTILITIES",
+            limit: 50,
+          }),
+        ]);
       setProperty(propertyData);
-      setInvitations(invitationData);
+      setInvitations(invitationData ?? []);
 
-      const firstImage = propertyDocs.find((doc) =>
-        doc.mimeType.toLowerCase().startsWith("image/"),
+      const parsedUtilities = (expensesData ?? [])
+        .map((exp) => {
+          try {
+            return JSON.parse(exp.description || "{}");
+          } catch {
+            return null;
+          }
+        })
+        .filter(Boolean);
+      setUtilityExpenses(parsedUtilities);
+
+      const firstImage = (propertyDocs ?? []).find((doc) =>
+        doc.mimeType?.toLowerCase().startsWith("image/"),
       );
       if (firstImage) {
         const signed = await api.getDocumentDownloadUrl(
@@ -75,276 +392,303 @@ const PropertyDetails: React.FC = () => {
     void fetchData();
   }, [fetchData]);
 
-  const stats = useMemo(() => {
-    if (!property) {
-      return { units: 0, occupied: 0, revenue: 0 };
-    }
+  const handleAddUnit = (unit: PgUnit) => {
+    addUnit(unit);
+  };
+  const handleAddTenant = (unit: PgUnit, tenant: PgTenant) => {
+    addTenant(unit.id, tenant);
+  };
+  const handleRemoveTenant = (unitId: string, tenantId: string) => {
+    removeTenant(unitId, tenantId);
+  };
 
-    const occupiedUnitIds = new Set(
-      (property.leases ?? [])
-        .filter((lease) => lease.status === "ACTIVE")
-        .map((lease) => lease.unitId),
-    );
-
-    const revenue = property.units.reduce(
-      (sum, unit) => sum + parseAmount(unit.monthlyRent),
-      0,
-    );
-
-    return {
-      units: property.units.length,
-      occupied: occupiedUnitIds.size,
-      revenue,
-    };
-  }, [property]);
-
-  const handleInvite = async (unitId: string) => {
-    if (!session || !property) {
-      return;
-    }
-
-    const email = window.prompt("Enter tenant email address");
-    if (!email) {
-      return;
-    }
-
+  const handleSaveUtility = async (utility: {
+    month: string;
+    electricAmount: number;
+    waterAmount: number;
+    splitMode: "per_tenant" | "per_unit";
+  }) => {
+    if (!session || !id) return;
     try {
-      await api.createInvitation(session.access_token, property.id, {
-        inviteeEmail: email.trim().toLowerCase(),
-        unitId,
+      await api.createExpense(session.access_token, {
+        propertyId: id,
+        category: "UTILITIES",
+        amount: utility.electricAmount + utility.waterAmount,
+        incurredAt: `${utility.month}-01T12:00:00Z`,
+        description: JSON.stringify(utility),
       });
       await fetchData();
-    } catch (inviteError) {
-      alert(
-        inviteError instanceof Error
-          ? inviteError.message
-          : "Failed to generate invite",
-      );
+    } catch (e) {
+      console.error("Failed to save utility:", e);
     }
   };
 
-  const unitLeaseMap = useMemo(() => {
-    const map = new Map<string, LeaseRecord>();
-    for (const lease of property?.leases ?? []) {
-      if (lease.status === "ACTIVE") {
-        map.set(lease.unitId, lease);
-      }
-    }
-    return map;
-  }, [property?.leases]);
+  const latestUtility =
+    utilityExpenses.sort((a, b) => b.month.localeCompare(a.month))[0] ?? null;
+
+  if (loading || pgLoading) {
+    return (
+      <AppLayout title="Property" showBackButton bottomNavRole="landlord">
+        <div className="flex items-center justify-center py-20">
+          <div className="flex flex-col items-center gap-3">
+            <div className="size-10 rounded-full border-2 border-[#FF9A3D] border-t-transparent animate-spin" />
+            <p className="text-[13px] text-slate-400">Loading property…</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (error || pgError || !property || !pgData) {
+    return (
+      <AppLayout title="Property" showBackButton bottomNavRole="landlord">
+        <div className="px-5 pt-6">
+          <div className="rounded-[20px] border border-red-100 bg-red-50 p-5 text-center">
+            <span className="material-symbols-outlined text-3xl text-red-300 mb-2 block">
+              error
+            </span>
+            <p className="text-[14px] font-bold text-red-600">
+              {error ?? pgError ?? "Property not found"}
+            </p>
+            <button
+              onClick={fetchData}
+              className="mt-3 text-[12px] font-bold text-[#FF7A00] underline"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
-    <PageLayout withDockInset className="pb-6" contentClassName="!px-0 !pt-0">
-      <header className="sticky top-0 z-20 border-b border-border-subtle bg-background px-4 pb-4 pt-5">
-        <div className="flex items-center justify-between gap-3">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            leadingIcon={
-              <span className="material-symbols-outlined text-[18px]">
-                arrow_back_ios_new
+    <>
+      <AppLayout
+        title={property.name}
+        subtitle="PROPERTY"
+        showBackButton
+        bottomNavRole="landlord"
+        className="px-5 pt-5 pb-6 flex flex-col gap-5"
+      >
+        {/* ── Cover + Info Card ── */}
+        <div className="rounded-[24px] overflow-hidden border border-white/50 shadow-[0_6px_25px_rgba(0,0,0,0.08)] bg-white/40 backdrop-blur-[20px]">
+          {coverImageUrl ? (
+            <img
+              src={coverImageUrl}
+              alt={property.name}
+              className="h-44 w-full object-cover"
+            />
+          ) : (
+            <div className="h-44 w-full bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center">
+              <span className="material-symbols-outlined text-5xl text-slate-200">
+                apartment
               </span>
-            }
-          >
-            Back
-          </Button>
-          <h1 className="text-base font-semibold text-text-primary">
-            Property Details
-          </h1>
-          <Badge tone="neutral">Asset</Badge>
+            </div>
+          )}
+          <div className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-[18px] font-black text-[#1e293b] leading-tight">
+                  {property.name}
+                </h2>
+                <p className="text-[12px] text-slate-500 mt-0.5 leading-snug">
+                  {[property.addressLine1, property.city, property.state]
+                    .filter(Boolean)
+                    .join(", ")}
+                </p>
+              </div>
+              <span className="shrink-0 text-[10px] font-bold text-[#FF7A00] bg-[#FF9A3D]/10 border border-[#FF9A3D]/20 px-3 py-1.5 rounded-full uppercase tracking-wider">
+                {property.propertyType}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
+              <span className="text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/20 px-2.5 py-1 rounded-md uppercase tracking-widest">
+                {property.status}
+              </span>
+              {property.amenities?.map((a) => (
+                <span
+                  key={a}
+                  className="text-[10px] font-semibold text-slate-500 bg-white/60 border border-white/50 px-2.5 py-1 rounded-md"
+                >
+                  {a}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
-      </header>
 
-      <main className="section-stack px-4 pb-8 pt-4">
-        {loading ? (
-          <InstitutionCard>
-            <p className="text-sm text-text-secondary">Loading property...</p>
-          </InstitutionCard>
-        ) : error || !property ? (
-          <InstitutionCard>
-            <p className="text-sm font-medium text-danger">
-              {error ?? "Property not found"}
-            </p>
-          </InstitutionCard>
-        ) : (
-          <>
-            <InstitutionCard accentSpine elevation="raised">
-              {coverImageUrl ? (
-                <img
-                  src={coverImageUrl}
-                  alt={`${property.name} cover`}
-                  className="mb-4 h-52 w-full rounded-[var(--radius-control)] object-cover"
-                />
-              ) : null}
+        {/* ── Stats Row ── */}
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            {
+              label: "Units",
+              value: stats.totalUnits,
+              color: "text-[#1e293b]",
+            },
+            {
+              label: "Beds",
+              value: `${stats.occupiedBeds}/${stats.totalBeds}`,
+              color: "text-[#3B82F6]",
+            },
+            {
+              label: "Tenants",
+              value: stats.totalTenants,
+              color: "text-[#FF7A00]",
+            },
+            {
+              label: "Rent Roll",
+              value: formatINRWhole(stats.rentRoll),
+              color: "text-[#10B981]",
+              small: true,
+            },
+          ].map(({ label, value, color, small }) => (
+            <div
+              key={label}
+              className="rounded-[18px] border border-white/50 bg-white/45 backdrop-blur p-3 flex flex-col items-center text-center"
+            >
+              <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                {label}
+              </p>
+              <p
+                className={cn(
+                  "font-black",
+                  small ? "text-[12px] leading-tight" : "text-[18px]",
+                  color,
+                )}
+              >
+                {value}
+              </p>
+            </div>
+          ))}
+        </div>
 
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-semibold text-text-primary">
-                    {property.name}
-                  </h2>
-                  <p className="mt-1 text-sm text-text-secondary">
-                    {property.addressLine1}, {property.city}, {property.state}{" "}
-                    {property.postalCode}
-                  </p>
-                </div>
-                <Badge tone="neutral">{property.propertyType}</Badge>
+        {/* ── Units Section ── */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+              Units &amp; Tenants
+            </h3>
+            <button
+              onClick={() => setShowAddUnit(true)}
+              className="flex items-center gap-1.5 text-[12px] font-bold text-[#FF7A00] bg-[#FF9A3D]/10 border border-[#FF9A3D]/20 px-3 py-1.5 rounded-full hover:bg-[#FF9A3D]/20 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[14px]">add</span>
+              Add Unit
+            </button>
+          </div>
+
+          {pgData.units.length === 0 ? (
+            <div className="rounded-[22px] border border-dashed border-slate-200 bg-white/30 p-8 flex flex-col items-center text-center gap-4">
+              <span className="material-symbols-outlined text-4xl text-slate-300">
+                door_open
+              </span>
+              <div>
+                <p className="text-[15px] font-bold text-slate-600">
+                  No units yet
+                </p>
+                <p className="text-[12px] text-slate-400 mt-1">
+                  Add rooms or flats to start managing tenants, rent, and
+                  utilities.
+                </p>
               </div>
+              <button
+                onClick={() => setShowAddUnit(true)}
+                className="flex items-center gap-2 rounded-[16px] bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] px-5 py-3 text-[14px] font-bold text-white shadow-[0_6px_20px_rgba(255,122,0,0.3)] active:scale-[0.97] transition-all"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  add
+                </span>
+                Add First Unit
+              </button>
+            </div>
+          ) : (
+            pgData.units.map((unit) => (
+              <UnitCard
+                key={unit.id}
+                unit={unit}
+                onAddTenant={(u) => setAddTenantUnit(u)}
+                onRemoveTenant={handleRemoveTenant}
+              />
+            ))
+          )}
+        </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Badge tone="accent">{property.status}</Badge>
-                <Badge tone="neutral">Floors: {property.floors ?? "-"}</Badge>
-                <Badge tone="neutral">
-                  Units: {property.totalUnits ?? property.units.length}
-                </Badge>
-              </div>
+        {/* ── Utility Billing ── */}
+        <div className="rounded-[22px] border border-white/50 bg-white/45 backdrop-blur-[20px] p-4">
+          <UtilityBillingSection
+            totalTenants={stats.totalTenants}
+            totalUnits={stats.totalUnits}
+            latestUtility={latestUtility as any}
+            onSave={handleSaveUtility}
+          />
+        </div>
 
-              {property.amenities && property.amenities.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {property.amenities.map((amenity) => (
-                    <Badge key={amenity} tone="neutral">
-                      {amenity}
-                    </Badge>
-                  ))}
+        {/* ── Invite Codes ── */}
+        {(invitations ?? []).length > 0 && (
+          <div className="flex flex-col gap-3">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+              Active Invite Codes
+            </h3>
+            {invitations.map((invite) => (
+              <div
+                key={invite.id}
+                className="rounded-[20px] border border-white/50 bg-white/45 backdrop-blur p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-bold text-[#1e293b]">
+                      {invite.inviteeEmail}
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      Status: {invite.status} · Expires{" "}
+                      {new Date(invite.expiresAt).toLocaleDateString()}
+                    </p>
+                    <p
+                      className={cn(
+                        "mt-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded inline-block",
+                        invite.inviteeRegistered
+                          ? "bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20"
+                          : "bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20",
+                      )}
+                    >
+                      {invite.inviteeRegistered
+                        ? "Tenant account found"
+                        : "Awaiting registration"}
+                    </p>
+                  </div>
+                  <div className="bg-white px-3 py-2 rounded-[12px] border-2 border-slate-100 text-center shrink-0">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
+                      Code
+                    </p>
+                    <p className="font-numeric text-[18px] font-black tracking-[0.1em] text-[#3B82F6] leading-none">
+                      {invite.code}
+                    </p>
+                  </div>
                 </div>
-              ) : null}
-            </InstitutionCard>
-
-            <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <InstitutionCard>
-                <KpiValue
-                  label="Units"
-                  value={<span className="font-numeric">{stats.units}</span>}
-                  valueClassName="text-[1.5rem]"
-                />
-              </InstitutionCard>
-              <InstitutionCard>
-                <KpiValue
-                  label="Occupied"
-                  value={<span className="font-numeric">{stats.occupied}</span>}
-                  valueClassName="text-[1.5rem]"
-                />
-              </InstitutionCard>
-              <InstitutionCard>
-                <KpiValue
-                  label="Rent Roll"
-                  value={
-                    <span className="font-numeric">
-                      {formatINRWhole(stats.revenue)}
-                    </span>
-                  }
-                  valueClassName="text-[1.5rem]"
-                />
-              </InstitutionCard>
-            </section>
-
-            <section className="section-stack">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                Units & Lease Status
-              </h3>
-
-              {property.units.map((unit) => {
-                const activeLease = unitLeaseMap.get(unit.id);
-                const tenantName = activeLease?.tenant
-                  ? `${activeLease.tenant.firstName ?? ""} ${activeLease.tenant.lastName ?? ""}`.trim() ||
-                    activeLease.tenant.email
-                  : null;
-
-                return (
-                  <InstitutionCard key={unit.id}>
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-text-primary">
-                          {unit.name}
-                        </p>
-                        <p className="mt-1 font-numeric text-sm text-text-secondary">
-                          {formatINRWhole(unit.monthlyRent)}/mo
-                        </p>
-                      </div>
-                      <Badge tone={activeLease ? "success" : "neutral"}>
-                        {activeLease ? "Occupied" : "Vacant"}
-                      </Badge>
-                    </div>
-
-                    {activeLease ? (
-                      <p className="mt-2 text-sm text-text-secondary">
-                        Tenant:{" "}
-                        <span className="font-medium text-text-primary">
-                          {tenantName}
-                        </span>
-                      </p>
-                    ) : (
-                      <div className="mt-3">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          className="w-full"
-                          onClick={() => void handleInvite(unit.id)}
-                          leadingIcon={
-                            <span className="material-symbols-outlined text-[18px]">
-                              mail
-                            </span>
-                          }
-                        >
-                          Invite Tenant
-                        </Button>
-                      </div>
-                    )}
-                  </InstitutionCard>
-                );
-              })}
-            </section>
-
-            <section className="section-stack">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                Active Invite Codes
-              </h3>
-
-              {invitations.length === 0 ? (
-                <InstitutionCard>
-                  <p className="text-sm text-text-secondary">
-                    No invitations generated yet.
-                  </p>
-                </InstitutionCard>
-              ) : (
-                invitations.map((invite) => (
-                  <InstitutionCard key={invite.id}>
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-text-primary">
-                          {invite.inviteeEmail}
-                        </p>
-                        <p className="mt-1 text-xs text-text-secondary">
-                          Status: {invite.status} • Expires:{" "}
-                          {new Date(invite.expiresAt).toLocaleDateString()}
-                        </p>
-                        <p
-                          className={`mt-1 text-xs font-medium ${
-                            invite.inviteeRegistered
-                              ? "text-success"
-                              : "text-warning"
-                          }`}
-                        >
-                          {invite.inviteeRegistered
-                            ? "Tenant account found (in-app invite sent)"
-                            : "No tenant account found yet (share invite code manually)"}
-                        </p>
-                      </div>
-                      <p className="font-numeric text-base font-semibold tracking-[0.08em] text-primary">
-                        {invite.code}
-                      </p>
-                    </div>
-                  </InstitutionCard>
-                ))
-              )}
-            </section>
-          </>
+              </div>
+            ))}
+          </div>
         )}
-      </main>
+      </AppLayout>
 
-      <BottomNav role="landlord" />
-    </PageLayout>
+      {/* ── Sheets ── */}
+      <AddUnitSheet
+        open={showAddUnit}
+        propertyId={id ?? ""}
+        onSave={handleAddUnit}
+        onClose={() => setShowAddUnit(false)}
+      />
+
+      {addTenantUnit && (
+        <AddTenantSheet
+          open={!!addTenantUnit}
+          unit={addTenantUnit}
+          onSave={(tenant) => handleAddTenant(addTenantUnit, tenant)}
+          onClose={() => setAddTenantUnit(null)}
+        />
+      )}
+    </>
   );
 };
 

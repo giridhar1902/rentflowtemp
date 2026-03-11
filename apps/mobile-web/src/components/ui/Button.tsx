@@ -14,14 +14,15 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-[var(--color-accent-contrast)] border border-primary shadow-base",
+    "bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white !rounded-[20px] shadow-[0_8px_20px_rgba(255,122,0,0.3)] border-none hover:shadow-[0_12px_25px_rgba(255,122,0,0.4)]",
   secondary:
-    "bg-surface text-text-primary border border-border-subtle shadow-base",
+    "bg-white/[0.35] backdrop-blur-[20px] text-[#1e293b] border border-white/40 shadow-[0_4px_15px_rgba(0,0,0,0.05)] hover:bg-white/50 !rounded-[20px]",
   subtle:
-    "bg-surface-subtle text-text-primary border border-border-subtle shadow-none",
+    "bg-white/40 text-[#1e293b] border border-white/40 shadow-none !rounded-[20px]",
   ghost:
-    "bg-transparent text-text-secondary border border-transparent shadow-none",
-  danger: "bg-danger text-white border border-danger shadow-base",
+    "bg-transparent text-[#475569] border border-transparent shadow-none !rounded-[20px]",
+  danger:
+    "bg-red-500 text-white border border-red-500 shadow-base !rounded-[20px]",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

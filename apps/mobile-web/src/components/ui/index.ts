@@ -7,3 +7,4 @@ export * from "./Switch";
 export * from "./TextField";
 export * from "./TextareaField";
 export * from "./ThemeModeToggle";
+export * from "./PremiumCard";

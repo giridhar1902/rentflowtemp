@@ -1,26 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import BottomNav from "../../components/BottomNav";
-import { PageLayout } from "../../components/layout";
-import {
-  Badge,
-  Button,
-  InstitutionCard,
-  KpiValue,
-  TextField,
-} from "../../components/ui";
+import { TextField } from "../../components/ui";
+import { AppLayout } from "../../components/layout/AppLayout";
 import { useAuth } from "../../context/AuthContext";
-import { formatINR } from "../../lib/currency";
+import { formatINRWhole } from "../../lib/currency";
 import { api, type PaymentRecord, type RentChargeRecord } from "../../lib/api";
 
 const amountToNumber = (value: string | number | null | undefined) =>
   Number(value ?? 0);
 
 const toCurrency = (value: string | number | null | undefined) =>
-  formatINR(amountToNumber(value), {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  formatINRWhole(amountToNumber(value));
 
 const isoDateOnly = (date: Date) => date.toISOString().slice(0, 10);
 
@@ -118,9 +108,7 @@ const PayRent: React.FC = () => {
   }, [charges]);
 
   const pendingCashPayment = useMemo(() => {
-    if (!activeCharge) {
-      return null;
-    }
+    if (!activeCharge) return null;
     return (
       payments.find(
         (payment) =>
@@ -131,9 +119,7 @@ const PayRent: React.FC = () => {
   }, [activeCharge, payments]);
 
   const pendingOnlinePayment = useMemo(() => {
-    if (!activeCharge) {
-      return null;
-    }
+    if (!activeCharge) return null;
     return (
       payments.find(
         (payment) =>
@@ -151,8 +137,6 @@ const PayRent: React.FC = () => {
       : pendingOnlinePayment
         ? "pending"
         : "due";
-
-  const navRole = profile?.role === "LANDLORD" ? "landlord" : "tenant";
 
   const historyPayments = useMemo(
     () =>
@@ -172,9 +156,7 @@ const PayRent: React.FC = () => {
   };
 
   const handleCashSubmit = async () => {
-    if (!session || !activeCharge) {
-      return;
-    }
+    if (!session || !activeCharge) return;
 
     const parsedAmount = Number(cashAmount);
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
@@ -204,9 +186,7 @@ const PayRent: React.FC = () => {
   };
 
   const handleOnlinePayment = async () => {
-    if (!session || !activeCharge) {
-      return;
-    }
+    if (!session || !activeCharge) return;
 
     setIsLaunchingOnline(true);
     setError(null);
@@ -238,268 +218,297 @@ const PayRent: React.FC = () => {
   };
 
   return (
-    <PageLayout withDockInset className="pb-6" contentClassName="!px-0 !pt-0">
-      <header className="sticky top-0 z-20 border-b border-border-subtle bg-background px-4 pb-4 pt-5">
-        <div className="flex items-center justify-between gap-3">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            leadingIcon={
-              <span className="material-symbols-outlined text-[18px]">
-                arrow_back_ios_new
-              </span>
-            }
-          >
-            Back
-          </Button>
-          <h1 className="text-base font-semibold text-text-primary">
-            Pay Rent
-          </h1>
-          <Badge tone="neutral">Ledger</Badge>
+    <AppLayout
+      title="Pay Rent"
+      bottomNavRole="tenant"
+      showBackButton
+      className="px-5 pt-6 pb-8 flex flex-col gap-6 motion-page-enter"
+    >
+      {error && (
+        <div className="rounded-[12px] border border-danger/20 bg-danger/10 p-4">
+          <p className="text-[13px] font-bold text-danger">{error}</p>
         </div>
-      </header>
+      )}
 
-      <main className="section-stack px-4 pb-8 pt-4">
-        {error && (
-          <InstitutionCard>
-            <p className="text-sm text-danger">{error}</p>
-          </InstitutionCard>
-        )}
+      {isLoading ? (
+        <div className="flex items-center justify-center p-12">
+          <div className="size-8 rounded-full border-2 border-white/60 border-t-primary animate-spin"></div>
+        </div>
+      ) : (
+        <>
+          <section className="relative overflow-hidden rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm border border-white/50 group">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] opacity-80"></div>
 
-        {isLoading ? (
-          <InstitutionCard>
-            <p className="text-sm text-text-secondary">
-              Loading billing details...
-            </p>
-          </InstitutionCard>
-        ) : (
-          <>
-            <InstitutionCard accentSpine elevation="raised">
-              <KpiValue
-                label="Current Balance"
-                value={
-                  <span className="font-numeric">
-                    {toCurrency(activeCharge?.balanceAmount ?? 0)}
-                  </span>
-                }
-              />
+            <div className="p-6">
+              <div className="flex flex-col gap-1 mb-6">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
+                  Current Balance
+                </p>
+                <h2 className="text-[40px] font-black text-text-primary tracking-tight leading-none drop-shadow-sm">
+                  {toCurrency(activeCharge?.balanceAmount ?? 0)}
+                </h2>
+              </div>
 
               {activeCharge && paymentStatus === "due" && (
-                <div className="mt-3">
-                  <Badge tone="accent">
+                <div className="flex items-center gap-2 rounded-full bg-danger/10 px-3 py-1.5 border border-danger/20 w-max">
+                  <span className="material-symbols-outlined text-[14px] text-danger">
+                    event
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-danger">
                     Due {new Date(activeCharge.dueDate).toLocaleDateString()}
-                  </Badge>
+                  </span>
                 </div>
               )}
 
               {paymentStatus === "pending" && pendingCashPayment && (
-                <div className="mt-3">
-                  <Badge tone="warning">
-                    Cash submission pending landlord approval
-                  </Badge>
+                <div className="flex items-center gap-2 rounded-full bg-warning/10 px-3 py-1.5 border border-warning/20 w-max">
+                  <span className="material-symbols-outlined text-[14px] text-warning">
+                    pending_actions
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-warning">
+                    Cash pending approval
+                  </span>
                 </div>
               )}
 
               {paymentStatus === "pending" &&
                 !pendingCashPayment &&
                 pendingOnlinePayment && (
-                  <div className="mt-3">
-                    <Badge tone="warning">
-                      Online payment is pending confirmation
-                    </Badge>
+                  <div className="flex items-center gap-2 rounded-full bg-warning/10 px-3 py-1.5 border border-warning/20 w-max">
+                    <span className="material-symbols-outlined text-[14px] text-warning">
+                      sync
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-warning">
+                      Online payment processing
+                    </span>
                   </div>
                 )}
-            </InstitutionCard>
+            </div>
 
-            <InstitutionCard>
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                Monthly Breakdown
-              </h2>
-
-              {activeCharge ? (
-                <div className="section-stack">
+            {activeCharge && (
+              <div className="bg-white/30 border-t border-white/40 p-5 flex flex-col gap-4">
+                <h2 className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
+                  Monthly Breakdown
+                </h2>
+                <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-text-secondary">Base Rent</p>
-                    <p className="font-numeric text-sm font-semibold text-text-primary">
+                    <p className="text-[13px] font-bold text-text-secondary">
+                      Base Rent
+                    </p>
+                    <p className="font-numeric text-[14px] font-black text-text-primary">
                       {toCurrency(activeCharge.baseRentAmount)}
                     </p>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-text-secondary">Maintenance</p>
-                    <p className="font-numeric text-sm font-semibold text-text-primary">
+                    <p className="text-[13px] font-bold text-text-secondary">
+                      Maintenance
+                    </p>
+                    <p className="font-numeric text-[14px] font-black text-text-primary">
                       {toCurrency(activeCharge.maintenanceAmount)}
                     </p>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-text-secondary">Utility</p>
-                    <p className="font-numeric text-sm font-semibold text-text-primary">
+                    <p className="text-[13px] font-bold text-text-secondary">
+                      Utility
+                    </p>
+                    <p className="font-numeric text-[14px] font-black text-text-primary">
                       {toCurrency(activeCharge.utilityAmount)}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between border-t border-border-subtle pt-3">
-                    <p className="text-sm font-semibold text-primary">
-                      Total Due
+                  <div className="flex items-center justify-between pt-3 border-t border-white/40">
+                    <p className="text-[12px] font-bold uppercase tracking-widest text-primary">
+                      Total
                     </p>
-                    <p className="font-numeric text-sm font-semibold text-primary">
+                    <p className="font-numeric text-[16px] font-black text-primary">
                       {toCurrency(activeCharge.balanceAmount)}
                     </p>
                   </div>
                 </div>
-              ) : (
-                <p className="text-sm text-text-secondary">
-                  No outstanding charges. Your ledger is clear.
+              </div>
+            )}
+          </section>
+
+          <section>
+            <h2 className="mb-3 pl-1 text-[11px] font-bold uppercase tracking-widest text-text-secondary">
+              Payment History
+            </h2>
+
+            {historyPayments.length === 0 ? (
+              <div className="rounded-[24px] bg-white/40 backdrop-blur-[20px] p-8 text-center shadow-sm border border-white/50">
+                <span className="material-symbols-outlined text-[32px] text-text-secondary opacity-50 mb-2">
+                  history
+                </span>
+                <p className="text-[13px] font-bold text-text-secondary">
+                  No payments recorded yet.
                 </p>
-              )}
-            </InstitutionCard>
-
-            <section className="section-stack">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                Payment History
-              </h2>
-
-              {historyPayments.length === 0 ? (
-                <InstitutionCard>
-                  <p className="text-sm text-text-secondary">
-                    No payments recorded yet.
-                  </p>
-                </InstitutionCard>
-              ) : (
-                historyPayments.slice(0, 6).map((payment) => {
+              </div>
+            ) : (
+              <div className="rounded-[24px] bg-white/40 backdrop-blur-[20px] overflow-hidden shadow-sm border border-white/50">
+                {historyPayments.slice(0, 6).map((payment, i) => {
                   const isPending = payment.status === "REQUIRES_REVIEW";
                   const isSuccess = payment.status === "SUCCEEDED";
-                  const tone = isPending
-                    ? "warning"
-                    : isSuccess
-                      ? "success"
-                      : "danger";
 
                   return (
-                    <InstitutionCard key={payment.id}>
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-text-primary">
+                    <div
+                      className={`flex items-center justify-between gap-3 p-4 hover:bg-white/60 transition-colors ${i !== Math.min(historyPayments.length, 6) - 1 ? "border-b border-white/40" : ""}`}
+                      key={payment.id}
+                    >
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div
+                          className={`flex size-10 items-center justify-center rounded-full border shrink-0 ${isSuccess ? "bg-success/10 border-success/30 text-success" : isPending ? "bg-warning/10 border-warning/30 text-warning" : "bg-danger/10 border-danger/30 text-danger"}`}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            {payment.provider === "cash"
+                              ? "money"
+                              : "credit_card"}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[14px] font-black text-text-primary truncate mb-0.5">
                             {payment.provider === "cash"
                               ? "Cash Payment"
                               : "Rent Payment"}
                           </p>
-                          <p className="mt-1 text-xs text-text-secondary">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
                             {new Date(payment.createdAt).toLocaleDateString()} •{" "}
                             {payment.status.replaceAll("_", " ")}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <p className="font-numeric text-sm font-semibold text-text-primary">
-                            {toCurrency(payment.amount)}
-                          </p>
-                          <div className="mt-1">
-                            <Badge tone={tone}>{payment.status}</Badge>
-                          </div>
-                        </div>
                       </div>
-                    </InstitutionCard>
+                      <div className="text-right shrink-0">
+                        <p
+                          className={`font-numeric text-[14px] font-black ${isSuccess ? "text-success" : isPending ? "text-warning" : "text-text-primary"}`}
+                        >
+                          - {toCurrency(payment.amount)}
+                        </p>
+                      </div>
+                    </div>
                   );
-                })
-              )}
-            </section>
-
-            {paymentStatus !== "paid" && activeCharge && (
-              <div className="fixed bottom-0 left-0 right-0 mx-auto flex w-full max-w-[430px] flex-col gap-2 border-t border-border-subtle bg-background px-4 pb-[calc(var(--layout-safe-area-bottom)+1rem)] pt-3">
-                <Button
-                  type="button"
-                  size="lg"
-                  loading={isLaunchingOnline}
-                  disabled={paymentStatus === "pending"}
-                  onClick={() => void handleOnlinePayment()}
-                >
-                  Pay Online (UPI/Card)
-                </Button>
-
-                <Button
-                  type="button"
-                  size="lg"
-                  variant="secondary"
-                  disabled={paymentStatus === "pending"}
-                  onClick={openCashModal}
-                  leadingIcon={
-                    <span className="material-symbols-outlined text-[18px]">
-                      payments
-                    </span>
-                  }
-                >
-                  Record Cash Payment
-                </Button>
+                })}
               </div>
             )}
-          </>
-        )}
-      </main>
+          </section>
+
+          {paymentStatus !== "paid" && activeCharge && (
+            <div className="fixed bottom-0 left-0 right-0 p-5 bg-white/40 backdrop-blur-[30px] border-t border-white/40 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] flex flex-col gap-3 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
+              <button
+                disabled={paymentStatus === "pending" || isLaunchingOnline}
+                onClick={() => void handleOnlinePayment()}
+                className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-4 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
+              >
+                {isLaunchingOnline ? (
+                  <div className="size-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[20px]">
+                      account_balance
+                    </span>
+                    Pay Online (UPI/Card)
+                  </>
+                )}
+              </button>
+
+              <button
+                disabled={paymentStatus === "pending"}
+                onClick={openCashModal}
+                className="w-full flex items-center justify-center gap-2 rounded-full bg-white/60 border border-white/50 py-3.5 text-text-primary font-bold text-[14px] hover:bg-white/80 active:scale-[0.98] transition-all disabled:opacity-50 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[20px] text-text-secondary">
+                  payments
+                </span>
+                Record Cash Payment
+              </button>
+            </div>
+          )}
+        </>
+      )}
 
       {showCashModal && activeCharge && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--color-overlay-scrim)] p-4 sm:items-center">
-          <div className="motion-modal-enter w-full max-w-[400px] rounded-[var(--radius-modal)] border border-border-subtle bg-surface p-5 shadow-overlay">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-text-primary">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 backdrop-blur-md p-4 sm:items-center motion-page-enter">
+          <div className="motion-modal-enter w-full max-w-[400px] rounded-[24px] border border-white/50 bg-white/80 backdrop-blur-[30px] p-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00]"></div>
+
+            <div className="mb-6 flex items-center justify-between">
+              <h3 className="text-[18px] font-black text-text-primary">
                 Record Cash Payment
               </h3>
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="sm"
+                className="flex size-8 items-center justify-center rounded-full bg-white/60 border border-white/60 text-text-secondary hover:text-text-primary hover:bg-white/80 transition-colors shadow-sm"
                 onClick={() => setShowCashModal(false)}
               >
-                Close
-              </Button>
+                <span className="material-symbols-outlined text-[18px]">
+                  close
+                </span>
+              </button>
             </div>
 
-            <InstitutionCard className="mb-4 bg-surface-subtle">
-              <p className="text-xs text-text-secondary">
+            <div className="rounded-[16px] bg-white/60 border border-white/60 p-4 flex items-start gap-3 mb-6 shadow-sm">
+              <span className="material-symbols-outlined text-primary text-[20px]">
+                info
+              </span>
+              <p className="text-[12px] font-bold text-text-secondary leading-relaxed">
                 Your landlord will review this cash submission before the charge
                 balance is updated.
               </p>
-            </InstitutionCard>
-
-            <div className="section-stack mb-4">
-              <TextField
-                label="Amount Paid"
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={cashAmount}
-                onChange={(event) => setCashAmount(event.target.value)}
-              />
-
-              <TextField
-                label="Date Handed Over"
-                type="date"
-                value={cashDate}
-                onChange={(event) => setCashDate(event.target.value)}
-              />
-
-              <TextField
-                label="Reference (Optional)"
-                value={cashReference}
-                onChange={(event) => setCashReference(event.target.value)}
-                placeholder="Receipt ID or note"
-              />
             </div>
 
-            <Button
-              type="button"
-              className="w-full"
-              size="lg"
-              loading={isSubmittingCash}
+            <div className="flex flex-col gap-4 mb-8">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-text-secondary pl-1">
+                  Amount Paid
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3 text-[15px] font-black text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all"
+                  value={cashAmount}
+                  onChange={(event) => setCashAmount(event.target.value)}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-text-secondary pl-1">
+                  Date Handed Over
+                </label>
+                <input
+                  type="date"
+                  className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3 text-[15px] font-black text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all"
+                  value={cashDate}
+                  onChange={(event) => setCashDate(event.target.value)}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-text-secondary pl-1">
+                  Reference (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Receipt ID or note"
+                  className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3 text-[14px] font-bold text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all"
+                  value={cashReference}
+                  onChange={(event) => setCashReference(event.target.value)}
+                />
+              </div>
+            </div>
+
+            <button
+              className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-3.5 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
+              disabled={isSubmittingCash}
               onClick={() => void handleCashSubmit()}
             >
-              Submit for Approval
-            </Button>
+              {isSubmittingCash ? (
+                <div className="size-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+              ) : (
+                "Submit for Approval"
+              )}
+            </button>
           </div>
         </div>
       )}
-
-      <BottomNav role={navRole} />
-    </PageLayout>
+    </AppLayout>
   );
 };
 

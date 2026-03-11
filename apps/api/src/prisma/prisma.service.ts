@@ -12,7 +12,14 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   async onModuleInit(): Promise<void> {
-    await this.$connect();
+    try {
+      await this.$connect();
+    } catch (error) {
+      console.warn(
+        "Failed to connect to Prisma on initialization. The server will start, but database queries will fail. This is expected if running in mock/demo mode without a database.",
+        error,
+      );
+    }
   }
 
   async onModuleDestroy(): Promise<void> {

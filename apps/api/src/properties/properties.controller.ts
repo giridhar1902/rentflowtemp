@@ -45,33 +45,6 @@ export class PropertiesController {
     return this.propertiesService.updateProperty(user, propertyId, payload);
   }
 
-  @Get(":propertyId/units")
-  listUnits(@Req() request: Request, @Param("propertyId") propertyId: string) {
-    const user = getRequestUser(request);
-    return this.propertiesService.listUnits(user, propertyId);
-  }
-
-  @Post(":propertyId/units")
-  createUnit(
-    @Req() request: Request,
-    @Param("propertyId") propertyId: string,
-    @Body() payload: CreateUnitDto,
-  ) {
-    const user = getRequestUser(request);
-    return this.propertiesService.createUnit(user, propertyId, payload);
-  }
-
-  @Patch(":propertyId/units/:unitId")
-  updateUnit(
-    @Req() request: Request,
-    @Param("propertyId") propertyId: string,
-    @Param("unitId") unitId: string,
-    @Body() payload: UpdateUnitDto,
-  ) {
-    const user = getRequestUser(request);
-    return this.propertiesService.updateUnit(user, propertyId, unitId, payload);
-  }
-
   @Get(":propertyId/invitations")
   listInvitations(
     @Req() request: Request,

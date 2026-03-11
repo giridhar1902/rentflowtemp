@@ -10,7 +10,6 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ProtectedRoute, PublicOnlyRoute } from "./components/ProtectedRoute";
 import NativeBridge from "./components/NativeBridge";
 import { defaultRouteForRole } from "./lib/routes";
-import { AppLayout } from "./components/layout";
 import { cn } from "./lib/cn";
 import { useReducedMotion } from "./hooks/useReducedMotion";
 
@@ -45,6 +44,9 @@ const NewRequest = lazy(() => import("./pages/tenant/NewRequest.tsx"));
 const TenantPropertyDetails = lazy(
   () => import("./pages/tenant/TenantPropertyDetails.tsx"),
 );
+const RentAdvance = lazy(() => import("./pages/tenant/RentAdvance.tsx"));
+const DepositEmi = lazy(() => import("./pages/tenant/DepositEmi.tsx"));
+const Marketplace = lazy(() => import("./pages/tenant/Marketplace.tsx"));
 const Chat = lazy(() => import("./pages/shared/Chat.tsx"));
 const Profile = lazy(() => import("./pages/shared/Profile.tsx"));
 const AccountInformation = lazy(
@@ -52,6 +54,8 @@ const AccountInformation = lazy(
 );
 const PaymentMethods = lazy(() => import("./pages/shared/PaymentMethods.tsx"));
 const LeaseAgreement = lazy(() => import("./pages/shared/LeaseAgreement.tsx"));
+const Vault = lazy(() => import("./pages/shared/Vault.tsx"));
+const ActivityCenter = lazy(() => import("./pages/shared/ActivityCenter.tsx"));
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -86,10 +90,7 @@ const AppRoutes: React.FC = () => {
   const transitionKey = `${location.pathname}${location.search}`;
 
   return (
-    <div
-      key={transitionKey}
-      className={cn(!reducedMotion && "motion-page-enter")}
-    >
+    <div key={transitionKey}>
       <Suspense fallback={<RouteLoading />}>
         <Routes location={location}>
           <Route path="/" element={<RootRedirect />} />
@@ -220,6 +221,30 @@ const AppRoutes: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/tenant/rent-advance"
+            element={
+              <ProtectedRoute allowedRoles={["TENANT", "ADMIN"]}>
+                <RentAdvance />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tenant/deposit-emi"
+            element={
+              <ProtectedRoute allowedRoles={["TENANT", "ADMIN"]}>
+                <DepositEmi />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tenant/marketplace"
+            element={
+              <ProtectedRoute allowedRoles={["TENANT", "ADMIN"]}>
+                <Marketplace />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Shared Routes */}
           <Route
@@ -262,6 +287,22 @@ const AppRoutes: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/vault"
+            element={
+              <ProtectedRoute>
+                <Vault />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/activity"
+            element={
+              <ProtectedRoute>
+                <ActivityCenter />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="*" element={<RootRedirect />} />
         </Routes>
@@ -286,7 +327,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <AppLayout className="font-display text-text-primary">
+    <div className="font-display text-text-primary min-h-screen bg-background">
       <HashRouter>
         <AuthProvider>
           <ScrollToTop />
@@ -294,7 +335,7 @@ const App: React.FC = () => {
           <AppRoutes />
         </AuthProvider>
       </HashRouter>
-    </AppLayout>
+    </div>
   );
 };
 
