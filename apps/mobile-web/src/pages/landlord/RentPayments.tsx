@@ -106,12 +106,12 @@ const RentPayments: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen font-sans pb-[100px] text-[#1e293b] selection:bg-[#FF9A3D]/30">
-      <header className="sticky top-0 z-20 border-b border-white/40 bg-white/40 backdrop-blur-[20px] px-5 pb-4 pt-6 shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
+    <div className="min-h-screen font-sans pb-[100px] text-[#1B2B5E] ">
+      <header className="sticky top-0 z-20 border-b bg-white px-5 pb-4 pt-6 shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/60 border border-white/50 text-slate-500 hover:text-[#1e293b] transition-colors shadow-sm"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white border text-slate-500 hover:text-[#1B2B5E] transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined text-[20px]">
               arrow_back
@@ -120,7 +120,7 @@ const RentPayments: React.FC = () => {
           <h1 className="text-[17px] font-bold tracking-tight">
             Rent Payments
           </h1>
-          <div className="flex h-7 items-center rounded-full bg-white/60 px-3 border border-white/50 shadow-sm">
+          <div className="flex h-7 items-center rounded-full bg-white px-3 border shadow-sm">
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
               Ledger
             </span>
@@ -143,13 +143,13 @@ const RentPayments: React.FC = () => {
           <>
             {/* Top Summaries */}
             <section className="grid grid-cols-2 gap-4">
-              <div className="relative overflow-hidden rounded-[20px] border border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm p-4 group">
+              <div className="relative overflow-hidden rounded-[20px] border bg-white shadow-sm p-4 group">
                 <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#10B981]"></div>
                 <div className="pl-2">
                   <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#10B981] mb-1">
                     Collected
                   </p>
-                  <p className="text-[22px] font-black text-[#1e293b] font-numeric tracking-tight">
+                  <p className="text-[22px] font-black text-[#1B2B5E] font-numeric tracking-tight">
                     {asCurrency(summary?.totals.collected ?? 0)}
                   </p>
                   <p className="mt-2 text-[10px] uppercase tracking-wider text-slate-500">
@@ -158,11 +158,11 @@ const RentPayments: React.FC = () => {
                 </div>
               </div>
 
-              <div className="rounded-[20px] border border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm p-4 text-right">
+              <div className="rounded-[20px] border bg-white shadow-sm p-4 text-right">
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#EF4444] mb-1">
                   Outstanding
                 </p>
-                <p className="text-[22px] font-black text-[#1e293b] font-numeric tracking-tight">
+                <p className="text-[22px] font-black text-[#1B2B5E] font-numeric tracking-tight">
                   {asCurrency(summary?.totals.outstanding ?? 0)}
                 </p>
                 <p className="mt-2 text-[10px] uppercase tracking-wider text-slate-500">
@@ -193,29 +193,29 @@ const RentPayments: React.FC = () => {
                     return (
                       <div
                         key={approval.id}
-                        className="rounded-[24px] border border-[#FF9A3D]/40 bg-[#FF9A3D]/5 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] backdrop-blur-[20px] relative overflow-hidden"
+                        className="rounded-[24px] border border-[#F5A623]/40 bg-[#F5A623]/5 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)]  relative overflow-hidden"
                       >
-                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#FF9A3D]/50 to-transparent"></div>
+                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#F5A623]/50 to-transparent"></div>
 
                         <div className="mb-4 flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="truncate text-[15px] font-bold text-[#1e293b]">
+                            <p className="truncate text-[15px] font-bold text-[#1B2B5E]">
                               {tenantName}
                             </p>
                             <p className="mt-1 truncate text-[12px] font-medium text-slate-500">
                               {approval.property?.name} • {approval.unit?.name}
                             </p>
                           </div>
-                          <div className="bg-[#FF9A3D]/15 text-[#FF7A00] border border-[#FF9A3D]/30 px-2.5 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider shrink-0 shadow-sm">
+                          <div className="bg-[#F5A623]/15 text-[#F5A623] border border-[#F5A623]/30 px-2.5 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider shrink-0 shadow-sm">
                             {approval.paymentMode} Payment
                           </div>
                         </div>
 
-                        <div className="mb-5 rounded-[16px] border border-white/50 bg-white/60 shadow-sm px-4 py-3 flex items-center justify-between">
+                        <div className="mb-5 rounded-[16px] border bg-white shadow-sm px-4 py-3 flex items-center justify-between">
                           <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500">
                             Amount Submitted
                           </p>
-                          <p className="font-numeric text-[20px] font-black text-[#1e293b]">
+                          <p className="font-numeric text-[20px] font-black text-[#1B2B5E]">
                             {asCurrency(approval.amount)}
                           </p>
                         </div>
@@ -226,7 +226,7 @@ const RentPayments: React.FC = () => {
                             onClick={() =>
                               void handleReview(approval.id, "REJECTED")
                             }
-                            className="flex-1 rounded-[14px] bg-white/40 border border-white/60 py-2.5 text-[12px] font-bold text-slate-500 hover:bg-white/80 hover:text-[#1e293b] transition-colors disabled:opacity-50 shadow-sm"
+                            className="flex-1 rounded-[14px] bg-white border py-2.5 text-[12px] font-bold text-slate-500  hover:text-[#1B2B5E] transition-colors disabled:opacity-50 shadow-sm"
                           >
                             Reject
                           </button>
@@ -235,10 +235,10 @@ const RentPayments: React.FC = () => {
                             onClick={() =>
                               void handleReview(approval.id, "APPROVED")
                             }
-                            className="flex-[2] rounded-[16px] bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-2.5 text-[12px] font-bold text-white shadow-[0_4px_15px_rgba(255,122,0,0.3)] uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                            className="flex-[2] rounded-[16px] bg-gradient-to-r from-[#F5A623] to-[#F5A623] py-2.5 text-[12px] font-bold text-white shadow-[0_4px_15px_rgba(245,166,35,0.3)] uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
                           >
                             {reviewInFlight === approval.id ? (
-                              <div className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+                              <div className="size-4 rounded-full border-2 border-[rgba(27,43,94,0.06)] border-t-white animate-spin"></div>
                             ) : (
                               <>
                                 <span className="material-symbols-outlined text-[16px]">
@@ -261,13 +261,13 @@ const RentPayments: React.FC = () => {
                 <h2 className="text-[13px] font-bold uppercase tracking-widest text-slate-500">
                   Outstanding Charges
                 </h2>
-                <div className="flex px-2 py-0.5 items-center justify-center rounded-full bg-white/60 border border-white/50 shadow-sm text-[10px] font-bold text-[#1e293b]">
+                <div className="flex px-2 py-0.5 items-center justify-center rounded-full bg-white border shadow-sm text-[10px] font-bold text-[#1B2B5E]">
                   {urgentCharges.length} items
                 </div>
               </div>
 
               {urgentCharges.length === 0 ? (
-                <div className="rounded-[20px] border border-white/40 bg-white/40 backdrop-blur-[20px] p-6 text-center shadow-sm">
+                <div className="rounded-[20px] border bg-white p-6 text-center shadow-sm">
                   <p className="text-[13px] text-slate-500 font-medium">
                     No outstanding rent charges right now.
                   </p>
@@ -294,15 +294,15 @@ const RentPayments: React.FC = () => {
                     return (
                       <div
                         key={charge.id}
-                        className="rounded-[20px] border border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm p-4 flex flex-col gap-4 group"
+                        className="rounded-[20px] border bg-white shadow-sm p-4 flex flex-col gap-4 group"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div className="flex min-w-0 items-center gap-3">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-white/50 bg-white/60 shadow-sm text-[15px] font-bold text-slate-500">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border bg-white shadow-sm text-[15px] font-bold text-slate-500">
                               {(tenantName[0] ?? "T").toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                              <p className="truncate text-[14px] font-bold text-[#1e293b]">
+                              <p className="truncate text-[14px] font-bold text-[#1B2B5E]">
                                 {tenantName}
                               </p>
                               <p className="mt-0.5 truncate text-[11px] font-medium text-slate-500">
@@ -313,7 +313,7 @@ const RentPayments: React.FC = () => {
                           </div>
 
                           <div className="flex flex-col items-end gap-1 shrink-0">
-                            <p className="font-numeric text-[16px] font-black text-[#1e293b] tracking-tight">
+                            <p className="font-numeric text-[16px] font-black text-[#1B2B5E] tracking-tight">
                               {asCurrency(charge.balanceAmount)}
                             </p>
                             {isOverdue ? (
@@ -321,7 +321,7 @@ const RentPayments: React.FC = () => {
                                 {daysLate} days overdue
                               </div>
                             ) : (
-                              <div className="bg-white/60 text-slate-500 border border-white/50 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">
+                              <div className="bg-white text-slate-500 border px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm">
                                 Upcoming
                               </div>
                             )}
@@ -329,13 +329,13 @@ const RentPayments: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-2 pt-1">
-                          <button className="flex-1 flex items-center justify-center gap-2 rounded-[12px] bg-white/60 border border-white/50 shadow-sm py-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 hover:bg-white/80 hover:text-[#1e293b] transition-colors">
+                          <button className="flex-1 flex items-center justify-center gap-2 rounded-[12px] bg-white border shadow-sm py-2 text-[11px] font-bold uppercase tracking-wider text-slate-500  hover:text-[#1B2B5E] transition-colors">
                             <span className="material-symbols-outlined text-[16px]">
                               send
                             </span>
                             Send Reminder
                           </button>
-                          <button className="flex size-[34px] items-center justify-center rounded-[12px] border border-white/50 bg-white/40 shadow-sm text-slate-500 hover:bg-white/60 hover:text-[#1e293b] transition-colors">
+                          <button className="flex size-[34px] items-center justify-center rounded-[12px] border bg-white shadow-sm text-slate-500  hover:text-[#1B2B5E] transition-colors">
                             <span className="material-symbols-outlined text-[18px]">
                               call
                             </span>

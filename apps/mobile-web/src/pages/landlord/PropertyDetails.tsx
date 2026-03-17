@@ -75,13 +75,13 @@ const UtilityBillingSection: React.FC<{
           type="month"
           value={month}
           onChange={(e) => setMonth(e.target.value)}
-          className="text-[11px] font-bold text-[#FF7A00] bg-[#FF9A3D]/10 border border-[#FF9A3D]/20 rounded-full px-3 py-1 outline-none"
+          className="text-[11px] font-bold text-[#F5A623] bg-[#F5A623]/10 border border-[#F5A623]/20 rounded-full px-3 py-1 outline-none"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         {/* Electricity */}
-        <div className="rounded-[18px] border border-white/50 bg-white/50 backdrop-blur p-3 flex flex-col gap-2">
+        <div className="rounded-[18px] border bg-white backdrop-blur p-3 flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px] text-[#F59E0B]">
               bolt
@@ -99,13 +99,13 @@ const UtilityBillingSection: React.FC<{
               onChange={(e) => setElectric(e.target.value)}
               placeholder="0"
               type="number"
-              className="w-full bg-slate-50 rounded-[10px] border border-slate-200 pl-5 pr-2 py-2 text-[14px] font-bold text-[#1e293b] outline-none focus:ring-2 focus:ring-[#F59E0B]/30"
+              className="w-full bg-slate-50 rounded-[10px] border border-slate-200 pl-5 pr-2 py-2 text-[14px] font-bold text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#F59E0B]/30"
             />
           </div>
         </div>
 
         {/* Water */}
-        <div className="rounded-[18px] border border-white/50 bg-white/50 backdrop-blur p-3 flex flex-col gap-2">
+        <div className="rounded-[18px] border bg-white backdrop-blur p-3 flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px] text-[#3B82F6]">
               water_drop
@@ -123,7 +123,7 @@ const UtilityBillingSection: React.FC<{
               onChange={(e) => setWater(e.target.value)}
               placeholder="0"
               type="number"
-              className="w-full bg-slate-50 rounded-[10px] border border-slate-200 pl-5 pr-2 py-2 text-[14px] font-bold text-[#1e293b] outline-none focus:ring-2 focus:ring-[#3B82F6]/30"
+              className="w-full bg-slate-50 rounded-[10px] border border-slate-200 pl-5 pr-2 py-2 text-[14px] font-bold text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#3B82F6]/30"
             />
           </div>
         </div>
@@ -138,7 +138,7 @@ const UtilityBillingSection: React.FC<{
             className={cn(
               "flex-1 rounded-[14px] border py-2.5 text-[12px] font-bold transition-all",
               split === mode
-                ? "border-[#FF9A3D] bg-[#FF9A3D]/10 text-[#FF7A00]"
+                ? "border-[#F5A623] bg-[#F5A623]/10 text-[#F5A623]"
                 : "border-slate-200 bg-slate-50 text-slate-500",
             )}
           >
@@ -156,7 +156,7 @@ const UtilityBillingSection: React.FC<{
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[12px] text-slate-500">Total utilities</p>
-              <p className="text-[18px] font-black text-[#1e293b]">
+              <p className="text-[18px] font-black text-[#1B2B5E]">
                 {formatINRWhole(elec + wat)}
               </p>
             </div>
@@ -179,7 +179,7 @@ const UtilityBillingSection: React.FC<{
           "w-full rounded-[16px] py-3 text-[14px] font-bold transition-all",
           saved
             ? "bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30"
-            : "bg-[#FF9A3D]/15 text-[#FF7A00] border border-[#FF9A3D]/30 hover:bg-[#FF9A3D]/25",
+            : "bg-[#F5A623]/15 text-[#F5A623] border border-[#F5A623]/30 hover:bg-[#F5A623]/25",
         )}
       >
         {saved ? "✓ Saved" : "Save Utility Bill"}
@@ -209,20 +209,20 @@ const UnitCard: React.FC<{
   };
 
   return (
-    <div className="rounded-[22px] border border-white/50 bg-white/45 backdrop-blur-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden">
+    <div className="rounded-[22px] border bg-white/45  shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden">
       {/* Unit header */}
-      <div className="px-4 pt-4 pb-3 border-b border-white/40">
+      <div className="px-4 pt-4 pb-3 border-b">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[15px] font-black text-[#1e293b]">{unit.name}</p>
+            <p className="text-[15px] font-black text-[#1B2B5E]">{unit.name}</p>
             <div className="flex flex-wrap gap-1.5 mt-1.5">
               {unit.floor && (
-                <span className="text-[10px] font-bold text-slate-500 bg-white/60 border border-white/50 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold text-slate-500 bg-white border px-2 py-0.5 rounded-full">
                   Floor {unit.floor}
                 </span>
               )}
               {unit.meterNumber && (
-                <span className="text-[10px] font-bold text-slate-500 bg-white/60 border border-white/50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="text-[10px] font-bold text-slate-500 bg-white border px-2 py-0.5 rounded-full flex items-center gap-1">
                   <span className="material-symbols-outlined text-[10px]">
                     bolt
                   </span>
@@ -238,7 +238,7 @@ const UnitCard: React.FC<{
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
               Tenants
             </p>
-            <p className="text-[20px] font-black text-[#1e293b]">
+            <p className="text-[20px] font-black text-[#1B2B5E]">
               {unit.tenants.length}
             </p>
           </div>
@@ -263,17 +263,17 @@ const UnitCard: React.FC<{
             return (
               <div
                 key={tenant.id}
-                className="flex flex-col gap-2 bg-white/50 rounded-[14px] px-3 py-2.5 border border-white/60"
+                className="flex flex-col gap-2 bg-white rounded-[14px] px-3 py-2.5 border"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="size-8 rounded-full bg-gradient-to-br from-[#FF9A3D]/20 to-[#FF7A00]/10 flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-[16px] text-[#FF7A00]">
+                    <div className="size-8 rounded-full bg-gradient-to-br from-[#F5A623]/20 to-[#F5A623]/10 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[16px] text-[#F5A623]">
                         person
                       </span>
                     </div>
                     <div>
-                      <p className="text-[13px] font-bold text-[#1e293b] leading-tight flex items-center gap-1.5">
+                      <p className="text-[13px] font-bold text-[#1B2B5E] leading-tight flex items-center gap-1.5">
                         {tenant.name}
                         {bedLabel(tenant.id)}
                       </p>
@@ -316,7 +316,7 @@ const UnitCard: React.FC<{
                           href={tenant.receiptPdfUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-[9px] font-bold text-[#FF7A00] underline"
+                          className="text-[9px] font-bold text-[#F5A623] underline"
                         >
                           View Receipt
                         </a>
@@ -334,7 +334,7 @@ const UnitCard: React.FC<{
                 </div>
 
                 {hasPayment && !isPaid && (
-                  <div className="flex items-center gap-2 mt-1 border-t border-white/50 pt-2">
+                  <div className="flex items-center gap-2 mt-1 border-t pt-2">
                     <button
                       onClick={() => onSendReminder(tenant.latestPaymentId!)}
                       className="flex-1 rounded-[10px] bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 py-1.5 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all"
@@ -352,7 +352,7 @@ const UnitCard: React.FC<{
                       onClick={() => onMarkCashPaid(tenant.latestPaymentId!)}
                       className="flex-1 rounded-[10px] bg-white text-slate-600 border border-slate-200 py-1.5 text-[11px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all outline-none"
                     >
-                      <span className="material-symbols-outlined text-[13px] text-[#FF7A00]">
+                      <span className="material-symbols-outlined text-[13px] text-[#F5A623]">
                         payments
                       </span>
                       Accept Cash
@@ -366,7 +366,7 @@ const UnitCard: React.FC<{
 
         <button
           onClick={() => onAddTenant(unit)}
-          className="flex items-center justify-center gap-2 w-full rounded-[14px] border border-dashed border-[#FF9A3D]/50 bg-[#FF9A3D]/5 py-2.5 text-[13px] font-bold text-[#FF7A00] hover:bg-[#FF9A3D]/10 transition-colors"
+          className="flex items-center justify-center gap-2 w-full rounded-[14px] border border-dashed border-[#F5A623]/50 bg-[#F5A623]/5 py-2.5 text-[13px] font-bold text-[#F5A623] hover:bg-[#F5A623]/10 transition-colors"
         >
           <span className="material-symbols-outlined text-[16px]">
             person_add
@@ -538,7 +538,7 @@ const PropertyDetails: React.FC = () => {
       <AppLayout title="Property" showBackButton bottomNavRole="landlord">
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3">
-            <div className="size-10 rounded-full border-2 border-[#FF9A3D] border-t-transparent animate-spin" />
+            <div className="size-10 rounded-full border-2 border-[#F5A623] border-t-transparent animate-spin" />
             <p className="text-[13px] text-slate-400">Loading property…</p>
           </div>
         </div>
@@ -559,7 +559,7 @@ const PropertyDetails: React.FC = () => {
             </p>
             <button
               onClick={fetchData}
-              className="mt-3 text-[12px] font-bold text-[#FF7A00] underline"
+              className="mt-3 text-[12px] font-bold text-[#F5A623] underline"
             >
               Try again
             </button>
@@ -579,7 +579,7 @@ const PropertyDetails: React.FC = () => {
         className="px-5 pt-5 pb-6 flex flex-col gap-5"
       >
         {/* ── Cover + Info Card ── */}
-        <div className="rounded-[24px] overflow-hidden border border-white/50 shadow-[0_6px_25px_rgba(0,0,0,0.08)] bg-white/40 backdrop-blur-[20px]">
+        <div className="rounded-[24px] overflow-hidden border shadow-[0_6px_25px_rgba(0,0,0,0.08)] bg-white">
           {coverImageUrl ? (
             <img
               src={coverImageUrl}
@@ -596,7 +596,7 @@ const PropertyDetails: React.FC = () => {
           <div className="p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-[18px] font-black text-[#1e293b] leading-tight">
+                <h2 className="text-[18px] font-black text-[#1B2B5E] leading-tight">
                   {property.name}
                 </h2>
                 <p className="text-[12px] text-slate-500 mt-0.5 leading-snug">
@@ -605,7 +605,7 @@ const PropertyDetails: React.FC = () => {
                     .join(", ")}
                 </p>
               </div>
-              <span className="shrink-0 text-[10px] font-bold text-[#FF7A00] bg-[#FF9A3D]/10 border border-[#FF9A3D]/20 px-3 py-1.5 rounded-full uppercase tracking-wider">
+              <span className="shrink-0 text-[10px] font-bold text-[#F5A623] bg-[#F5A623]/10 border border-[#F5A623]/20 px-3 py-1.5 rounded-full uppercase tracking-wider">
                 {property.propertyType}
               </span>
             </div>
@@ -616,7 +616,7 @@ const PropertyDetails: React.FC = () => {
               {property.amenities?.map((a) => (
                 <span
                   key={a}
-                  className="text-[10px] font-semibold text-slate-500 bg-white/60 border border-white/50 px-2.5 py-1 rounded-md"
+                  className="text-[10px] font-semibold text-slate-500 bg-white border px-2.5 py-1 rounded-md"
                 >
                   {a}
                 </span>
@@ -631,7 +631,7 @@ const PropertyDetails: React.FC = () => {
             {
               label: "Units",
               value: stats.totalUnits,
-              color: "text-[#1e293b]",
+              color: "text-[#1B2B5E]",
             },
             {
               label: "Beds",
@@ -641,7 +641,7 @@ const PropertyDetails: React.FC = () => {
             {
               label: "Tenants",
               value: stats.totalTenants,
-              color: "text-[#FF7A00]",
+              color: "text-[#F5A623]",
             },
             {
               label: "Rent Roll",
@@ -652,7 +652,7 @@ const PropertyDetails: React.FC = () => {
           ].map(({ label, value, color, small }) => (
             <div
               key={label}
-              className="rounded-[18px] border border-white/50 bg-white/45 backdrop-blur p-3 flex flex-col items-center text-center"
+              className="rounded-[18px] border bg-white/45 backdrop-blur p-3 flex flex-col items-center text-center"
             >
               <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1">
                 {label}
@@ -678,7 +678,7 @@ const PropertyDetails: React.FC = () => {
             </h3>
             <button
               onClick={() => setShowAddUnit(true)}
-              className="flex items-center gap-1.5 text-[12px] font-bold text-[#FF7A00] bg-[#FF9A3D]/10 border border-[#FF9A3D]/20 px-3 py-1.5 rounded-full hover:bg-[#FF9A3D]/20 transition-colors"
+              className="flex items-center gap-1.5 text-[12px] font-bold text-[#F5A623] bg-[#F5A623]/10 border border-[#F5A623]/20 px-3 py-1.5 rounded-full hover:bg-[#F5A623]/20 transition-colors"
             >
               <span className="material-symbols-outlined text-[14px]">add</span>
               Add Unit
@@ -686,7 +686,7 @@ const PropertyDetails: React.FC = () => {
           </div>
 
           {pgData.units.length === 0 ? (
-            <div className="rounded-[22px] border border-dashed border-slate-200 bg-white/30 p-8 flex flex-col items-center text-center gap-4">
+            <div className="rounded-[22px] border border-dashed border-slate-200 bg-white p-8 flex flex-col items-center text-center gap-4">
               <span className="material-symbols-outlined text-4xl text-slate-300">
                 door_open
               </span>
@@ -701,7 +701,7 @@ const PropertyDetails: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowAddUnit(true)}
-                className="flex items-center gap-2 rounded-[16px] bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] px-5 py-3 text-[14px] font-bold text-white shadow-[0_6px_20px_rgba(255,122,0,0.3)] active:scale-[0.97] transition-all"
+                className="flex items-center gap-2 rounded-[16px] bg-gradient-to-r from-[#F5A623] to-[#F5A623] px-5 py-3 text-[14px] font-bold text-white shadow-[0_6px_20px_rgba(245,166,35,0.3)] active:scale-[0.97] transition-all"
               >
                 <span className="material-symbols-outlined text-[18px]">
                   add
@@ -724,7 +724,7 @@ const PropertyDetails: React.FC = () => {
         </div>
 
         {/* ── Utility Billing ── */}
-        <div className="rounded-[22px] border border-white/50 bg-white/45 backdrop-blur-[20px] p-4">
+        <div className="rounded-[22px] border bg-white/45  p-4">
           <UtilityBillingSection
             totalTenants={stats.totalTenants}
             totalUnits={stats.totalUnits}
@@ -742,11 +742,11 @@ const PropertyDetails: React.FC = () => {
             {invitations.map((invite) => (
               <div
                 key={invite.id}
-                className="rounded-[20px] border border-white/50 bg-white/45 backdrop-blur p-4"
+                className="rounded-[20px] border bg-white/45 backdrop-blur p-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="truncate text-[13px] font-bold text-[#1e293b]">
+                    <p className="truncate text-[13px] font-bold text-[#1B2B5E]">
                       {invite.inviteeEmail}
                     </p>
                     <p className="mt-1 text-[11px] text-slate-500">

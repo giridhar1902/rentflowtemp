@@ -3,27 +3,36 @@
 @tailwind utilities;
 
 :root {
-  --color-background: #ffffff; /* We use gradient on body */
-  --color-surface: rgba(255, 255, 255, 0.4);
-  --color-surface-subtle: rgba(255, 255, 255, 0.6);
-  --color-text-primary: #1e293b;
-  --color-text-secondary: #64748b;
-  --color-border-subtle: rgba(255, 255, 255, 0.5);
-  --color-accent: #FF7A00;
-  --color-accent-strong: #FF9A3D;
-  --color-accent-contrast: #ffffff;
-  --color-focus-ring: rgba(255, 122, 0, 0.45);
-  --color-kpi-highlight: #FF7A00;
-  --color-card-accent-spine: #FF7A00;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
-  --color-info: #3B82F6;
-  --color-overlay-scrim: rgba(255, 255, 255, 0.2);
+  /* ── Domvio Design Tokens ── */
+  --domvio-navy: #1B2B5E;
+  --domvio-navy-light: #2D4A9E;
+  --domvio-gold: #F5A623;
+  --domvio-gold-dark: #E8920F;
 
-  --font-family-primary: "Inter", "Satoshi", "General Sans", sans-serif;
-  --font-family-numeric: "IBM Plex Mono", "JetBrains Mono", "SFMono-Regular",
-    monospace;
+  --color-background: #EEF1F8;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #F8F9FA;
+  --color-text-primary: #1B2B5E;
+  --color-text-secondary: #5A6A8A;
+  --color-border-subtle: rgba(27, 43, 94, 0.09);
+  --color-accent: #F5A623;
+  --color-accent-strong: #E8920F;
+  --color-accent-contrast: #ffffff;
+  --color-focus-ring: rgba(245, 166, 35, 0.45);
+  --color-kpi-highlight: #1B2B5E;
+  --color-card-accent-spine: #F5A623;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+  --color-info: #2563EB;
+  --color-overlay-scrim: rgba(27, 43, 94, 0.4);
+  --color-navy: #1B2B5E;
+  --color-navy-light: #2D4A9E;
+  --color-gold: #F5A623;
+  --color-gold-dark: #E8920F;
+
+  --font-family-primary: "Plus Jakarta Sans", sans-serif;
+  --font-family-numeric: "Plus Jakarta Sans", sans-serif;
 
   --space-section-vertical: 2.4rem;
   --space-section-vertical-compact: 1.8rem;
@@ -82,8 +91,7 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background: linear-gradient(135deg, #EADCF8 0%, #D7E9FF 50%, #F1E4FF 100%);
-    background-attachment: fixed;
+    background: var(--color-background);
     color: var(--color-text-primary);
     line-height: 1.45;
     letter-spacing: -0.005em;
@@ -179,16 +187,12 @@
   .surface {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border-subtle);
-    box-shadow: var(--elevation-base);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 2px 12px rgba(27, 43, 94, 0.06);
   }
 
   .surface-subtle {
     background-color: var(--color-surface-subtle);
     border: 1px solid var(--color-border-subtle);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
   }
 
   .kpi-value {

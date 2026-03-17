@@ -44,11 +44,11 @@ const Vault: React.FC = () => {
 
   return (
     <div className="min-h-screen font-sans pb-[100px] text-text-primary selection:bg-primary/30">
-      <header className="sticky top-0 z-20 border-b border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm px-5 pb-4 pt-6">
+      <header className="sticky top-0 z-20 border-b bg-white shadow-sm px-5 pb-4 pt-6">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 text-text-secondary hover:text-primary hover:bg-white/80 transition-colors shadow-sm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border text-text-secondary hover:text-primary  transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined text-[20px]">
               arrow_back
@@ -66,8 +66,8 @@ const Vault: React.FC = () => {
       </header>
 
       <main className="px-5 pt-6 pb-8 flex flex-col gap-6 motion-page-enter">
-        <div className="relative overflow-hidden rounded-[24px] border border-primary/30 bg-primary/5 p-6 shadow-sm backdrop-blur-[20px] flex items-center justify-between gap-4 group">
-          <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] opacity-80"></div>
+        <div className="relative overflow-hidden rounded-[24px] border border-primary/30 bg-primary/5 p-6 shadow-sm  flex items-center justify-between gap-4 group">
+          <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#F5A623] to-[#F5A623] opacity-80"></div>
 
           <div>
             <h2 className="text-[18px] font-black text-text-primary mb-1">
@@ -77,7 +77,7 @@ const Vault: React.FC = () => {
               Access and manage your encrypted personal and lease documents.
             </p>
           </div>
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/60 border border-white/50 shadow-inner group-hover:bg-primary/10 group-hover:border-primary/30 group-hover:scale-105 transition-all duration-300">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white border shadow-inner group-hover:bg-primary/10 group-hover:border-primary/30 group-hover:scale-105 transition-all duration-300">
             <span className="material-symbols-outlined text-[32px] text-primary">
               lock
             </span>
@@ -94,13 +94,13 @@ const Vault: React.FC = () => {
             </span>
           </div>
 
-          <div className="rounded-[24px] border border-white/50 bg-white/40 backdrop-blur-[20px] overflow-hidden shadow-sm">
+          <div className="rounded-[24px] border bg-white overflow-hidden shadow-sm">
             {vaultItems.map((item, i) => (
               <div
                 key={item.id}
-                className={`flex items-center gap-4 p-4 hover:bg-white/60 active:bg-white/70 transition-all group cursor-pointer ${i !== vaultItems.length - 1 ? "border-b border-white/40" : ""}`}
+                className={`flex items-center gap-4 p-4  active:bg-white transition-all group cursor-pointer ${i !== vaultItems.length - 1 ? "border-b" : ""}`}
               >
-                <div className="flex size-10 items-center justify-center rounded-full bg-white/60 border border-white/50 shadow-inner group-hover:bg-primary/10 group-hover:border-primary/30 transition-colors shrink-0">
+                <div className="flex size-10 items-center justify-center rounded-full bg-white border shadow-inner group-hover:bg-primary/10 group-hover:border-primary/30 transition-colors shrink-0">
                   <span className="material-symbols-outlined text-[20px] text-text-secondary group-hover:text-primary transition-colors">
                     {item.icon}
                   </span>

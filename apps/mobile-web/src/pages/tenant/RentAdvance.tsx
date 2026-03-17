@@ -6,11 +6,11 @@ const RentAdvance: React.FC = () => {
 
   return (
     <div className="min-h-screen font-sans pb-[100px] text-text-primary selection:bg-primary/30">
-      <header className="sticky top-0 z-20 border-b border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm px-5 pb-4 pt-6">
+      <header className="sticky top-0 z-20 border-b bg-white shadow-sm px-5 pb-4 pt-6">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 text-text-secondary hover:text-primary hover:bg-white/80 transition-colors shadow-sm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border text-text-secondary hover:text-primary  transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined text-[20px]">
               arrow_back
@@ -26,8 +26,8 @@ const RentAdvance: React.FC = () => {
       </header>
 
       <main className="px-5 pt-6 pb-8 flex flex-col gap-6 motion-page-enter">
-        <div className="relative overflow-hidden rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm border border-white/50 group">
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] opacity-80"></div>
+        <div className="relative overflow-hidden rounded-[24px] bg-white shadow-sm border group">
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#F5A623] to-[#F5A623] opacity-80"></div>
 
           <div className="p-6">
             <div className="flex flex-col gap-1 mb-6">
@@ -65,12 +65,12 @@ const RentAdvance: React.FC = () => {
           </div>
         </div>
 
-        <section className="rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm p-6 border border-white/50">
+        <section className="rounded-[24px] bg-white shadow-sm p-6 border">
           <h3 className="mb-5 pl-1 text-[11px] font-bold uppercase tracking-widest text-text-secondary">
             Select Advance Amount
           </h3>
           <div className="flex flex-col gap-4">
-            <div className="rounded-[16px] border border-primary bg-gradient-to-r from-[#FF9A3D]/10 to-[#FF7A00]/10 p-4 flex items-center justify-between cursor-pointer">
+            <div className="rounded-[16px] border border-primary bg-gradient-to-r from-[#F5A623]/10 to-[#F5A623]/10 p-4 flex items-center justify-between cursor-pointer">
               <div className="flex items-center gap-4">
                 <div className="size-5 rounded-full border-4 border-primary bg-white shadow-sm"></div>
                 <div>
@@ -87,9 +87,9 @@ const RentAdvance: React.FC = () => {
               </span>
             </div>
 
-            <div className="rounded-[16px] border border-white/50 bg-white/50 p-4 flex items-center justify-between cursor-pointer hover:border-primary/50 hover:bg-white/70 transition-all active:scale-[0.98]">
+            <div className="rounded-[16px] border bg-white p-4 flex items-center justify-between cursor-pointer hover:border-primary/50  transition-all active:scale-[0.98]">
               <div className="flex items-center gap-4">
-                <div className="size-5 rounded-full border-2 border-text-secondary/30 bg-white/60 shadow-inner"></div>
+                <div className="size-5 rounded-full border-2 border-text-secondary/30 bg-white shadow-inner"></div>
                 <div>
                   <h4 className="text-[15px] font-black text-text-primary">
                     ₹25,000
@@ -101,9 +101,9 @@ const RentAdvance: React.FC = () => {
               </div>
             </div>
 
-            <div className="rounded-[16px] border border-white/50 bg-white/50 p-4 flex items-center justify-between cursor-pointer hover:border-primary/50 hover:bg-white/70 transition-all active:scale-[0.98]">
+            <div className="rounded-[16px] border bg-white p-4 flex items-center justify-between cursor-pointer hover:border-primary/50  transition-all active:scale-[0.98]">
               <div className="flex items-center gap-4">
-                <div className="size-5 rounded-full border-2 border-text-secondary/30 bg-white/60 shadow-inner"></div>
+                <div className="size-5 rounded-full border-2 border-text-secondary/30 bg-white shadow-inner"></div>
                 <div>
                   <h4 className="text-[15px] font-black text-text-primary">
                     Custom Amount
@@ -121,8 +121,8 @@ const RentAdvance: React.FC = () => {
         </section>
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 p-5 bg-white/40 backdrop-blur-[30px] border-t border-white/40 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] flex flex-col z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
-        <button className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-3.5 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 active:scale-[0.98] transition-all">
+      <div className="fixed bottom-0 left-0 right-0 p-5 bg-white backdrop-blur-[30px] border-t pb-[calc(env(safe-area-inset-bottom)+1.5rem)] flex flex-col z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
+        <button className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F5A623] to-[#F5A623] py-3.5 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(245,166,35,0.3)] hover:opacity-90 active:scale-[0.98] transition-all">
           Apply Now
         </button>
       </div>

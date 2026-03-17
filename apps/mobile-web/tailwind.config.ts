@@ -6,44 +6,51 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Domvio brand
+        navy: "#1B2B5E",
+        "navy-light": "#2D4A9E",
+        gold: "#F5A623",
+        "gold-dark": "#E8920F",
+
+        // Semantic aliases → CSS vars
         primary: "var(--color-accent)",
         "primary-dark": "var(--color-accent-strong)",
         accent: "var(--color-accent)",
-        "background-light": "var(--color-background)",
-        "background-dark": "var(--color-background)",
-        "success-green": "var(--color-success)",
-
         background: "var(--color-background)",
         surface: "var(--color-surface)",
         "surface-subtle": "var(--color-surface-subtle)",
         "text-primary": "var(--color-text-primary)",
         "text-secondary": "var(--color-text-secondary)",
         "border-subtle": "var(--color-border-subtle)",
-        brass: "var(--color-accent)",
+        brass: "var(--color-accent)", // legacy alias
         success: "var(--color-success)",
         warning: "var(--color-warning)",
         danger: "var(--color-danger)",
         info: "var(--color-info)",
       },
       fontFamily: {
-        display: ["var(--font-family-primary)"],
-        inter: ["var(--font-family-primary)"],
-        public: ["var(--font-family-primary)"],
-        numeric: ["var(--font-family-numeric)"],
+        display: ['"Plus Jakarta Sans"', "sans-serif"],
+        sans: ['"Plus Jakarta Sans"', "sans-serif"],
+        inter: ['"Plus Jakarta Sans"', "sans-serif"], // legacy alias
+        public: ['"Plus Jakarta Sans"', "sans-serif"], // legacy alias
+        numeric: ['"Plus Jakarta Sans"', "sans-serif"],
       },
       borderRadius: {
         xl: "0.75rem",
         "2xl": "1rem",
+        "3xl": "1.5rem",
       },
       boxShadow: {
         base: "var(--elevation-base)",
         raised: "var(--elevation-raised)",
         floating: "var(--elevation-floating)",
         overlay: "var(--elevation-overlay)",
+        gold: "0 4px 16px rgba(245,166,35,0.35)",
+        navy: "0 4px 16px rgba(27,43,94,0.14)",
       },
       keyframes: {
         fadeIn: {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "0%": { opacity: "0", transform: "translateY(8px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         slideUp: {

@@ -1,45 +1,43 @@
 import React from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import type { ThemePreference } from "../../theme/theme";
-import { cn } from "../../lib/cn";
 
-type ModeOption = {
-  value: ThemePreference;
-  label: string;
-  icon: string;
-};
-
-const modeOptions: ModeOption[] = [
-  { value: "system", label: "System", icon: "devices" },
+const options: { value: ThemePreference; label: string; icon: string }[] = [
   { value: "light", label: "Light", icon: "light_mode" },
   { value: "dark", label: "Dark", icon: "dark_mode" },
+  { value: "system", label: "System", icon: "contrast" },
 ];
 
 export const ThemeModeToggle: React.FC = () => {
   const { preference, setPreference } = useTheme();
 
   return (
-    <div className="surface-subtle inline-flex items-center gap-1 rounded-[var(--radius-pill)] p-1 shadow-base">
-      {modeOptions.map((option) => {
-        const active = preference === option.value;
+    <div
+      className="inline-flex rounded-xl p-1 gap-0.5"
+      style={{ background: "#F8F9FA", border: "1px solid rgba(27,43,94,0.09)" }}
+    >
+      {options.map(({ value, label, icon }) => {
+        const active = preference === value;
         return (
           <button
-            key={option.value}
+            key={value}
             type="button"
-            onClick={() => setPreference(option.value)}
-            aria-label={option.label}
-            title={option.label}
-            className={cn(
-              "motion-press inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-pill)]",
-              "transition-colors duration-[var(--motion-standard)] ease-[var(--motion-easing)]",
+            onClick={() => setPreference(value)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+            style={
               active
-                ? "bg-surface text-primary shadow-base"
-                : "text-text-secondary hover:bg-surface",
-            )}
+                ? {
+                    background: "#1B2B5E",
+                    color: "#FFFFFF",
+                    boxShadow: "0 2px 8px rgba(27,43,94,0.2)",
+                  }
+                : { background: "transparent", color: "#8A9AB8" }
+            }
           >
-            <span className="material-symbols-outlined text-[18px]" aria-hidden>
-              {option.icon}
+            <span className="material-symbols-outlined text-[14px]">
+              {icon}
             </span>
+            {label}
           </button>
         );
       })}

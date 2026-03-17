@@ -154,11 +154,11 @@ const LeaseAgreement: React.FC = () => {
 
   return (
     <div className="min-h-screen font-sans pb-[100px] text-text-primary selection:bg-primary/30">
-      <header className="sticky top-0 z-20 border-b border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm px-5 pb-4 pt-6">
+      <header className="sticky top-0 z-20 border-b bg-white shadow-sm px-5 pb-4 pt-6">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 text-text-secondary hover:text-primary hover:bg-white/80 transition-colors shadow-sm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border text-text-secondary hover:text-primary  transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined text-[20px]">
               arrow_back
@@ -181,14 +181,14 @@ const LeaseAgreement: React.FC = () => {
       <main className="px-5 pt-6 pb-8 flex flex-col gap-6 motion-page-enter">
         {loading ? (
           <div className="flex items-center justify-center p-12">
-            <div className="size-8 rounded-full border-2 border-white/50 border-t-primary animate-spin"></div>
+            <div className="size-8 rounded-full border-2 border-t-primary animate-spin"></div>
           </div>
         ) : error ? (
           <div className="rounded-[16px] border border-danger/20 bg-danger/10 p-4 shadow-sm">
             <p className="text-[13px] font-bold text-danger">{error}</p>
           </div>
         ) : !activeLease ? (
-          <div className="rounded-[24px] border border-white/50 bg-white/40 backdrop-blur-[20px] p-8 text-center shadow-sm">
+          <div className="rounded-[24px] border bg-white p-8 text-center shadow-sm">
             <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-primary/10 shadow-inner">
               <span className="material-symbols-outlined text-[32px] text-primary">
                 description
@@ -203,8 +203,8 @@ const LeaseAgreement: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="relative overflow-hidden rounded-[24px] border border-primary/30 bg-primary/5 shadow-sm backdrop-blur-[20px] flex flex-col group">
-              <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] opacity-80"></div>
+            <div className="relative overflow-hidden rounded-[24px] border border-primary/30 bg-primary/5 shadow-sm  flex flex-col group">
+              <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#F5A623] to-[#F5A623] opacity-80"></div>
               <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                 <span className="material-symbols-outlined text-[100px] text-primary">
                   description
@@ -227,7 +227,7 @@ const LeaseAgreement: React.FC = () => {
 
                 {/* Financials KPIs */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-[20px] bg-white/60 backdrop-blur-md p-4 border border-white/50 shadow-inner">
+                  <div className="rounded-[20px] bg-white  p-4 border shadow-inner">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">
                       Monthly Rent
                     </p>
@@ -235,7 +235,7 @@ const LeaseAgreement: React.FC = () => {
                       {formatINRWhole(activeLease.monthlyRent)}
                     </p>
                   </div>
-                  <div className="rounded-[20px] bg-white/60 backdrop-blur-md p-4 border border-white/50 shadow-inner">
+                  <div className="rounded-[20px] bg-white  p-4 border shadow-inner">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">
                       Deposit
                     </p>
@@ -246,7 +246,7 @@ const LeaseAgreement: React.FC = () => {
                 </div>
 
                 {/* Details */}
-                <div className="flex flex-col gap-4 border-t border-white/40 pt-5">
+                <div className="flex flex-col gap-4 border-t pt-5">
                   <div>
                     <p className="text-[14px] font-black text-text-primary mb-0.5">
                       {activeLease.property?.name}
@@ -322,8 +322,8 @@ const LeaseAgreement: React.FC = () => {
               </div>
 
               {documents.length === 0 ? (
-                <div className="rounded-[24px] border border-white/50 bg-white/40 backdrop-blur-[20px] p-8 text-center shadow-sm">
-                  <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-white/60 border border-white/50 shadow-inner">
+                <div className="rounded-[24px] border bg-white p-8 text-center shadow-sm">
+                  <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-white border shadow-inner">
                     <span className="material-symbols-outlined text-[24px] text-text-secondary">
                       folder_open
                     </span>
@@ -333,14 +333,14 @@ const LeaseAgreement: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                <div className="rounded-[24px] border border-white/50 bg-white/40 backdrop-blur-[20px] overflow-hidden shadow-sm">
+                <div className="rounded-[24px] border bg-white overflow-hidden shadow-sm">
                   {documents.map((document) => (
                     <div
                       key={document.id}
-                      className="flex items-center justify-between gap-3 border-b border-white/40 px-4 py-4 last:border-b-0 hover:bg-white/60 active:bg-white/70 transition-all group"
+                      className="flex items-center justify-between gap-3 border-b px-4 py-4 last:border-b-0  active:bg-white transition-all group"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="flex size-10 items-center justify-center rounded-full bg-white/60 border border-white/50 shadow-inner text-text-secondary group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
+                        <div className="flex size-10 items-center justify-center rounded-full bg-white border shadow-inner text-text-secondary group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
                           <span className="material-symbols-outlined text-[20px]">
                             {document.fileName.endsWith(".pdf")
                               ? "picture_as_pdf"
@@ -367,7 +367,7 @@ const LeaseAgreement: React.FC = () => {
 
                       <button
                         onClick={() => void handleDownload(document.id)}
-                        className="flex size-8 items-center justify-center rounded-full bg-white/60 border border-white/50 shadow-sm text-text-secondary hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all active:scale-[0.98] shrink-0"
+                        className="flex size-8 items-center justify-center rounded-full bg-white border shadow-sm text-text-secondary hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all active:scale-[0.98] shrink-0"
                       >
                         <span className="material-symbols-outlined text-[18px]">
                           download

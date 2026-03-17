@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageLayout } from "../components/layout";
-import { Button, PremiumCard, TextField } from "../components/ui";
+import { Button, TextField } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
 import { AppRole } from "../lib/api";
 import { defaultRouteForRole } from "../lib/routes";
@@ -9,26 +8,48 @@ import { defaultRouteForRole } from "../lib/routes";
 const SIGNUP_RATE_LIMIT_COOLDOWN_MS = 60_000;
 const pendingInviteCodeKey = "pending-tenant-invite-code";
 
+const DomvioMark = () => (
+  <svg width="40" height="40" viewBox="0 0 56 56" fill="none" aria-hidden>
+    <path
+      d="M10 4 H28 C42 4 52 14 52 28 C52 42 42 52 28 52 H10 Z"
+      fill="#1B2B5E"
+    />
+    <rect
+      x="10"
+      y="4"
+      width="6"
+      height="48"
+      rx="3"
+      fill="#F5A623"
+      opacity="0.9"
+    />
+    <circle cx="32" cy="24" r="7" fill="#F5A623" />
+    <path d="M28.5 30 L28.5 39 Q32 42 35.5 39 L35.5 30 Z" fill="#F5A623" />
+    <circle cx="32" cy="24" r="3.5" fill="#1B2B5E" />
+  </svg>
+);
+
 const normalizeSignupError = (error: unknown) => {
   const message =
     error instanceof Error ? error.message : "Unable to create account";
   const normalized = message.toLowerCase();
-
   if (
     normalized.includes("email rate limit exceeded") ||
     (normalized.includes("rate limit") && normalized.includes("email"))
   ) {
     return {
       userMessage:
-        "Signup email limit reached for now. Wait a bit, check spam/promotions for earlier email, then try again.",
+        "Signup email limit reached. Wait a bit, check spam, then try again.",
       isRateLimit: true,
     };
   }
+  return { userMessage: message, isRateLimit: false };
+};
 
-  return {
-    userMessage: message,
-    isRateLimit: false,
-  };
+const pageStyle: React.CSSProperties = {
+  fontFamily: '"Plus Jakarta Sans", sans-serif',
+  background: "#EEF1F8",
+  minHeight: "100vh",
 };
 
 const Register: React.FC = () => {
@@ -47,21 +68,13 @@ const Register: React.FC = () => {
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    if (!cooldownUntil) {
-      return;
-    }
-
-    const interval = window.setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
-
+    if (!cooldownUntil) return;
+    const interval = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(interval);
   }, [cooldownUntil]);
 
   useEffect(() => {
-    if (cooldownUntil && now >= cooldownUntil) {
-      setCooldownUntil(null);
-    }
+    if (cooldownUntil && now >= cooldownUntil) setCooldownUntil(null);
   }, [cooldownUntil, now]);
 
   const cooldownSeconds = cooldownUntil
@@ -71,10 +84,9 @@ const Register: React.FC = () => {
 
   const handleContinue = async () => {
     if (isCooldownActive) {
-      setError(`Please wait ${cooldownSeconds}s before trying again.`);
+      setError(`Wait ${cooldownSeconds}s before retrying.`);
       return;
     }
-
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
       return;
@@ -83,36 +95,31 @@ const Register: React.FC = () => {
       setError("Passwords do not match.");
       return;
     }
-
     setSubmitting(true);
     setError(null);
     setMessage(null);
     try {
       if (role === "TENANT") {
         try {
-          if (inviteCode.trim()) {
-            window.sessionStorage.setItem(
-              pendingInviteCodeKey,
-              inviteCode.trim().toUpperCase(),
-            );
-          } else {
-            window.sessionStorage.removeItem(pendingInviteCodeKey);
-          }
+          inviteCode.trim()
+            ? window.sessionStorage.setItem(
+                pendingInviteCodeKey,
+                inviteCode.trim().toUpperCase(),
+              )
+            : window.sessionStorage.removeItem(pendingInviteCodeKey);
         } catch {
-          // no-op
+          /* no-op */
         }
       }
-
       const result = await signUp(email.trim(), password, role);
       if (result.needsEmailConfirmation) {
         setMessage(
           role === "TENANT" && inviteCode.trim()
-            ? "Check email to confirm account, then log in and accept saved invite code."
-            : "Check your email to confirm your account, then log in to continue.",
+            ? "Check your email to confirm, then log in to accept your invite."
+            : "Check your email to confirm your account, then log in.",
         );
         return;
       }
-
       if (role === "TENANT") {
         const query = inviteCode.trim()
           ? `?code=${encodeURIComponent(inviteCode.trim().toUpperCase())}`
@@ -120,249 +127,308 @@ const Register: React.FC = () => {
         navigate(`/register/invite${query}`, { replace: true });
         return;
       }
-
       navigate(defaultRouteForRole(result.profile?.role ?? role), {
         replace: true,
       });
-    } catch (registerError) {
-      const normalized = normalizeSignupError(registerError);
+    } catch (err) {
+      const normalized = normalizeSignupError(err);
       setError(normalized.userMessage);
-      if (normalized.isRateLimit) {
+      if (normalized.isRateLimit)
         setCooldownUntil(Date.now() + SIGNUP_RATE_LIMIT_COOLDOWN_MS);
-      }
     } finally {
       setSubmitting(false);
     }
   };
 
+  /* ── Step 1: Role selection ── */
   if (step === 1) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-between px-6 py-12 font-sans w-full relative">
-        <div className="flex w-full max-w-sm flex-col items-center mt-10">
-          {/* Logo Section */}
-          <div className="mb-8 flex flex-col items-center">
-            <div className="flex size-[72px] items-center justify-center rounded-[24px] bg-[#FF9A3D]/10 border border-[#FF9A3D]/20 text-[#FF7A00] shadow-[0_8px_16px_rgba(255,122,0,0.15)] mb-5">
-              <span className="material-symbols-outlined text-[36px]">
-                domain
-              </span>
+      <div
+        className="flex min-h-screen flex-col items-center justify-between px-5 py-12 w-full"
+        style={pageStyle}
+      >
+        <div className="flex w-full max-w-[390px] flex-col items-center gap-8 mt-4 motion-page-enter">
+          {/* Logo */}
+          <div className="flex flex-col items-center gap-3">
+            <div
+              className="flex items-center justify-center rounded-[20px]"
+              style={{
+                width: 64,
+                height: 64,
+                background: "linear-gradient(145deg, #2D4A9E, #1B2B5E)",
+                boxShadow: "0 8px 24px rgba(27,43,94,0.25)",
+              }}
+            >
+              <DomvioMark />
             </div>
-            <h1 className="text-[28px] font-black tracking-tight text-[#1e293b]">
-              Rent Mate
-            </h1>
-            <p className="mt-1 text-[15px] font-medium text-slate-500">
-              Premium Rental Management
-            </p>
+            <div className="text-center">
+              <div
+                style={{
+                  fontWeight: 800,
+                  fontSize: 26,
+                  letterSpacing: "-0.02em",
+                  color: "#1B2B5E",
+                }}
+              >
+                dom<span style={{ color: "#F5A623" }}>vio</span>
+              </div>
+              <p className="text-sm" style={{ color: "#5A6A8A" }}>
+                Your home, managed.
+              </p>
+            </div>
           </div>
 
-          {/* Role Selection Cards */}
-          <div className="w-full space-y-4">
-            {/* Landlord Card */}
-            <button
-              type="button"
-              onClick={() => setRole("LANDLORD")}
-              className={`group flex w-full items-center justify-between rounded-[24px] p-5 text-left transition-all ${
-                role === "LANDLORD"
-                  ? "bg-white/60 backdrop-blur-[20px] shadow-[0_8px_30px_rgba(0,0,0,0.08)] border-2 border-[#FF7A00]"
-                  : "bg-white/30 backdrop-blur-[20px] border-2 border-white/40 hover:border-white/60 hover:bg-white/40"
-              }`}
-            >
-              <div className="flex flex-col gap-3">
-                <div className="flex size-12 items-center justify-center rounded-[16px] bg-[#FF9A3D]/10 text-[#FF7A00]">
-                  <span className="material-symbols-outlined text-[24px]">
-                    real_estate_agent
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-[#1e293b]">Landlord</h3>
-                  <p className="mt-1 text-sm font-medium leading-relaxed text-slate-600 max-w-[220px]">
-                    Manage properties, automate rent, and track financials
-                    easily.
-                  </p>
-                </div>
-              </div>
-              <span
-                className={`material-symbols-outlined transition-colors ${
-                  role === "LANDLORD" ? "text-[#FF7A00]" : "text-slate-400"
-                }`}
-              >
-                chevron_right
-              </span>
-            </button>
+          <div className="w-full">
+            <h2 className="text-xl font-bold mb-1" style={{ color: "#1B2B5E" }}>
+              Create your account
+            </h2>
+            <p className="text-sm mb-5" style={{ color: "#5A6A8A" }}>
+              Choose how you'll use Domvio.
+            </p>
 
-            {/* Tenant Card */}
-            <button
-              type="button"
-              onClick={() => setRole("TENANT")}
-              className={`group flex w-full items-center justify-between rounded-[24px] p-5 text-left transition-all ${
-                role === "TENANT"
-                  ? "bg-white/60 backdrop-blur-[20px] shadow-[0_8px_30px_rgba(0,0,0,0.08)] border-2 border-[#FF7A00]"
-                  : "bg-white/30 backdrop-blur-[20px] border-2 border-white/40 hover:border-white/60 hover:bg-white/40"
-              }`}
-            >
-              <div className="flex flex-col gap-3">
-                <div className="flex size-12 items-center justify-center rounded-[16px] bg-[#FF9A3D]/10 text-[#FF7A00]">
-                  <span className="material-symbols-outlined text-[24px]">
-                    home
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-[#1e293b]">Tenant</h3>
-                  <p className="mt-1 text-sm font-medium leading-relaxed text-slate-600 max-w-[220px]">
-                    Pay rent via UPI, sign digital leases, and request
-                    maintenance.
-                  </p>
-                </div>
-              </div>
-              <span
-                className={`material-symbols-outlined transition-colors ${
-                  role === "TENANT" ? "text-[#FF7A00]" : "text-slate-400"
-                }`}
-              >
-                chevron_right
-              </span>
-            </button>
+            <div className="flex flex-col gap-3 w-full">
+              {/* Landlord card */}
+              {(["LANDLORD", "TENANT"] as AppRole[]).map((r) => {
+                const isSelected = role === r;
+                const isLandlord = r === "LANDLORD";
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRole(r)}
+                    className="flex w-full items-center gap-4 rounded-2xl p-5 text-left transition-all"
+                    style={{
+                      background: "#FFFFFF",
+                      border: isSelected
+                        ? "2px solid #F5A623"
+                        : "1.5px solid rgba(27,43,94,0.08)",
+                      boxShadow: isSelected
+                        ? "0 4px 20px rgba(245,166,35,0.18)"
+                        : "0 2px 8px rgba(27,43,94,0.05)",
+                    }}
+                  >
+                    <div
+                      className="flex size-12 items-center justify-center rounded-xl shrink-0"
+                      style={{
+                        background: isSelected
+                          ? "rgba(245,166,35,0.12)"
+                          : "#F8F9FA",
+                        color: isSelected ? "#F5A623" : "#8A9AB8",
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-[24px]">
+                        {isLandlord ? "real_estate_agent" : "home"}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <h3
+                        className="text-base font-bold"
+                        style={{ color: "#1B2B5E" }}
+                      >
+                        {isLandlord ? "Landlord" : "Tenant"}
+                      </h3>
+                      <p
+                        className="text-xs mt-0.5"
+                        style={{ color: "#5A6A8A" }}
+                      >
+                        {isLandlord
+                          ? "Manage properties, collect rent, track payments."
+                          : "Pay rent via UPI, sign leases, raise requests."}
+                      </p>
+                    </div>
+                    <span
+                      className="material-symbols-outlined text-[20px]"
+                      style={{ color: isSelected ? "#F5A623" : "#CBD5E1" }}
+                    >
+                      {isSelected ? "check_circle" : "radio_button_unchecked"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="w-full max-w-sm mt-10 flex flex-col items-center">
+        {/* Footer */}
+        <div className="w-full max-w-[390px] flex flex-col items-center gap-4">
           <button
             type="button"
             onClick={() => setStep(2)}
-            className="w-full rounded-[20px] bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-[18px] text-[17px] font-bold text-white shadow-[0_8px_20px_rgba(255,122,0,0.3)] hover:shadow-[0_12px_25px_rgba(255,122,0,0.4)] transition-all active:scale-[0.98] hover:-translate-y-[1px]"
+            className="w-full rounded-[14px] py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
+            style={{
+              background: "linear-gradient(135deg, #F5A623, #E8920F)",
+              boxShadow: "0 4px 16px rgba(245,166,35,0.35)",
+            }}
           >
-            Create Account
+            Continue
           </button>
-
-          <p className="mt-6 text-[15px] font-medium text-slate-600">
+          <p className="text-sm" style={{ color: "#5A6A8A" }}>
             Already have an account?{" "}
             <button
               onClick={() => navigate("/login")}
-              className="font-bold text-[#FF7A00] hover:underline"
+              className="font-bold hover:underline"
+              style={{ color: "#1B2B5E" }}
             >
-              Log In
+              Sign in
             </button>
           </p>
-
-          <button className="mt-12 flex items-center gap-2 text-[13px] font-bold text-slate-400 uppercase tracking-wide hover:text-slate-600 transition-colors">
-            <span className="material-symbols-outlined text-[16px]">
-              headset_mic
-            </span>
-            Contact Support
-          </button>
-
-          <div className="w-32 h-1.5 bg-white/50 rounded-full mt-8 opacity-60"></div>
         </div>
       </div>
     );
   }
 
+  /* ── Step 2: Account details ── */
   return (
-    <PageLayout
-      className="min-h-screen"
-      contentClassName="mx-auto flex w-full max-w-lg flex-col gap-5 !px-4 !py-6"
+    <div
+      className="flex min-h-screen flex-col px-5 py-6 w-full"
+      style={pageStyle}
     >
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => setStep(1)}
-          className="motion-press flex size-10 items-center justify-center rounded-[var(--radius-pill)] border border-border-subtle bg-surface text-text-secondary shadow-base"
-        >
-          <span className="material-symbols-outlined text-base">
-            arrow_back_ios
-          </span>
-        </button>
-        <h1 className="text-lg font-semibold tracking-tight text-text-primary">
-          Create Account
-        </h1>
-        <span className="size-10" aria-hidden />
-      </div>
-
-      <PremiumCard className="section-stack p-0 overflow-hidden">
-        <div className="flex items-center gap-3 p-5 border-l-4 border-[#FF7A00] bg-white/40">
-          <div className="flex size-10 items-center justify-center rounded-[12px] bg-[#FF9A3D]/10 text-[#FF7A00]">
+      <div className="mx-auto flex w-full max-w-[390px] flex-col gap-5 motion-page-enter">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="size-10 flex items-center justify-center rounded-full border transition-colors"
+            style={{
+              border: "1.5px solid rgba(27,43,94,0.12)",
+              background: "#FFFFFF",
+              color: "#1B2B5E",
+            }}
+          >
             <span className="material-symbols-outlined text-[20px]">
-              {role === "LANDLORD" ? "real_estate_agent" : "home"}
+              arrow_back
             </span>
-          </div>
+          </button>
           <div>
-            <h2 className="text-base font-bold text-text-primary">
-              {role === "LANDLORD" ? "Landlord Account" : "Tenant Account"}
-            </h2>
-            <p className="text-xs text-slate-500">
-              Selected role for registration
+            <h1 className="text-lg font-bold" style={{ color: "#1B2B5E" }}>
+              Account details
+            </h1>
+            <p className="text-xs" style={{ color: "#5A6A8A" }}>
+              Registering as {role === "LANDLORD" ? "a Landlord" : "a Tenant"}
             </p>
           </div>
         </div>
-      </PremiumCard>
 
-      <PremiumCard className="section-stack p-6">
-        <TextField
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <TextField
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-        <TextField
-          label="Confirm Password"
-          type="password"
-          value={confirmPassword}
-          onChange={(event) => setConfirmPassword(event.target.value)}
-        />
+        {/* Role pill */}
+        <div
+          className="flex items-center gap-3 rounded-2xl px-4 py-3"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid rgba(27,43,94,0.08)",
+            borderLeft: "3px solid #F5A623",
+          }}
+        >
+          <span
+            className="material-symbols-outlined text-[20px]"
+            style={{ color: "#F5A623" }}
+          >
+            {role === "LANDLORD" ? "real_estate_agent" : "home"}
+          </span>
+          <span className="text-sm font-bold" style={{ color: "#1B2B5E" }}>
+            {role === "LANDLORD" ? "Landlord Account" : "Tenant Account"}
+          </span>
+        </div>
 
-        {role === "TENANT" && (
+        {/* Form */}
+        <div
+          className="rounded-2xl px-6 py-6 flex flex-col gap-5"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid rgba(27,43,94,0.08)",
+            boxShadow: "0 2px 12px rgba(27,43,94,0.06)",
+          }}
+        >
           <TextField
-            label="Invite Code (Optional)"
-            value={inviteCode}
-            placeholder="A7C9D2"
-            className="font-numeric text-center tracking-[0.2em] uppercase"
-            hint="If your landlord shared a code, enter it now. You can also add it after login."
-            onChange={(event) =>
-              setInviteCode(
-                event.target.value.toUpperCase().replace(/\s+/g, ""),
-              )
-            }
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
           />
-        )}
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Min 8 characters"
+          />
+          <TextField
+            label="Confirm Password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Repeat password"
+          />
 
-        {error && <p className="text-sm font-medium text-danger">{error}</p>}
-        {message && (
-          <p className="text-sm font-medium text-success">{message}</p>
-        )}
+          {role === "TENANT" && (
+            <TextField
+              label="Invite Code (optional)"
+              value={inviteCode}
+              placeholder="A7C9D2"
+              hint="Enter the code your landlord shared."
+              onChange={(e) =>
+                setInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ""))
+              }
+            />
+          )}
 
-        <Button
-          type="button"
-          onClick={handleContinue}
-          loading={submitting}
-          disabled={isCooldownActive || !email || !password || !confirmPassword}
-          size="lg"
-          className="w-full"
-        >
-          {submitting
-            ? "Creating account..."
-            : isCooldownActive
-              ? `Try again in ${cooldownSeconds}s`
-              : "Continue"}
-        </Button>
-      </PremiumCard>
+          {error && (
+            <div
+              className="rounded-xl px-4 py-3 text-sm font-medium"
+              style={{
+                background: "#FEE2E2",
+                color: "#B91C1C",
+                border: "1px solid rgba(220,38,38,0.2)",
+              }}
+            >
+              {error}
+            </div>
+          )}
+          {message && (
+            <div
+              className="rounded-xl px-4 py-3 text-sm font-medium"
+              style={{
+                background: "#DCFCE7",
+                color: "#15803D",
+                border: "1px solid rgba(22,163,74,0.2)",
+              }}
+            >
+              {message}
+            </div>
+          )}
 
-      <p className="text-center text-sm text-text-secondary">
-        Already have an account?
-        <button
-          type="button"
-          onClick={() => navigate("/login")}
-          className="ml-1 font-semibold text-primary hover:underline"
-        >
-          Log in
-        </button>
-      </p>
-    </PageLayout>
+          <Button
+            type="button"
+            onClick={handleContinue}
+            loading={submitting}
+            disabled={
+              isCooldownActive || !email || !password || !confirmPassword
+            }
+            size="lg"
+            className="w-full"
+          >
+            {submitting
+              ? "Creating account…"
+              : isCooldownActive
+                ? `Retry in ${cooldownSeconds}s`
+                : "Create Account"}
+          </Button>
+        </div>
+
+        <p className="text-center text-sm" style={{ color: "#5A6A8A" }}>
+          Already have an account?{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="font-bold hover:underline"
+            style={{ color: "#1B2B5E" }}
+          >
+            Sign in
+          </button>
+        </p>
+      </div>
+    </div>
   );
 };
 

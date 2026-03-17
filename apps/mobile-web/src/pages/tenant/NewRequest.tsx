@@ -166,7 +166,7 @@ const NewRequest: React.FC = () => {
       className="px-5 pt-6 pb-28 flex flex-col gap-6 motion-page-enter"
     >
       {activeLease && (
-        <div className="rounded-[24px] bg-white/40 backdrop-blur-[20px] p-5 shadow-sm border border-white/50">
+        <div className="rounded-[24px] bg-white p-5 shadow-sm border">
           <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">
             Submitting for
           </p>
@@ -202,8 +202,8 @@ const NewRequest: React.FC = () => {
         </div>
       )}
 
-      <div className="relative overflow-hidden rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm border border-white/50">
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] opacity-80"></div>
+      <div className="relative overflow-hidden rounded-[24px] bg-white shadow-sm border">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#F5A623] to-[#F5A623] opacity-80"></div>
 
         <div className="p-6 flex flex-col gap-6">
           <div className="flex flex-col gap-1.5">
@@ -212,7 +212,7 @@ const NewRequest: React.FC = () => {
             </label>
             <input
               type="text"
-              className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3 text-[15px] font-black text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all"
+              className="w-full rounded-[16px] bg-white border px-4 py-3 text-[15px] font-black text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary  shadow-sm transition-all"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="e.g. Leaking Kitchen Sink"
@@ -238,7 +238,7 @@ const NewRequest: React.FC = () => {
                   <button
                     key={item}
                     type="button"
-                    className={`shrink-0 rounded-[16px] px-4 py-2.5 text-[13px] font-bold transition-all shadow-sm ${active ? "bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white shadow-[0_4px_15px_rgba(255,122,0,0.3)]" : "bg-white/60 text-text-secondary border border-white/50 hover:border-primary/50 hover:text-primary active:scale-[0.98]"}`}
+                    className={`shrink-0 rounded-[16px] px-4 py-2.5 text-[13px] font-bold transition-all shadow-sm ${active ? "bg-gradient-to-r from-[#F5A623] to-[#F5A623] text-white shadow-[0_4px_15px_rgba(245,166,35,0.3)]" : "bg-white text-text-secondary border hover:border-primary/50 hover:text-primary active:scale-[0.98]"}`}
                     onClick={() => setCategory(item)}
                   >
                     {item}
@@ -253,7 +253,7 @@ const NewRequest: React.FC = () => {
               Details
             </label>
             <textarea
-              className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3 text-[14px] font-bold text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all min-h-[140px] resize-none"
+              className="w-full rounded-[16px] bg-white border px-4 py-3 text-[14px] font-bold text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary  shadow-sm transition-all min-h-[140px] resize-none"
               value={details}
               onChange={(event) => setDetails(event.target.value)}
               placeholder="Describe the issue in detail..."
@@ -269,7 +269,7 @@ const NewRequest: React.FC = () => {
                 Priority
               </label>
               <select
-                className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3.5 text-[14px] font-black text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all appearance-none"
+                className="w-full rounded-[16px] bg-white border px-4 py-3.5 text-[14px] font-black text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary  shadow-sm transition-all appearance-none"
                 value={priority}
                 onChange={(event) =>
                   setPriority(event.target.value as MaintenancePriority)
@@ -282,7 +282,7 @@ const NewRequest: React.FC = () => {
               </select>
             </div>
 
-            <div className="rounded-[16px] border border-white/60 bg-white/40 backdrop-blur-md p-4 shadow-sm relative overflow-hidden flex flex-col justify-center">
+            <div className="rounded-[16px] border bg-white  p-4 shadow-sm relative overflow-hidden flex flex-col justify-center">
               {emergency && (
                 <div className="absolute inset-0 bg-danger/10 -z-10 animate-pulse"></div>
               )}
@@ -298,7 +298,7 @@ const NewRequest: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setEmergency((value) => !value)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors border shadow-inner ${emergency ? "bg-danger border-danger" : "bg-white/60 border-white/50"}`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors border shadow-inner ${emergency ? "bg-danger border-danger" : "bg-white/60"}`}
                 >
                   <span
                     className={`inline-block size-4 transform rounded-full bg-white shadow-sm transition-transform ${emergency ? "translate-x-[22px]" : "translate-x-1"}`}
@@ -321,7 +321,7 @@ const NewRequest: React.FC = () => {
         </div>
 
         {recentRequests.length === 0 ? (
-          <div className="rounded-[24px] bg-white/40 backdrop-blur-[20px] p-8 text-center shadow-sm border border-white/50">
+          <div className="rounded-[24px] bg-white p-8 text-center shadow-sm border">
             <span className="material-symbols-outlined text-[32px] text-text-secondary opacity-50 mb-2">
               library_books
             </span>
@@ -334,7 +334,7 @@ const NewRequest: React.FC = () => {
             {recentRequests.map((request) => (
               <div
                 key={request.id}
-                className="rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm p-5 border border-white/50 hover:border-primary/40 hover:bg-white/60 transition-colors"
+                className="rounded-[24px] bg-white shadow-sm p-5 border hover:border-primary/40  transition-colors"
               >
                 <p className="text-[14px] font-black text-text-primary mb-3">
                   {request.title}
@@ -343,7 +343,7 @@ const NewRequest: React.FC = () => {
                   <span className="text-[9px] font-bold text-success bg-success/10 px-2.5 py-1 rounded-[6px] border border-success/20 uppercase tracking-widest">
                     {statusLabel(request.status)}
                   </span>
-                  <span className="text-[9px] font-bold text-text-secondary bg-white/60 px-2.5 py-1 rounded-[6px] border border-white/50 uppercase tracking-widest">
+                  <span className="text-[9px] font-bold text-text-secondary bg-white px-2.5 py-1 rounded-[6px] border uppercase tracking-widest">
                     {request.category}
                   </span>
                 </div>

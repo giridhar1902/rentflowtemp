@@ -233,12 +233,12 @@ const PayRent: React.FC = () => {
 
       {isLoading ? (
         <div className="flex items-center justify-center p-12">
-          <div className="size-8 rounded-full border-2 border-white/60 border-t-primary animate-spin"></div>
+          <div className="size-8 rounded-full border-2 border-t-primary animate-spin"></div>
         </div>
       ) : (
         <>
-          <section className="relative overflow-hidden rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm border border-white/50 group">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] opacity-80"></div>
+          <section className="relative overflow-hidden rounded-[24px] bg-white shadow-sm border group">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#F5A623] to-[#F5A623] opacity-80"></div>
 
             <div className="p-6">
               <div className="flex flex-col gap-1 mb-6">
@@ -287,7 +287,7 @@ const PayRent: React.FC = () => {
             </div>
 
             {activeCharge && (
-              <div className="bg-white/30 border-t border-white/40 p-5 flex flex-col gap-4">
+              <div className="bg-white border-t p-5 flex flex-col gap-4">
                 <h2 className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
                   Monthly Breakdown
                 </h2>
@@ -316,7 +316,7 @@ const PayRent: React.FC = () => {
                       {toCurrency(activeCharge.utilityAmount)}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between pt-3 border-t border-white/40">
+                  <div className="flex items-center justify-between pt-3 border-t">
                     <p className="text-[12px] font-bold uppercase tracking-widest text-primary">
                       Total
                     </p>
@@ -335,7 +335,7 @@ const PayRent: React.FC = () => {
             </h2>
 
             {historyPayments.length === 0 ? (
-              <div className="rounded-[24px] bg-white/40 backdrop-blur-[20px] p-8 text-center shadow-sm border border-white/50">
+              <div className="rounded-[24px] bg-white p-8 text-center shadow-sm border">
                 <span className="material-symbols-outlined text-[32px] text-text-secondary opacity-50 mb-2">
                   history
                 </span>
@@ -344,14 +344,14 @@ const PayRent: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <div className="rounded-[24px] bg-white/40 backdrop-blur-[20px] overflow-hidden shadow-sm border border-white/50">
+              <div className="rounded-[24px] bg-white overflow-hidden shadow-sm border">
                 {historyPayments.slice(0, 6).map((payment, i) => {
                   const isPending = payment.status === "REQUIRES_REVIEW";
                   const isSuccess = payment.status === "SUCCEEDED";
 
                   return (
                     <div
-                      className={`flex items-center justify-between gap-3 p-4 hover:bg-white/60 transition-colors ${i !== Math.min(historyPayments.length, 6) - 1 ? "border-b border-white/40" : ""}`}
+                      className={`flex items-center justify-between gap-3 p-4  transition-colors ${i !== Math.min(historyPayments.length, 6) - 1 ? "border-b" : ""}`}
                       key={payment.id}
                     >
                       <div className="flex items-center gap-4 min-w-0">
@@ -391,7 +391,7 @@ const PayRent: React.FC = () => {
           </section>
 
           {paymentStatus !== "paid" && activeCharge && (
-            <div className="fixed bottom-0 left-0 right-0 p-5 bg-white/40 backdrop-blur-[30px] border-t border-white/40 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] flex flex-col gap-3 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
+            <div className="fixed bottom-0 left-0 right-0 p-5 bg-white backdrop-blur-[30px] border-t pb-[calc(env(safe-area-inset-bottom)+1.5rem)] flex flex-col gap-3 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
               {activeCharge.lease?.hasTdsObligation && (
                 <div className="bg-warning/10 border border-warning/20 rounded-[16px] p-4 mb-1">
                   <div className="flex gap-2 items-start mb-3">
@@ -409,7 +409,7 @@ const PayRent: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1.5 mb-3 bg-white/50 rounded-[8px] p-3 border border-white/40">
+                  <div className="flex flex-col gap-1.5 mb-3 bg-white rounded-[8px] p-3 border">
                     <div className="flex justify-between text-[11px] font-bold text-text-secondary">
                       <span className="uppercase tracking-wide">
                         Rent Amount:
@@ -443,7 +443,7 @@ const PayRent: React.FC = () => {
                   </div>
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <div
-                      className={`size-5 rounded-[6px] border flex items-center justify-center transition-colors ${tdsAccepted ? "bg-primary border-primary" : "bg-white/50 border-black/20 group-hover:border-primary/50"}`}
+                      className={`size-5 rounded-[6px] border flex items-center justify-center transition-colors ${tdsAccepted ? "bg-primary border-primary" : "bg-white border-black/20 group-hover:border-primary/50"}`}
                     >
                       {tdsAccepted && (
                         <span className="material-symbols-outlined text-[14px] text-white">
@@ -471,10 +471,10 @@ const PayRent: React.FC = () => {
                   (activeCharge.lease?.hasTdsObligation && !tdsAccepted)
                 }
                 onClick={() => void handleOnlinePayment()}
-                className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-4 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
+                className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F5A623] to-[#F5A623] py-4 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(245,166,35,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
               >
                 {isLaunchingOnline ? (
-                  <div className="size-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+                  <div className="size-5 rounded-full border-2 border-[rgba(27,43,94,0.06)] border-t-white animate-spin"></div>
                 ) : (
                   <>
                     <span className="material-symbols-outlined text-[20px]">
@@ -491,7 +491,7 @@ const PayRent: React.FC = () => {
                   (activeCharge.lease?.hasTdsObligation && !tdsAccepted)
                 }
                 onClick={openCashModal}
-                className="w-full flex items-center justify-center gap-2 rounded-full bg-white/60 border border-white/50 py-3.5 text-text-primary font-bold text-[14px] hover:bg-white/80 active:scale-[0.98] transition-all disabled:opacity-50 shadow-sm"
+                className="w-full flex items-center justify-center gap-2 rounded-full bg-white border py-3.5 text-text-primary font-bold text-[14px]  active:scale-[0.98] transition-all disabled:opacity-50 shadow-sm"
               >
                 <span className="material-symbols-outlined text-[20px] text-text-secondary">
                   payments
@@ -504,9 +504,9 @@ const PayRent: React.FC = () => {
       )}
 
       {showCashModal && activeCharge && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 backdrop-blur-md p-4 sm:items-center motion-page-enter">
-          <div className="motion-modal-enter w-full max-w-[400px] rounded-[24px] border border-white/50 bg-white/80 backdrop-blur-[30px] p-6 shadow-2xl relative overflow-hidden">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00]"></div>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40  p-4 sm:items-center motion-page-enter">
+          <div className="motion-modal-enter w-full max-w-[400px] rounded-[24px] border bg-white/80 backdrop-blur-[30px] p-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#F5A623] to-[#F5A623]"></div>
 
             <div className="mb-6 flex items-center justify-between">
               <h3 className="text-[18px] font-black text-text-primary">
@@ -514,7 +514,7 @@ const PayRent: React.FC = () => {
               </h3>
               <button
                 type="button"
-                className="flex size-8 items-center justify-center rounded-full bg-white/60 border border-white/60 text-text-secondary hover:text-text-primary hover:bg-white/80 transition-colors shadow-sm"
+                className="flex size-8 items-center justify-center rounded-full bg-white border text-text-secondary hover:text-text-primary  transition-colors shadow-sm"
                 onClick={() => setShowCashModal(false)}
               >
                 <span className="material-symbols-outlined text-[18px]">
@@ -523,7 +523,7 @@ const PayRent: React.FC = () => {
               </button>
             </div>
 
-            <div className="rounded-[16px] bg-white/60 border border-white/60 p-4 flex items-start gap-3 mb-6 shadow-sm">
+            <div className="rounded-[16px] bg-white border p-4 flex items-start gap-3 mb-6 shadow-sm">
               <span className="material-symbols-outlined text-primary text-[20px]">
                 info
               </span>
@@ -542,7 +542,7 @@ const PayRent: React.FC = () => {
                   type="number"
                   step="0.01"
                   min="0.01"
-                  className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3 text-[15px] font-black text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all"
+                  className="w-full rounded-[16px] bg-white border px-4 py-3 text-[15px] font-black text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary  shadow-sm transition-all"
                   value={cashAmount}
                   onChange={(event) => setCashAmount(event.target.value)}
                 />
@@ -554,7 +554,7 @@ const PayRent: React.FC = () => {
                 </label>
                 <input
                   type="date"
-                  className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3 text-[15px] font-black text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all"
+                  className="w-full rounded-[16px] bg-white border px-4 py-3 text-[15px] font-black text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary  shadow-sm transition-all"
                   value={cashDate}
                   onChange={(event) => setCashDate(event.target.value)}
                 />
@@ -567,7 +567,7 @@ const PayRent: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Receipt ID or note"
-                  className="w-full rounded-[16px] bg-white/50 border border-white/50 px-4 py-3 text-[14px] font-bold text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-md shadow-sm transition-all"
+                  className="w-full rounded-[16px] bg-white border px-4 py-3 text-[14px] font-bold text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary  shadow-sm transition-all"
                   value={cashReference}
                   onChange={(event) => setCashReference(event.target.value)}
                 />
@@ -575,12 +575,12 @@ const PayRent: React.FC = () => {
             </div>
 
             <button
-              className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-3.5 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
+              className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F5A623] to-[#F5A623] py-3.5 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(245,166,35,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
               disabled={isSubmittingCash}
               onClick={() => void handleCashSubmit()}
             >
               {isSubmittingCash ? (
-                <div className="size-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+                <div className="size-5 rounded-full border-2 border-[rgba(27,43,94,0.06)] border-t-white animate-spin"></div>
               ) : (
                 "Submit for Approval"
               )}

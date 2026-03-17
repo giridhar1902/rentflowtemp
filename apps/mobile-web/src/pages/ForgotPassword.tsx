@@ -47,11 +47,7 @@ const ForgotPassword: React.FC = () => {
           Back to login
         </button>
 
-        <InstitutionCard
-          accentSpine
-          elevation="raised"
-          className="section-stack"
-        >
+        <InstitutionCard className="section-stack">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
               Reset Password

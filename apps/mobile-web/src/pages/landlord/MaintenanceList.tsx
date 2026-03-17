@@ -37,7 +37,7 @@ const statusColors = (status: MaintenanceStatus) => {
       return {
         bg: "bg-white/60",
         text: "text-slate-500",
-        border: "border-white/50",
+        border: "border-[rgba(27,43,94,0.1)]",
       };
   }
 };
@@ -64,7 +64,7 @@ const priorityColors = (priority: string) => {
   return {
     bg: "bg-white/60",
     text: "text-slate-500",
-    border: "border-white/50",
+    border: "border-[rgba(27,43,94,0.1)]",
   };
 };
 
@@ -198,13 +198,13 @@ const MaintenanceList: React.FC = () => {
     >
       {/* KPI Sections */}
       <section className="grid grid-cols-2 gap-4">
-        <div className="relative overflow-hidden rounded-[20px] border border-white/40 bg-white/40 p-4 group backdrop-blur-[20px] shadow-sm">
+        <div className="relative overflow-hidden rounded-[20px] border bg-white p-4 group  shadow-sm">
           <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#EF4444]"></div>
           <div className="pl-2">
             <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#EF4444] mb-1">
               Urgent
             </p>
-            <p className="text-[28px] font-black text-[#1e293b] font-numeric tracking-tight">
+            <p className="text-[28px] font-black text-[#1B2B5E] font-numeric tracking-tight">
               {urgentCount}
             </p>
             <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-500 leading-tight">
@@ -212,11 +212,11 @@ const MaintenanceList: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="rounded-[20px] border border-white/40 bg-white/40 p-4 text-right backdrop-blur-[20px] shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#FF7A00] mb-1">
+        <div className="rounded-[20px] border bg-white p-4 text-right  shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#F5A623] mb-1">
             Pending
           </p>
-          <p className="text-[28px] font-black text-[#1e293b] font-numeric tracking-tight">
+          <p className="text-[28px] font-black text-[#1B2B5E] font-numeric tracking-tight">
             {pendingCount}
           </p>
           <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-500 leading-tight max-w-[120px] ml-auto">
@@ -233,10 +233,10 @@ const MaintenanceList: React.FC = () => {
 
       {loading ? (
         <div className="flex items-center justify-center p-12">
-          <div className="size-8 rounded-full border-2 border-white/50 border-t-[#FF7A00] animate-spin"></div>
+          <div className="size-8 rounded-full border-2 border-t-[#F5A623] animate-spin"></div>
         </div>
       ) : requests.length === 0 ? (
-        <div className="rounded-[20px] border border-white/40 bg-white/40 p-6 text-center backdrop-blur-[20px] shadow-sm">
+        <div className="rounded-[20px] border bg-white p-6 text-center  shadow-sm">
           <p className="text-[13px] text-slate-500 font-medium">
             No maintenance requests right now.
           </p>
@@ -250,11 +250,11 @@ const MaintenanceList: React.FC = () => {
             return (
               <div
                 key={request.id}
-                className="rounded-[24px] border border-white/40 bg-white/40 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] backdrop-blur-[20px] transition-all hover:border-[#FF9A3D]/40 group"
+                className="rounded-[24px] border bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)]  transition-all hover:border-[#F5A623]/40 group"
               >
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0 pr-2">
-                    <h2 className="line-clamp-1 text-[15px] font-bold text-[#1e293b] mb-1 group-hover:text-[#FF7A00] transition-colors">
+                    <h2 className="line-clamp-1 text-[15px] font-bold text-[#1B2B5E] mb-1 group-hover:text-[#F5A623] transition-colors">
                       {request.title}
                     </h2>
                     <p className="truncate text-[12px] font-medium text-slate-500">
@@ -287,7 +287,7 @@ const MaintenanceList: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="border-t border-white/40 pt-4 mt-1 relative">
+                <div className="border-t pt-4 mt-1 relative">
                   <div className="relative">
                     <select
                       value={request.status}
@@ -303,8 +303,8 @@ const MaintenanceList: React.FC = () => {
                           event.target.value as MaintenanceStatus,
                         )
                       }
-                      className={`w-full appearance-none rounded-[16px] border border-white/50 bg-white/60 py-3 pl-4 pr-10 text-[13px] font-bold text-[#1e293b] outline-none shadow-sm transition-colors 
-                           ${updatingRequestId === request.id || request.status === "COMPLETED" || request.status === "CANCELED" ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-[#FF9A3D]"}
+                      className={`w-full appearance-none rounded-[16px] border bg-white py-3 pl-4 pr-10 text-[13px] font-bold text-[#1B2B5E] outline-none shadow-sm transition-colors 
+                           ${updatingRequestId === request.id || request.status === "COMPLETED" || request.status === "CANCELED" ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-[#F5A623]"}
                          `}
                     >
                       {(
@@ -318,7 +318,7 @@ const MaintenanceList: React.FC = () => {
                       ))}
                     </select>
                     <span
-                      className={`pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] transition-colors ${updatingRequestId === request.id || request.status === "COMPLETED" || request.status === "CANCELED" ? "text-slate-400" : "text-slate-500 group-hover:text-[#FF7A00]"}`}
+                      className={`pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] transition-colors ${updatingRequestId === request.id || request.status === "COMPLETED" || request.status === "CANCELED" ? "text-slate-400" : "text-slate-500 group-hover:text-[#F5A623]"}`}
                     >
                       {updatingRequestId === request.id
                         ? "sync"

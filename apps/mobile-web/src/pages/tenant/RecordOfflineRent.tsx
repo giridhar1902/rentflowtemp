@@ -81,7 +81,7 @@ export const RecordOfflineRent = ({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-[4px] motion-fade-in"
+        className="fixed inset-0 z-[9998] bg-black/40  motion-fade-in"
         onClick={onClose}
       />
 
@@ -142,7 +142,7 @@ export const RecordOfflineRent = ({
           <label className="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-2">
             Amount Received
           </label>
-          <div className="relative flex items-center bg-white border border-slate-200 rounded-[20px] px-4 py-4 shadow-sm focus-within:ring-2 focus-within:ring-[#ff8a00]/30 focus-within:border-[#ff8a00] transition-all">
+          <div className="relative flex items-center bg-white border border-slate-200 rounded-[20px] px-4 py-4 shadow-sm focus-within:ring-2 focus-within:ring-[#F5A623]/30 focus-within:border-[#F5A623] transition-all">
             <span className="text-[24px] font-semibold text-slate-400 mr-2">
               ₹
             </span>
@@ -163,7 +163,7 @@ export const RecordOfflineRent = ({
             <label className="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-2">
               Rent Month
             </label>
-            <div className="relative flex items-center bg-white border border-slate-200 rounded-[16px] px-4 py-3 shadow-sm focus-within:ring-2 ring-[#ff8a00]/30">
+            <div className="relative flex items-center bg-white border border-slate-200 rounded-[16px] px-4 py-3 shadow-sm focus-within:ring-2 ring-[#F5A623]/30">
               <select
                 value={rentMonth}
                 onChange={(e) => setRentMonth(e.target.value)}
@@ -239,7 +239,7 @@ export const RecordOfflineRent = ({
           <label className="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-2">
             Proof of Payment
           </label>
-          <div className="h-20 rounded-[20px] border-2 border-dashed border-slate-300 bg-white/50 flex flex-col items-center justify-center gap-1">
+          <div className="h-20 rounded-[20px] border-2 border-dashed border-slate-300 bg-white flex flex-col items-center justify-center gap-1">
             <span className="material-symbols-outlined text-[24px] text-slate-400">
               add_photo_alternate
             </span>
@@ -262,7 +262,7 @@ export const RecordOfflineRent = ({
           className="w-full bg-[#F59E0B] hover:bg-[#D97706] active:bg-[#B45309] text-white rounded-[20px] py-4 px-6 flex items-center justify-center gap-3 shadow-[0_8px_20px_rgba(245,158,11,0.3)] transition-all disabled:opacity-50"
         >
           {isSubmitting ? (
-            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span className="w-5 h-5 border-2 border-[rgba(27,43,94,0.06)] border-t-white rounded-full animate-spin" />
           ) : (
             <>
               <span className="material-symbols-outlined text-[20px]">

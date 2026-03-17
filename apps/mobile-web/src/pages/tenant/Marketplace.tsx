@@ -52,11 +52,11 @@ const Marketplace: React.FC = () => {
 
   return (
     <div className="min-h-screen font-sans pb-[100px] text-text-primary selection:bg-primary/30">
-      <header className="sticky top-0 z-20 border-b border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm px-5 pb-4 pt-6">
+      <header className="sticky top-0 z-20 border-b bg-white shadow-sm px-5 pb-4 pt-6">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 text-text-secondary hover:text-primary hover:bg-white/80 transition-colors shadow-sm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border text-text-secondary hover:text-primary  transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined text-[20px]">
               arrow_back
@@ -67,7 +67,7 @@ const Marketplace: React.FC = () => {
             Home Services
           </h1>
 
-          <button className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 text-text-secondary hover:text-primary hover:bg-white/80 transition-colors shadow-sm">
+          <button className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border text-text-secondary hover:text-primary  transition-colors shadow-sm">
             <span className="material-symbols-outlined text-[18px]">
               search
             </span>
@@ -77,7 +77,7 @@ const Marketplace: React.FC = () => {
 
       <main className="px-5 pt-6 pb-8 flex flex-col gap-6 motion-page-enter">
         {/* Banner */}
-        <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-md shadow-sm border border-white/50 p-6">
+        <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-white/60 to-white/30  shadow-sm border p-6">
           <div className="absolute right-[-20px] top-[-20px] size-40 rounded-full bg-primary/20 blur-[40px]"></div>
           <div className="relative z-10">
             <span className="inline-block px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-[10px] font-bold uppercase tracking-widest text-primary mb-3">
@@ -105,8 +105,8 @@ const Marketplace: React.FC = () => {
                   }
                   className={`shrink-0 px-5 py-2.5 rounded-full text-[13px] font-bold transition-all whitespace-nowrap border shadow-sm ${
                     isActive
-                      ? "bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white border-primary shadow-[0_4px_15px_rgba(255,122,0,0.3)]"
-                      : "bg-white/60 text-text-secondary border-white/50 hover:border-primary/50 hover:text-primary active:scale-[0.98]"
+                      ? "bg-gradient-to-r from-[#F5A623] to-[#F5A623] text-white border-primary shadow-[0_4px_15px_rgba(245,166,35,0.3)]"
+                      : "bg-white text-text-secondary hover:border-primary/50 hover:text-primary active:scale-[0.98]"
                   }`}
                 >
                   {tab}
@@ -121,15 +121,15 @@ const Marketplace: React.FC = () => {
           {services.map((service) => (
             <div
               key={service.id}
-              className="bg-white/40 backdrop-blur-[20px] rounded-[24px] border border-white/50 p-4 flex flex-col gap-3 hover:border-primary/40 hover:bg-white/60 transition-all shadow-sm active:scale-[0.98] group cursor-pointer"
+              className="bg-white rounded-[24px] border p-4 flex flex-col gap-3 hover:border-primary/40  transition-all shadow-sm active:scale-[0.98] group cursor-pointer"
             >
               <div className="flex items-start justify-between">
-                <div className="size-10 rounded-full bg-white/60 border border-white/50 shadow-inner flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                <div className="size-10 rounded-full bg-white border shadow-inner flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-[20px]">
                     {service.icon}
                   </span>
                 </div>
-                <div className="flex items-center gap-1 bg-white/60 px-2 py-1 rounded-[8px] border border-white/50 shadow-inner">
+                <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-[8px] border shadow-inner">
                   <span className="material-symbols-outlined text-[10px] text-warning">
                     star
                   </span>
@@ -151,7 +151,7 @@ const Marketplace: React.FC = () => {
           ))}
         </section>
 
-        <div className="rounded-[24px] bg-white/40 backdrop-blur-[20px] p-5 shadow-sm border border-white/50 flex items-center gap-4 mt-2">
+        <div className="rounded-[24px] bg-white p-5 shadow-sm border flex items-center gap-4 mt-2">
           <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
             <span className="material-symbols-outlined text-[24px] text-primary">
               verified_user
@@ -159,7 +159,7 @@ const Marketplace: React.FC = () => {
           </div>
           <div>
             <h4 className="text-[14px] font-black text-text-primary">
-              RentMate Guarantee
+              Domvio Guarantee
             </h4>
             <p className="text-[11px] font-bold text-text-secondary mt-0.5">
               If you're not satisfied, we'll fix it for free or refund your

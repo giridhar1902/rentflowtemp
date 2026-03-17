@@ -201,8 +201,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <AppLayout
-      title="Command Center"
-      subtitle="DASHBOARD"
+      showLogo={true}
       bottomNavRole="landlord"
       showFab
       className="px-5 pt-6 flex flex-col gap-5 motion-page-enter"
@@ -224,7 +223,7 @@ const Dashboard: React.FC = () => {
               {nriSummary.foreignCurrency}
             </p>
           </div>
-          <div className="flex bg-white/60 p-1 rounded-lg border border-slate-200">
+          <div className="flex bg-white p-1 rounded-lg border border-slate-200">
             <button
               onClick={() => setShowForeign(false)}
               className={cn(
@@ -252,77 +251,115 @@ const Dashboard: React.FC = () => {
       )}
 
       {/* Top Metric Cards */}
-      <section className="flex gap-4">
-        <div className="flex-1 overflow-hidden rounded-[24px] border border-white/40 bg-white/40 p-4 relative group hover:border-white/60 transition-colors shadow-[0_8px_30px_rgba(0,0,0,0.05)] backdrop-blur-[20px]">
-          <div className="absolute -right-4 -top-4 size-24 bg-[#FF9A3D]/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
-          <div className="relative z-10">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">
-              Collected
-            </p>
-            <h2
-              className={revealClass(
-                "text-[26px] font-black tracking-tighter text-[#1e293b] font-numeric",
-              )}
-              style={revealStyle(0)}
-            >
-              {money(displayCollected, displayCurrency)}
-            </h2>
-          </div>
+      <section className="flex gap-3">
+        {/* Collected */}
+        <div
+          className="flex-1 rounded-2xl p-4 flex flex-col gap-3"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid rgba(27,43,94,0.08)",
+            boxShadow: "0 2px 12px rgba(27,43,94,0.06)",
+            borderLeft: "3px solid #F5A623",
+          }}
+        >
+          <p
+            className="text-[10px] font-bold uppercase tracking-widest"
+            style={{ color: "#8A9AB8" }}
+          >
+            Collected
+          </p>
+          <h2
+            className={revealClass(
+              "text-[28px] font-extrabold tracking-tight font-numeric",
+            )}
+            style={{ ...revealStyle(0), color: "#1B2B5E" }}
+          >
+            {money(displayCollected, displayCurrency)}
+          </h2>
           {!showForeign && (
-            <div className="relative z-10 mt-3 inline-flex items-center gap-1.5 self-start bg-[#EF4444]/15 text-[#EF4444] px-2 py-1 rounded-md border border-[#EF4444]/20 shadow-sm">
-              <span className="material-symbols-outlined text-[12px]">
-                warning
-              </span>
-              <p className="text-[10px] font-bold uppercase tracking-wider">
+            <div className="flex">
+              <div
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide"
+                style={{
+                  background: "#FEE2E2",
+                  color: "#B91C1C",
+                  border: "1px solid rgba(220,38,38,0.15)",
+                }}
+              >
+                <span className="material-symbols-outlined text-[11px]">
+                  warning
+                </span>
                 Overdue {money(summary?.totals.overdue ?? 0, "INR")}
-              </p>
+              </div>
             </div>
           )}
         </div>
 
+        {/* Properties */}
         <div
-          className="flex-1 overflow-hidden rounded-[24px] border border-white/40 bg-white/40 p-4 relative cursor-pointer hover:border-white/60 transition-colors shadow-[0_8px_30px_rgba(0,0,0,0.05)] backdrop-blur-[20px]"
+          className="flex-1 rounded-2xl p-4 flex flex-col gap-3 cursor-pointer"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid rgba(27,43,94,0.08)",
+            boxShadow: "0 2px 12px rgba(27,43,94,0.06)",
+            borderLeft: "3px solid #1B2B5E",
+          }}
           onClick={() => navigate("/landlord/properties")}
         >
-          <div className="absolute -right-4 -bottom-4 size-24 bg-[#10B981]/20 rounded-full blur-xl"></div>
-          <div className="relative z-10">
-            <div className="flex justify-between items-start">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">
-                Properties
-              </p>
-              <span className="material-symbols-outlined text-slate-500 text-lg">
-                apartment
-              </span>
-            </div>
-            <h2
-              className={revealClass(
-                "text-[26px] font-black tracking-tighter text-[#1e293b] font-numeric",
-              )}
-              style={revealStyle(1)}
+          <div className="flex items-center justify-between">
+            <p
+              className="text-[10px] font-bold uppercase tracking-widest"
+              style={{ color: "#8A9AB8" }}
             >
-              {properties.length}
-            </h2>
-          </div>
-          <div className="relative z-10 mt-3 inline-flex items-center gap-1.5 self-start bg-[#10B981]/15 text-[#10B981] px-2 py-1 rounded-md border border-[#10B981]/20 shadow-sm">
-            <span className="material-symbols-outlined text-[12px]">
-              check_circle
-            </span>
-            <p className="text-[10px] font-bold uppercase tracking-wider">
-              {occupiedRate}% Occupied
+              Properties
             </p>
+            <span
+              className="material-symbols-outlined text-[18px]"
+              style={{ color: "#8A9AB8" }}
+            >
+              apartment
+            </span>
+          </div>
+          <h2
+            className={revealClass(
+              "text-[28px] font-extrabold tracking-tight font-numeric",
+            )}
+            style={{ ...revealStyle(1), color: "#1B2B5E" }}
+          >
+            {properties.length}
+          </h2>
+          <div className="flex">
+            <div
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide"
+              style={{
+                background: "#DCFCE7",
+                color: "#15803D",
+                border: "1px solid rgba(22,163,74,0.15)",
+              }}
+            >
+              <span className="material-symbols-outlined text-[11px]">
+                check_circle
+              </span>
+              {occupiedRate}% Occupied
+            </div>
           </div>
         </div>
       </section>
 
       {/* Financial Chart Card */}
-      <div className="rounded-[24px] border border-white/40 bg-white/40 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.08)] backdrop-blur-[20px] relative overflow-hidden">
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#FF9A3D]/10 to-transparent pointer-events-none"></div>
-
+      <div
+        className="rounded-2xl p-5 relative overflow-hidden"
+        style={{
+          background: "#FFFFFF",
+          border: "1px solid rgba(27,43,94,0.08)",
+          boxShadow: "0 2px 12px rgba(27,43,94,0.06)",
+        }}
+      >
         <div className="relative z-10 flex items-center justify-between mb-4">
           <h2 className="text-[12px] font-bold uppercase tracking-widest text-slate-500">
             Billed vs Collected
           </h2>
-          <div className="text-[10px] font-bold text-[#FF7A00] bg-[#FF9A3D]/15 px-2.5 py-1 rounded-full border border-[#FF7A00]/20 uppercase tracking-widest shadow-sm">
+          <div className="text-[10px] font-bold text-[#F5A623] bg-[#F5A623]/15 px-2.5 py-1 rounded-full border border-[#F5A623]/20 uppercase tracking-widest shadow-sm">
             Monthly
           </div>
         </div>
@@ -333,7 +370,7 @@ const Dashboard: React.FC = () => {
           </p>
           <div
             className={revealClass(
-              "font-numeric text-[32px] font-black text-[#1e293b] tracking-tighter",
+              "font-numeric text-[32px] font-black text-[#1B2B5E] tracking-tighter",
             )}
             style={revealStyle(2)}
           >
@@ -341,7 +378,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="relative z-10 h-48 w-full -mx-3">
+        <div style={{ height: 192, width: "100%" }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={activeChartData}
@@ -355,8 +392,8 @@ const Dashboard: React.FC = () => {
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="0%" stopColor="#FF9A3D" stopOpacity={0.6} />
-                  <stop offset="100%" stopColor="#FF7A00" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#F5A623" stopOpacity={0.6} />
+                  <stop offset="100%" stopColor="#F5A623" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis dataKey="name" hide />
@@ -372,11 +409,11 @@ const Dashboard: React.FC = () => {
                   backgroundColor: "rgba(255,255,255,0.9)",
                   backdropFilter: "blur(12px)",
                   boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
-                  color: "#1e293b",
+                  color: "#1B2B5E",
                   fontWeight: "bold",
                   fontSize: "13px",
                 }}
-                itemStyle={{ color: "#1e293b", fontWeight: "bold" }}
+                itemStyle={{ color: "#1B2B5E", fontWeight: "bold" }}
                 labelStyle={{
                   color: "#475569",
                   textTransform: "uppercase",
@@ -389,7 +426,7 @@ const Dashboard: React.FC = () => {
               <Area
                 type="monotone"
                 dataKey="income"
-                stroke="#FF7A00"
+                stroke="#F5A623"
                 strokeWidth={3}
                 fillOpacity={1}
                 fill="url(#dashboard-income)"
@@ -415,22 +452,33 @@ const Dashboard: React.FC = () => {
           </h2>
           <button
             onClick={() => navigate("/landlord/payments")}
-            className="text-[11px] font-bold text-[#FF7A00] tracking-wide uppercase hover:text-[#ea580c]"
+            className="text-[11px] font-bold text-[#F5A623] tracking-wide uppercase hover:text-[#ea580c]"
           >
             View All
           </button>
         </div>
 
         {firstPendingReview ? (
-          <div className="flex items-center justify-between gap-4 rounded-[20px] border border-[#FF9A3D]/40 bg-[#FF9A3D]/10 p-4 shadow-sm backdrop-blur-md">
+          <div
+            className="flex items-center justify-between gap-4 rounded-2xl p-4"
+            style={{
+              background: "#FFFFFF",
+              border: "1px solid rgba(245,166,35,0.25)",
+              borderLeft: "3px solid #F5A623",
+              boxShadow: "0 2px 12px rgba(27,43,94,0.06)",
+            }}
+          >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="size-10 rounded-full bg-white/60 border border-[#FF9A3D]/30 flex items-center justify-center shrink-0 text-[#FF7A00] shadow-sm">
+              <div
+                className="size-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: "rgba(245,166,35,0.1)", color: "#F5A623" }}
+              >
                 <span className="material-symbols-outlined text-[20px]">
                   payments
                 </span>
               </div>
               <div className="min-w-0">
-                <p className="truncate text-[14px] font-bold text-[#1e293b]">
+                <p className="truncate text-[14px] font-bold text-[#1B2B5E]">
                   {pendingTenantName}
                 </p>
                 <p className="mt-0.5 truncate text-[11px] font-medium text-slate-500">
@@ -443,7 +491,7 @@ const Dashboard: React.FC = () => {
             <div className="flex flex-col items-end gap-2 shrink-0">
               <p
                 className={revealClass(
-                  "font-numeric text-[17px] font-black text-[#1e293b] tracking-tight",
+                  "font-numeric text-[17px] font-black text-[#1B2B5E] tracking-tight",
                 )}
                 style={revealStyle(3)}
               >
@@ -451,14 +499,18 @@ const Dashboard: React.FC = () => {
               </p>
               <button
                 onClick={() => navigate("/landlord/payments")}
-                className="bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white font-bold text-[11px] uppercase tracking-wider py-1.5 px-3.5 rounded-lg shadow-sm hover:opacity-90 transition-opacity"
+                className="text-white font-bold text-[11px] uppercase tracking-wider py-1.5 px-3.5 rounded-lg transition-opacity hover:opacity-90"
+                style={{
+                  background: "linear-gradient(135deg, #F5A623, #E8920F)",
+                  boxShadow: "0 2px 8px rgba(245,166,35,0.3)",
+                }}
               >
                 Review
               </button>
             </div>
           </div>
         ) : (
-          <div className="rounded-[20px] border border-white/40 bg-white/40 backdrop-blur-md p-4 shadow-sm">
+          <div className="rounded-[20px] border border-[rgba(27,43,94,0.08)] bg-white p-4 shadow-sm">
             <p className="text-[13px] font-medium text-slate-500">
               No cash approvals are pending right now.
             </p>
@@ -468,24 +520,42 @@ const Dashboard: React.FC = () => {
 
       {/* Secondary Actions */}
       <div
-        className="flex items-center justify-between gap-3 rounded-[24px] border border-white/40 bg-white/40 p-4 cursor-pointer hover:border-white/60 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.03)] backdrop-blur-[20px] group mt-2"
+        className="flex items-center justify-between gap-3 rounded-2xl p-4 cursor-pointer transition-all group"
+        style={{
+          background: "#FFFFFF",
+          border: "1px solid rgba(27,43,94,0.08)",
+          boxShadow: "0 2px 12px rgba(27,43,94,0.06)",
+        }}
         onClick={() => navigate("/landlord/maintenance")}
       >
         <div className="flex items-center gap-4">
-          <div className="flex size-11 items-center justify-center rounded-[14px] bg-white/60 text-slate-500 border border-white/50 shadow-sm transition-colors group-hover:bg-[#FF9A3D]/15 group-hover:text-[#FF7A00] group-hover:border-[#FF9A3D]/30">
+          <div
+            className="flex size-11 items-center justify-center rounded-xl transition-colors"
+            style={{
+              background: "#F8F9FA",
+              border: "1px solid rgba(27,43,94,0.09)",
+              color: "#5A6A8A",
+            }}
+          >
             <span className="material-symbols-outlined text-[20px]">build</span>
           </div>
           <div>
-            <p className="text-[15px] font-bold text-[#1e293b]">
+            <p className="text-[15px] font-bold" style={{ color: "#1B2B5E" }}>
               Maintenance Requests
             </p>
-            <p className="text-[12px] font-medium text-slate-500 mt-0.5">
+            <p
+              className="text-[12px] font-medium mt-0.5"
+              style={{ color: "#8A9AB8" }}
+            >
               Track issues across your portfolio
             </p>
           </div>
         </div>
-        <span className="material-symbols-outlined text-slate-400 group-hover:text-[#FF7A00] transition-all -translate-x-1 group-hover:translate-x-0 border border-transparent group-hover:border-[#FF9A3D]/30 rounded-full p-1 bg-transparent group-hover:bg-[#FF9A3D]/10">
-          arrow_forward
+        <span
+          className="material-symbols-outlined text-[20px]"
+          style={{ color: "#CBD5E1" }}
+        >
+          arrow_forward_ios
         </span>
       </div>
 
@@ -493,12 +563,14 @@ const Dashboard: React.FC = () => {
       <div className="fixed bottom-[calc(var(--layout-safe-area-bottom)+6.5rem)] right-6 z-30">
         <button
           onClick={() => navigate("/landlord/add-expense")}
-          className="flex size-14 items-center justify-center rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white shadow-[0_8px_25px_rgba(255,122,0,0.35)] hover:scale-105 active:scale-95 transition-all outline outline-transparent"
+          className="flex size-14 items-center justify-center rounded-full text-white transition-all hover:scale-105 active:scale-95"
+          style={{
+            background: "linear-gradient(135deg, #F5A623, #E8920F)",
+            boxShadow: "0 8px 24px rgba(245,166,35,0.4)",
+          }}
           aria-label="Add expense"
         >
-          <span className="material-symbols-outlined text-[28px] font-medium">
-            add
-          </span>
+          <span className="material-symbols-outlined text-[28px]">add</span>
         </button>
       </div>
     </AppLayout>

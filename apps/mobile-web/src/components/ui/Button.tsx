@@ -12,23 +12,43 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   trailingIcon?: React.ReactNode;
 };
 
-const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    "bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white !rounded-[20px] shadow-[0_8px_20px_rgba(255,122,0,0.3)] border-none hover:shadow-[0_12px_25px_rgba(255,122,0,0.4)]",
-  secondary:
-    "bg-white/[0.35] backdrop-blur-[20px] text-[#1e293b] border border-white/40 shadow-[0_4px_15px_rgba(0,0,0,0.05)] hover:bg-white/50 !rounded-[20px]",
-  subtle:
-    "bg-white/40 text-[#1e293b] border border-white/40 shadow-none !rounded-[20px]",
-  ghost:
-    "bg-transparent text-[#475569] border border-transparent shadow-none !rounded-[20px]",
-  danger:
-    "bg-red-500 text-white border border-red-500 shadow-base !rounded-[20px]",
+const variantStyles: Record<ButtonVariant, React.CSSProperties> = {
+  primary: {
+    background: "linear-gradient(135deg, #F5A623 0%, #E8920F 100%)",
+    color: "#FFFFFF",
+    border: "none",
+    boxShadow: "0 4px 16px rgba(245,166,35,0.35)",
+  },
+  secondary: {
+    background: "#FFFFFF",
+    color: "#1B2B5E",
+    border: "1.5px solid rgba(27,43,94,0.14)",
+    boxShadow: "0 1px 4px rgba(27,43,94,0.06)",
+  },
+  subtle: {
+    background: "#F8F9FA",
+    color: "#1B2B5E",
+    border: "1px solid rgba(27,43,94,0.09)",
+    boxShadow: "none",
+  },
+  ghost: {
+    background: "transparent",
+    color: "#5A6A8A",
+    border: "none",
+    boxShadow: "none",
+  },
+  danger: {
+    background: "#DC2626",
+    color: "#FFFFFF",
+    border: "none",
+    boxShadow: "0 4px 12px rgba(220,38,38,0.25)",
+  },
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "h-9 px-3 text-sm",
-  md: "h-11 px-4 text-sm",
-  lg: "h-12 px-5 text-base",
+  sm: "h-9 px-3 text-sm rounded-xl",
+  md: "h-11 px-4 text-sm rounded-[14px]",
+  lg: "h-12 px-5 text-base rounded-[16px]",
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -41,6 +61,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       trailingIcon,
       className,
       disabled,
+      style,
       children,
       ...props
     },
@@ -53,13 +74,16 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={isDisabled}
         className={cn(
-          "inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-control)] font-semibold leading-none",
-          "motion-press",
-          "disabled:cursor-not-allowed disabled:opacity-60",
-          variantClasses[variant],
+          "inline-flex select-none items-center justify-center gap-2 whitespace-nowrap font-bold leading-none transition-all duration-150 active:scale-[0.97]",
+          "disabled:cursor-not-allowed disabled:opacity-50",
           sizeClasses[size],
           className,
         )}
+        style={{
+          ...variantStyles[variant],
+          fontFamily: '"Plus Jakarta Sans", sans-serif',
+          ...style,
+        }}
         {...props}
       >
         {loading && (

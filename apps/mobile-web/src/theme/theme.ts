@@ -2,7 +2,7 @@ export type ThemeMode = "light" | "dark";
 export type ThemePreference = ThemeMode | "system";
 export type ElevationLevel = "base" | "raised" | "floating" | "overlay";
 
-export const THEME_STORAGE_KEY = "proptech.theme.preference";
+export const THEME_STORAGE_KEY = "domvio.theme.preference";
 
 export type ThemeColorTokens = {
   background: string;
@@ -26,90 +26,73 @@ export type ThemeColorTokens = {
 
 export type ThemeShadows = Record<ElevationLevel, string>;
 
-const lightAccent = "#8C6A2E";
-const darkAccent = "#B58A3C";
-
-export const institutionalTheme = {
+export const domvioTheme = {
   meta: {
-    name: "Institutional Rental Fintech Theme",
+    name: "Domvio Design System",
     version: "1.0.0",
-    updatedAt: "2026-02-27",
+    updatedAt: "2026-03-16",
+  },
+  brand: {
+    navy: "#1B2B5E",
+    navyLight: "#2D4A9E",
+    gold: "#F5A623",
+    goldDark: "#E8920F",
   },
   modeDefaults: {
-    preference: "system" as ThemePreference,
+    preference: "light" as ThemePreference,
     fallback: "light" as ThemeMode,
-  },
-  accent: {
-    name: "Aged Brass",
-    light: lightAccent,
-    dark: darkAccent,
-    usageRules: {
-      allowed: [
-        "active-navigation-indicator",
-        "focus-ring",
-        "kpi-highlight",
-        "financial-card-accent-spine",
-        "selected-state",
-        "important-number-emphasis",
-      ],
-      forbidden: [
-        "full-surface-backgrounds",
-        "neon-or-glow-effects",
-        "large-gradients",
-        "decorative-overuse",
-      ],
-    },
   },
   color: {
     light: {
-      background: "#F3EFE9",
+      background: "#EEF1F8",
       surface: "#FFFFFF",
-      subtleSurface: "#F6F2EC",
-      textPrimary: "#1E1E1C",
-      textSecondary: "#5A5854",
-      borderSubtle: "rgba(0,0,0,0.06)",
-      accent: lightAccent,
-      accentStrong: "#7A5C29",
+      subtleSurface: "#F8F9FA",
+      textPrimary: "#1B2B5E",
+      textSecondary: "#5A6A8A",
+      borderSubtle: "rgba(27,43,94,0.09)",
+      accent: "#F5A623",
+      accentStrong: "#E8920F",
       accentContrast: "#FFFFFF",
-      focusRing: "rgba(140,106,46,0.45)",
-      kpiHighlight: lightAccent,
-      cardAccentSpine: lightAccent,
-      success: "#2D7C51",
-      warning: "#A06A17",
-      danger: "#B64336",
-      info: "#33606C",
-      overlayScrim: "rgba(20,20,18,0.38)",
+      focusRing: "rgba(245,166,35,0.45)",
+      kpiHighlight: "#1B2B5E",
+      cardAccentSpine: "#F5A623",
+      success: "#16A34A",
+      warning: "#D97706",
+      danger: "#DC2626",
+      info: "#2563EB",
+      overlayScrim: "rgba(27,43,94,0.4)",
     } satisfies ThemeColorTokens,
     dark: {
-      background: "#141412",
-      surface: "#1C1C1A",
-      subtleSurface: "#242420",
-      textPrimary: "#F4F3EF",
-      textSecondary: "#B9B6B0",
-      borderSubtle: "rgba(255,255,255,0.08)",
-      accent: darkAccent,
-      accentStrong: "#9E7835",
-      accentContrast: "#141412",
-      focusRing: "rgba(181,138,60,0.52)",
-      kpiHighlight: darkAccent,
-      cardAccentSpine: darkAccent,
-      success: "#67A67E",
-      warning: "#C2934A",
-      danger: "#D16B5F",
-      info: "#6E96A0",
-      overlayScrim: "rgba(8,8,7,0.62)",
+      background: "#0F1A38",
+      surface: "#1B2B5E",
+      subtleSurface: "#243568",
+      textPrimary: "#F4F6FB",
+      textSecondary: "#A0AFCF",
+      borderSubtle: "rgba(255,255,255,0.1)",
+      accent: "#F5A623",
+      accentStrong: "#E8920F",
+      accentContrast: "#1B2B5E",
+      focusRing: "rgba(245,166,35,0.5)",
+      kpiHighlight: "#F5A623",
+      cardAccentSpine: "#F5A623",
+      success: "#4ADE80",
+      warning: "#FCD34D",
+      danger: "#F87171",
+      info: "#60A5FA",
+      overlayScrim: "rgba(0,0,0,0.6)",
     } satisfies ThemeColorTokens,
   },
   typography: {
     fontFamily: {
-      primary: '"Inter", "Satoshi", "General Sans", sans-serif',
-      numeric: '"IBM Plex Mono", "JetBrains Mono", "SFMono-Regular", monospace',
+      primary: '"Plus Jakarta Sans", sans-serif',
+      numeric: '"Plus Jakarta Sans", sans-serif',
     },
     fontWeight: {
       regular: 400,
       medium: 500,
       semibold: 600,
       bold: 700,
+      extrabold: 800,
     },
     fontSize: {
       xs: "0.75rem",
@@ -121,11 +104,7 @@ export const institutionalTheme = {
       "3xl": "1.875rem",
       "4xl": "2.25rem",
     },
-    lineHeight: {
-      compact: 1.2,
-      normal: 1.45,
-      relaxed: 1.6,
-    },
+    lineHeight: { compact: 1.2, normal: 1.45, relaxed: 1.6 },
     letterSpacing: {
       tight: "-0.015em",
       normal: "0",
@@ -133,16 +112,8 @@ export const institutionalTheme = {
       numeric: "0.01em",
     },
     financial: {
-      kpi: {
-        fontSize: "2.25rem",
-        lineHeight: 1.1,
-        weight: 600,
-      },
-      prominent: {
-        fontSize: "1.5rem",
-        lineHeight: 1.15,
-        weight: 600,
-      },
+      kpi: { fontSize: "2.25rem", lineHeight: 1.1, weight: 700 },
+      prominent: { fontSize: "1.5rem", lineHeight: 1.15, weight: 600 },
       tabularNumerals: true,
     },
   },
@@ -150,7 +121,7 @@ export const institutionalTheme = {
     sectionVertical: "2.4rem",
     sectionVerticalCompact: "1.8rem",
     blockGap: "1.25rem",
-    cardPadding: "1.75rem",
+    cardPadding: "1.5rem",
     contentInline: "1rem",
     contentInlineDesktop: "1.5rem",
   },
@@ -164,7 +135,7 @@ export const institutionalTheme = {
     appFrameMaxWidth: "430px",
     contentMaxWidth: "1200px",
     readingMaxWidth: "920px",
-    stickyHeaderHeight: "72px",
+    stickyHeaderHeight: "64px",
     safeAreaBottomInsetVar: "env(safe-area-inset-bottom, 0px)",
   },
   border: {
@@ -174,17 +145,18 @@ export const institutionalTheme = {
   },
   elevation: {
     light: {
-      base: "0 1px 2px rgba(20,17,12,0.05), 0 10px 26px rgba(20,17,12,0.04)",
-      raised: "0 2px 4px rgba(20,17,12,0.06), 0 16px 34px rgba(20,17,12,0.05)",
+      base: "0 1px 3px rgba(27,43,94,0.06), 0 4px 16px rgba(27,43,94,0.05)",
+      raised: "0 2px 6px rgba(27,43,94,0.08), 0 8px 24px rgba(27,43,94,0.07)",
       floating:
-        "0 4px 8px rgba(20,17,12,0.08), 0 22px 42px rgba(20,17,12,0.07)",
-      overlay: "0 8px 16px rgba(20,17,12,0.1), 0 30px 54px rgba(20,17,12,0.09)",
+        "0 4px 12px rgba(27,43,94,0.1), 0 16px 32px rgba(27,43,94,0.08)",
+      overlay:
+        "0 8px 24px rgba(27,43,94,0.14), 0 24px 48px rgba(27,43,94,0.12)",
     } satisfies ThemeShadows,
     dark: {
-      base: "0 1px 2px rgba(0,0,0,0.24), 0 10px 24px rgba(0,0,0,0.22)",
-      raised: "0 2px 4px rgba(0,0,0,0.3), 0 14px 30px rgba(0,0,0,0.28)",
-      floating: "0 4px 8px rgba(0,0,0,0.35), 0 18px 38px rgba(0,0,0,0.33)",
-      overlay: "0 8px 16px rgba(0,0,0,0.42), 0 24px 48px rgba(0,0,0,0.4)",
+      base: "0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25)",
+      raised: "0 2px 6px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.3)",
+      floating: "0 4px 12px rgba(0,0,0,0.4), 0 16px 32px rgba(0,0,0,0.35)",
+      overlay: "0 8px 24px rgba(0,0,0,0.5), 0 24px 48px rgba(0,0,0,0.45)",
     } satisfies ThemeShadows,
   },
   motion: {
@@ -210,8 +182,8 @@ export const institutionalTheme = {
   },
   components: {
     institutionCard: {
-      padding: "28px",
-      radius: "18px",
+      padding: "24px",
+      radius: "16px",
       accentSpineWidth: "3px",
       accentSpineInset: "0px",
       innerStroke: "inset 0 0 0 1px var(--color-border-subtle)",
@@ -230,14 +202,8 @@ export const institutionalTheme = {
       activeTabLift: "-1px",
       indicatorHeight: "2px",
     },
-    modal: {
-      radius: "20px",
-      entryTranslateY: "12px",
-    },
-    kpi: {
-      revealTranslateY: "4px",
-      revealStaggerMs: 50,
-    },
+    modal: { radius: "20px", entryTranslateY: "12px" },
+    kpi: { revealTranslateY: "4px", revealStaggerMs: 50 },
   },
   chart: {
     axisLabel: "var(--color-text-secondary)",
@@ -249,23 +215,25 @@ export const institutionalTheme = {
   },
 } as const;
 
-export type InstitutionalTheme = typeof institutionalTheme;
+// backward-compat alias consumed by existing components
+export const institutionalTheme = domvioTheme;
+
+export type DomvioTheme = typeof domvioTheme;
+export type InstitutionalTheme = DomvioTheme;
 
 export const resolveThemeMode = (
   preference: ThemePreference,
   systemMode: ThemeMode,
 ): ThemeMode => {
-  if (preference === "system") {
-    return systemMode;
-  }
+  if (preference === "system") return systemMode;
   return preference;
 };
 
 export const getThemeCssVariables = (
   mode: ThemeMode,
 ): Record<string, string> => {
-  const color = institutionalTheme.color[mode];
-  const shadow = institutionalTheme.elevation[mode];
+  const color = domvioTheme.color[mode];
+  const shadow = domvioTheme.elevation[mode];
 
   return {
     "--color-background": color.background,
@@ -286,43 +254,40 @@ export const getThemeCssVariables = (
     "--color-info": color.info,
     "--color-overlay-scrim": color.overlayScrim,
 
-    "--font-family-primary": institutionalTheme.typography.fontFamily.primary,
-    "--font-family-numeric": institutionalTheme.typography.fontFamily.numeric,
+    "--font-family-primary": domvioTheme.typography.fontFamily.primary,
+    "--font-family-numeric": domvioTheme.typography.fontFamily.numeric,
 
-    "--space-section-vertical": institutionalTheme.spacing.sectionVertical,
+    "--space-section-vertical": domvioTheme.spacing.sectionVertical,
     "--space-section-vertical-compact":
-      institutionalTheme.spacing.sectionVerticalCompact,
-    "--space-block-gap": institutionalTheme.spacing.blockGap,
-    "--space-card-padding": institutionalTheme.spacing.cardPadding,
-    "--space-content-inline": institutionalTheme.spacing.contentInline,
-    "--space-content-inline-desktop":
-      institutionalTheme.spacing.contentInlineDesktop,
+      domvioTheme.spacing.sectionVerticalCompact,
+    "--space-block-gap": domvioTheme.spacing.blockGap,
+    "--space-card-padding": domvioTheme.spacing.cardPadding,
+    "--space-content-inline": domvioTheme.spacing.contentInline,
+    "--space-content-inline-desktop": domvioTheme.spacing.contentInlineDesktop,
 
-    "--radius-control": institutionalTheme.radius.control,
-    "--radius-card": institutionalTheme.radius.card,
-    "--radius-modal": institutionalTheme.radius.modal,
-    "--radius-pill": institutionalTheme.radius.pill,
+    "--radius-control": domvioTheme.radius.control,
+    "--radius-card": domvioTheme.radius.card,
+    "--radius-modal": domvioTheme.radius.modal,
+    "--radius-pill": domvioTheme.radius.pill,
 
     "--elevation-base": shadow.base,
     "--elevation-raised": shadow.raised,
     "--elevation-floating": shadow.floating,
     "--elevation-overlay": shadow.overlay,
 
-    "--motion-fast": `${institutionalTheme.motion.fast}ms`,
-    "--motion-standard": `${institutionalTheme.motion.standard}ms`,
-    "--motion-emphasized": `${institutionalTheme.motion.emphasized}ms`,
-    "--motion-modal": `${institutionalTheme.motion.modal}ms`,
-    "--motion-easing": institutionalTheme.motion.easing,
+    "--motion-fast": `${domvioTheme.motion.fast}ms`,
+    "--motion-standard": `${domvioTheme.motion.standard}ms`,
+    "--motion-emphasized": `${domvioTheme.motion.emphasized}ms`,
+    "--motion-modal": `${domvioTheme.motion.modal}ms`,
+    "--motion-easing": domvioTheme.motion.easing,
 
-    "--layout-app-frame-max-width": institutionalTheme.layout.appFrameMaxWidth,
-    "--layout-content-max-width": institutionalTheme.layout.contentMaxWidth,
-    "--layout-reading-max-width": institutionalTheme.layout.readingMaxWidth,
-    "--layout-sticky-header-height":
-      institutionalTheme.layout.stickyHeaderHeight,
-    "--layout-safe-area-bottom":
-      institutionalTheme.layout.safeAreaBottomInsetVar,
+    "--layout-app-frame-max-width": domvioTheme.layout.appFrameMaxWidth,
+    "--layout-content-max-width": domvioTheme.layout.contentMaxWidth,
+    "--layout-reading-max-width": domvioTheme.layout.readingMaxWidth,
+    "--layout-sticky-header-height": domvioTheme.layout.stickyHeaderHeight,
+    "--layout-safe-area-bottom": domvioTheme.layout.safeAreaBottomInsetVar,
 
-    "--card-inner-stroke": institutionalTheme.border.innerStroke,
-    "--card-accent-spine-width": institutionalTheme.border.accentSpineWidth,
+    "--card-inner-stroke": domvioTheme.border.innerStroke,
+    "--card-accent-spine-width": domvioTheme.border.accentSpineWidth,
   };
 };

@@ -75,14 +75,14 @@ const TenantPropertyDetails: React.FC = () => {
     >
       {isLoading ? (
         <div className="flex items-center justify-center p-12">
-          <div className="size-8 rounded-full border-2 border-white/50 border-t-primary animate-spin"></div>
+          <div className="size-8 rounded-full border-2 border-t-primary animate-spin"></div>
         </div>
       ) : error ? (
         <div className="rounded-[12px] border border-danger/20 bg-danger/10 p-4">
           <p className="text-[13px] font-bold text-danger">{error}</p>
         </div>
       ) : !property ? (
-        <div className="rounded-[24px] bg-white/40 backdrop-blur-[20px] p-8 text-center shadow-sm border border-white/50">
+        <div className="rounded-[24px] bg-white p-8 text-center shadow-sm border">
           <span className="material-symbols-outlined text-[32px] text-text-secondary opacity-50 mb-2">
             apartment
           </span>
@@ -92,7 +92,7 @@ const TenantPropertyDetails: React.FC = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-6">
-          <div className="relative overflow-hidden rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm border border-primary/30">
+          <div className="relative overflow-hidden rounded-[24px] bg-white shadow-sm border border-primary/30">
             {imageUrls.length > 0 ? (
               <img
                 src={imageUrls[0]}
@@ -107,7 +107,7 @@ const TenantPropertyDetails: React.FC = () => {
               </div>
             )}
 
-            <div className="flex flex-col gap-2 p-6 bg-gradient-to-t from-white/90 via-white/80 to-transparent backdrop-blur-md mt-[-40px] relative">
+            <div className="flex flex-col gap-2 p-6 bg-gradient-to-t from-white/90 via-white/80 to-transparent  mt-[-40px] relative">
               <h2 className="text-[28px] font-black text-text-primary tracking-tight drop-shadow-sm">
                 {property.name}
               </h2>
@@ -119,14 +119,14 @@ const TenantPropertyDetails: React.FC = () => {
                 <div className="text-[9px] font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-full uppercase tracking-wider border border-primary/20 shadow-sm">
                   {property.propertyType}
                 </div>
-                <div className="text-[9px] font-bold text-text-secondary bg-white/60 px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/50 shadow-sm">
+                <div className="text-[9px] font-bold text-text-secondary bg-white px-3 py-1.5 rounded-full uppercase tracking-wider border shadow-sm">
                   {property.ownership}
                 </div>
               </div>
             </div>
           </div>
 
-          <section className="rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm p-6 border border-white/50">
+          <section className="rounded-[24px] bg-white shadow-sm p-6 border">
             <h3 className="mb-4 pl-1 text-[11px] font-bold uppercase tracking-widest text-text-secondary">
               Property Overview
             </h3>
@@ -164,18 +164,18 @@ const TenantPropertyDetails: React.FC = () => {
                 </p>
               </div>
 
-              <div className="col-span-2 flex items-center justify-between border-t border-white/50 pt-4 mt-2">
+              <div className="col-span-2 flex items-center justify-between border-t pt-4 mt-2">
                 <p className="text-[12px] uppercase tracking-widest text-text-secondary font-black">
                   Monthly Rent
                 </p>
-                <p className="font-numeric text-[20px] font-black text-primary drop-shadow-[0_2px_4px_rgba(255,122,0,0.2)]">
+                <p className="font-numeric text-[20px] font-black text-primary drop-shadow-[0_2px_4px_rgba(245,166,35,0.2)]">
                   {formatINRWhole(property.units[0]?.monthlyRent)}
                 </p>
               </div>
             </div>
           </section>
 
-          <section className="rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm p-6 border border-white/50">
+          <section className="rounded-[24px] bg-white shadow-sm p-6 border">
             <h3 className="mb-4 pl-1 text-[11px] font-bold uppercase tracking-widest text-text-secondary">
               Amenities & Features
             </h3>
@@ -184,14 +184,14 @@ const TenantPropertyDetails: React.FC = () => {
                 {property.amenities.map((amenity) => (
                   <div
                     key={amenity}
-                    className="text-[11px] font-bold text-text-primary bg-white/60 px-4 py-2 rounded-full shadow-sm border border-white/50 hover:border-primary/50 transition-colors cursor-default"
+                    className="text-[11px] font-bold text-text-primary bg-white px-4 py-2 rounded-full shadow-sm border hover:border-primary/50 transition-colors cursor-default"
                   >
                     {amenity}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="rounded-[16px] bg-white/50 p-4 text-center border border-white/50">
+              <div className="rounded-[16px] bg-white p-4 text-center border">
                 <p className="text-[12px] font-bold text-text-secondary">
                   No amenities shared yet.
                 </p>
@@ -208,7 +208,7 @@ const TenantPropertyDetails: React.FC = () => {
                 {imageUrls.slice(1).map((url) => (
                   <div
                     key={url}
-                    className="relative overflow-hidden rounded-[20px] border border-white/50 shadow-sm group"
+                    className="relative overflow-hidden rounded-[20px] border shadow-sm group"
                   >
                     <img
                       src={url}

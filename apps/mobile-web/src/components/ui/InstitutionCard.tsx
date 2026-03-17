@@ -1,55 +1,43 @@
 import React from "react";
-import type { ElevationLevel } from "../../theme/theme";
 import { cn } from "../../lib/cn";
 
-type InstitutionCardProps = React.HTMLAttributes<HTMLDivElement> & {
-  accentSpine?: boolean;
-  elevation?: ElevationLevel;
-  interactive?: boolean;
+type InstitutionCardProps = {
+  children: React.ReactNode;
+  className?: string;
+  accent?: boolean;
+  hover?: boolean;
+  style?: React.CSSProperties;
 };
 
-const elevationClasses: Record<ElevationLevel, string> = {
-  base: "shadow-base",
-  raised: "shadow-raised",
-  floating: "shadow-floating",
-  overlay: "shadow-overlay",
-};
-
-export const InstitutionCard = React.forwardRef<
-  HTMLDivElement,
-  InstitutionCardProps
->(
-  (
-    {
-      accentSpine = false,
-      elevation = "base",
-      interactive = false,
+export const InstitutionCard: React.FC<InstitutionCardProps> = ({
+  children,
+  className,
+  accent = true,
+  hover = false,
+  style,
+}) => (
+  <div
+    className={cn(
+      "relative rounded-2xl overflow-hidden",
+      hover && "transition-transform duration-200 hover:-translate-y-0.5",
       className,
-      children,
-      ...props
-    },
-    ref,
-  ) => (
-    <div
-      ref={ref}
-      className={cn(
-        "relative overflow-hidden rounded-[var(--radius-card)] border border-border-subtle bg-surface p-[var(--space-card-padding)]",
-        elevationClasses[elevation],
-        "before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:[box-shadow:var(--card-inner-stroke)] before:content-['']",
-        interactive && "motion-card-hover",
-        className,
-      )}
-      {...props}
-    >
-      {accentSpine && (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 w-[var(--card-accent-spine-width)] bg-[var(--color-card-accent-spine)]"
-        />
-      )}
-      {children}
-    </div>
-  ),
+    )}
+    style={{
+      background: "#FFFFFF",
+      border: "1px solid rgba(27,43,94,0.08)",
+      boxShadow: "0 2px 12px rgba(27,43,94,0.06)",
+      padding: "var(--space-card-padding, 1.5rem)",
+      ...style,
+    }}
+  >
+    {/* Gold accent spine on left edge */}
+    {accent && (
+      <span
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-[3px] rounded-l-2xl"
+        style={{ background: "#F5A623" }}
+      />
+    )}
+    {children}
+  </div>
 );
-
-InstitutionCard.displayName = "InstitutionCard";

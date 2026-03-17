@@ -146,7 +146,7 @@ const Chat: React.FC = () => {
       rightAction={
         <button
           onClick={() => navigate("/lease")}
-          className="flex h-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 px-3 gap-1.5 text-[12px] font-bold text-text-secondary hover:bg-white/80 hover:text-primary transition-colors shadow-sm"
+          className="flex h-9 shrink-0 items-center justify-center rounded-full bg-white border px-3 gap-1.5 text-[12px] font-bold text-text-secondary  hover:text-primary transition-colors shadow-sm"
         >
           <span className="material-symbols-outlined text-[16px] text-inherit">
             description
@@ -165,11 +165,11 @@ const Chat: React.FC = () => {
 
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
-            <div className="size-8 rounded-full border-2 border-white/50 border-t-primary animate-spin"></div>
+            <div className="size-8 rounded-full border-2 border-t-primary animate-spin"></div>
           </div>
         ) : messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-6 mt-10">
-            <div className="flex size-16 items-center justify-center rounded-full bg-white/60 border border-white/50 mb-4 shadow-inner">
+            <div className="flex size-16 items-center justify-center rounded-full bg-white border mb-4 shadow-inner">
               <span className="material-symbols-outlined text-[32px] text-text-secondary opacity-50">
                 chat
               </span>
@@ -196,7 +196,7 @@ const Chat: React.FC = () => {
                 <div key={message.id} className="flex flex-col">
                   {showTime && (
                     <div className="flex justify-center my-4">
-                      <span className="bg-white/60 border border-white/50 text-text-secondary text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
+                      <span className="bg-white border text-text-secondary text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
                         {new Date(message.createdAt).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -210,8 +210,8 @@ const Chat: React.FC = () => {
                     <div
                       className={`relative max-w-[80%] rounded-[20px] px-4 py-3 transform transition-transform text-[14px] leading-relaxed shadow-sm ${
                         isMine
-                          ? "bg-gradient-to-br from-[#FF9A3D] to-[#FF7A00] text-white rounded-br-[6px] font-medium p-[1px]" // Using p-[1px] and inner div for border effect if needed, but simple gradient is better
-                          : "bg-white/60 border border-white/50 text-text-primary rounded-bl-[6px] backdrop-blur-md font-medium"
+                          ? "bg-gradient-to-br from-[#F5A623] to-[#F5A623] text-white rounded-br-[6px] font-medium p-[1px]" // Using p-[1px] and inner div for border effect if needed, but simple gradient is better
+                          : "bg-white border text-text-primary rounded-bl-[6px]  font-medium"
                       }`}
                     >
                       {/* Inner content wrapper just in case we used gradient border hack, but we didn't */}
@@ -245,9 +245,9 @@ const Chat: React.FC = () => {
         <div ref={listBottomRef} className="h-4 shrink-0" />
       </div>
 
-      <footer className="shrink-0 border-t border-white/40 bg-white/40 backdrop-blur-[30px] shadow-[0_-10px_30px_rgba(0,0,0,0.02)] px-4 py-3 relative z-20">
+      <footer className="shrink-0 border-t bg-white backdrop-blur-[30px] shadow-[0_-10px_30px_rgba(0,0,0,0.02)] px-4 py-3 relative z-20">
         <div className="flex items-end gap-3 max-w-[500px] mx-auto">
-          <div className="relative flex-1 bg-white/60 border border-white/50 rounded-[24px] shadow-inner flex items-center transition-all focus-within:bg-white/80 focus-within:ring-1 focus-within:ring-primary">
+          <div className="relative flex-1 bg-white border rounded-[24px] shadow-inner flex items-center transition-all focus-within:bg-white/80 focus-within:ring-1 focus-within:ring-primary">
             <textarea
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
@@ -265,12 +265,12 @@ const Chat: React.FC = () => {
 
           <button
             type="button"
-            className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white shadow-[0_4px_15px_rgba(255,122,0,0.3)] hover:scale-105 active:scale-[0.95] transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:active:scale-100 disabled:shadow-none"
+            className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#F5A623] to-[#F5A623] text-white shadow-[0_4px_15px_rgba(245,166,35,0.3)] hover:scale-105 active:scale-[0.95] transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:active:scale-100 disabled:shadow-none"
             disabled={!draft.trim() || sending}
             onClick={() => void sendMessage()}
           >
             {sending ? (
-              <div className="size-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+              <div className="size-5 rounded-full border-2 border-[rgba(27,43,94,0.06)] border-t-white animate-spin"></div>
             ) : (
               <span className="material-symbols-outlined text-[24px]">
                 send

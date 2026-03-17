@@ -91,14 +91,14 @@ const TdsConsent: React.FC = () => {
 
       {isLoading && !error && (
         <div className="flex items-center justify-center p-12">
-          <div className="size-8 rounded-full border-2 border-white/60 border-t-primary animate-spin"></div>
+          <div className="size-8 rounded-full border-2 border-t-primary animate-spin"></div>
         </div>
       )}
 
       {!isLoading && !error && payment && payment.charge && (
         <div className="flex flex-col gap-6">
-          <section className="relative overflow-hidden rounded-[24px] bg-white/40 backdrop-blur-[20px] shadow-sm border border-white/50 group">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] opacity-80"></div>
+          <section className="relative overflow-hidden rounded-[24px] bg-white shadow-sm border group">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#F5A623] to-[#F5A623] opacity-80"></div>
             <div className="p-6">
               <h2 className="text-[24px] font-black text-text-primary tracking-tight leading-none drop-shadow-sm mb-2">
                 Rent Payment
@@ -126,7 +126,7 @@ const TdsConsent: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 mb-5 bg-white/60 rounded-[12px] p-4 border border-white/50 shadow-sm">
+            <div className="flex flex-col gap-2 mb-5 bg-white rounded-[12px] p-4 border shadow-sm">
               <div className="flex justify-between text-[12px] font-bold text-text-secondary">
                 <span className="uppercase tracking-wide">Rent Amount:</span>
                 <span className="text-text-primary text-[13px]">
@@ -155,7 +155,7 @@ const TdsConsent: React.FC = () => {
               </div>
             </div>
 
-            <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-[8px] hover:bg-white/40 transition-colors">
+            <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-[8px] hover:bg-white transition-colors">
               <div
                 className={`size-6 rounded-[6px] border flex items-center justify-center transition-colors shadow-sm ${tdsAccepted ? "bg-primary border-primary" : "bg-white/80 border-black/20 group-hover:border-primary/50"}`}
               >
@@ -181,7 +181,7 @@ const TdsConsent: React.FC = () => {
             <button
               disabled={!tdsAccepted}
               onClick={handleProceed}
-              className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-4 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
+              className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F5A623] to-[#F5A623] py-4 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(245,166,35,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
             >
               Proceed to Payment
               <span className="material-symbols-outlined text-[20px]">

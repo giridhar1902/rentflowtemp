@@ -3,16 +3,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "../lib/cn";
 
 type Role = "landlord" | "tenant";
-
 type NavItem = {
   icon: string;
   label: string;
   path: string;
   isActive: (pathname: string) => boolean;
-};
-
-type FloatingDockProps = {
-  role: Role;
 };
 
 const LANDLORD_QUICK_ACTIONS = [
@@ -27,28 +22,26 @@ const buildLandlordItems = (): NavItem[] => [
     icon: "dashboard",
     label: "Home",
     path: "/landlord/dashboard",
-    isActive: (pathname) => pathname === "/landlord/dashboard",
+    isActive: (p) => p === "/landlord/dashboard",
   },
   {
     icon: "domain",
     label: "Properties",
     path: "/landlord/properties",
-    isActive: (pathname) =>
-      pathname === "/landlord/properties" ||
-      pathname.startsWith("/landlord/property/"),
+    isActive: (p) =>
+      p === "/landlord/properties" || p.startsWith("/landlord/property/"),
   },
   {
     icon: "payments",
     label: "Payments",
     path: "/landlord/payments",
-    isActive: (pathname) =>
-      pathname === "/landlord/payments" || pathname === "/landlord/finance",
+    isActive: (p) => p === "/landlord/payments" || p === "/landlord/finance",
   },
   {
     icon: "build",
     label: "Maintenance",
     path: "/landlord/maintenance",
-    isActive: (pathname) => pathname === "/landlord/maintenance",
+    isActive: (p) => p === "/landlord/maintenance",
   },
 ];
 
@@ -57,31 +50,29 @@ const buildTenantItems = (): NavItem[] => [
     icon: "home",
     label: "Home",
     path: "/tenant/home",
-    isActive: (pathname) =>
-      pathname === "/tenant/home" || pathname.startsWith("/tenant/property/"),
+    isActive: (p) => p === "/tenant/home" || p.startsWith("/tenant/property/"),
   },
   {
     icon: "receipt_long",
     label: "History",
     path: "/tenant/pay",
-    isActive: (pathname) => pathname === "/tenant/pay",
+    isActive: (p) => p === "/tenant/pay",
   },
   {
     icon: "description",
     label: "Documents",
     path: "/lease",
-    isActive: (pathname) => pathname === "/lease",
+    isActive: (p) => p === "/lease",
   },
   {
     icon: "person",
     label: "Profile",
     path: "/profile",
-    isActive: (pathname) =>
-      pathname === "/profile" || pathname.startsWith("/profile/"),
+    isActive: (p) => p === "/profile" || p.startsWith("/profile/"),
   },
 ];
 
-const FloatingDock: React.FC<FloatingDockProps> = ({ role }) => {
+const FloatingDock: React.FC<{ role: Role }> = ({ role }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [actionSheetOpen, setActionSheetOpen] = useState(false);
@@ -104,30 +95,34 @@ const FloatingDock: React.FC<FloatingDockProps> = ({ role }) => {
             navigate(item.path);
           }}
           className={cn(
-            "motion-press relative flex w-full select-none flex-col items-center justify-center gap-0.5 rounded-[var(--radius-control)] px-2 py-1.5",
-            "transition-colors duration-[var(--motion-standard)] ease-[var(--motion-easing)]",
-            active ? "-translate-y-[1px] text-primary" : "text-text-secondary",
+            "relative flex w-full select-none flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 transition-colors",
+            active ? "text-[#1B2B5E]" : "text-[#5A6A8A]",
           )}
         >
           <span
-            className="material-symbols-outlined text-[21px]"
-            style={{
-              fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0",
-            }}
+            className="material-symbols-outlined text-[22px]"
+            style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}
             aria-hidden
           >
             {item.icon}
           </span>
-          <span className="truncate text-[10px] font-semibold">
+          <span
+            className={cn(
+              "truncate text-[10px] font-bold",
+              active ? "text-[#1B2B5E]" : "text-[#8A9AB8]",
+            )}
+          >
             {item.label}
           </span>
+          {/* Gold active indicator */}
           <span
             aria-hidden
-            className={cn(
-              "absolute -bottom-1 h-[2px] w-7 origin-center rounded-full bg-brass",
-              "transition-transform duration-[var(--motion-standard)] ease-[var(--motion-easing)]",
-              active ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0",
-            )}
+            className="absolute -bottom-0.5 h-[3px] w-6 rounded-full transition-all duration-200 origin-center"
+            style={{
+              background: "#F5A623",
+              transform: active ? "scaleX(1)" : "scaleX(0)",
+              opacity: active ? 1 : 0,
+            }}
           />
         </button>
       </li>
@@ -136,22 +131,39 @@ const FloatingDock: React.FC<FloatingDockProps> = ({ role }) => {
 
   return (
     <>
+      {/* Action sheet backdrop */}
       {actionSheetOpen && role === "landlord" && (
         <div
-          className="fixed inset-0 z-[2000] bg-black/40 backdrop-blur-[4px]"
+          className="fixed inset-0 z-[2000]"
+          style={{
+            background: "rgba(27,43,94,0.45)",
+            backdropFilter: "blur(4px)",
+          }}
           onClick={() => setActionSheetOpen(false)}
         />
       )}
 
+      {/* Action sheet panel */}
       {actionSheetOpen && role === "landlord" && (
         <div
-          className="fixed z-[2001] bg-white/90 backdrop-blur-[20px] border border-white/60 rounded-t-[32px] p-6 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] w-[100%] max-w-[420px] inset-x-0 mx-auto motion-modal-enter flex flex-col items-center"
+          className="fixed z-[2001] rounded-t-[28px] p-6 w-[100%] max-w-[420px] inset-x-0 mx-auto motion-modal-enter flex flex-col items-center"
           style={{
-            bottom: "0",
-            paddingBottom: "calc(100px + var(--layout-safe-area-bottom, 0px))",
+            background: "#FFFFFF",
+            boxShadow: "0 -8px 32px rgba(27,43,94,0.14)",
+            bottom: 0,
+            paddingBottom: "calc(110px + var(--layout-safe-area-bottom, 0px))",
           }}
         >
-          <div className="w-10 h-1 rounded-full bg-slate-300 mb-5"></div>
+          <div
+            className="w-10 h-1 rounded-full mb-5"
+            style={{ background: "rgba(27,43,94,0.15)" }}
+          />
+          <p
+            className="text-xs font-bold uppercase tracking-widest mb-4"
+            style={{ color: "#F5A623" }}
+          >
+            Quick Actions
+          </p>
           <div className="grid grid-cols-4 gap-3 w-full max-w-[340px]">
             {LANDLORD_QUICK_ACTIONS.map((action, idx) => (
               <button
@@ -159,12 +171,22 @@ const FloatingDock: React.FC<FloatingDockProps> = ({ role }) => {
                 onClick={() => handleAction(action.path)}
                 className="flex flex-col items-center gap-2 group"
               >
-                <div className="flex size-14 items-center justify-center rounded-full bg-white border border-slate-200 shadow-sm text-slate-600 group-hover:text-[#ff8a00] group-hover:border-[#ff8a00]/30 transition-colors">
-                  <span className="material-symbols-outlined text-[24px]">
+                <div
+                  className="flex size-14 items-center justify-center rounded-2xl border transition-colors"
+                  style={{
+                    background: "#F8F9FA",
+                    borderColor: "rgba(27,43,94,0.1)",
+                    color: "#1B2B5E",
+                  }}
+                >
+                  <span className="material-symbols-outlined text-[22px]">
                     {action.icon}
                   </span>
                 </div>
-                <span className="text-[10px] font-bold text-slate-600 text-center leading-tight px-1">
+                <span
+                  className="text-[10px] font-bold text-center leading-tight"
+                  style={{ color: "#5A6A8A" }}
+                >
                   {action.label}
                 </span>
               </button>
@@ -173,7 +195,7 @@ const FloatingDock: React.FC<FloatingDockProps> = ({ role }) => {
         </div>
       )}
 
-      {/* Floating Action Button & Nav Wrapper */}
+      {/* Dock + FAB wrapper */}
       <div
         className={cn(
           "fixed z-[1000] w-[92%] max-w-[420px] left-1/2 -translate-x-1/2 transition-transform duration-500",
@@ -183,20 +205,25 @@ const FloatingDock: React.FC<FloatingDockProps> = ({ role }) => {
         )}
         style={{
           bottom:
-            "calc(16px + var(--layout-safe-area-bottom, env(safe-area-inset-bottom, 0px)))",
+            "calc(14px + var(--layout-safe-area-bottom, env(safe-area-inset-bottom, 0px)))",
         }}
       >
         <nav
           aria-label="Primary"
-          className="w-full h-[72px] flex flex-col justify-center bg-white/[0.35] backdrop-blur-[20px] rounded-[36px] border border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.08)] px-2.5"
+          className="w-full h-[68px] flex flex-col justify-center px-2.5 rounded-[36px]"
+          style={{
+            background: "#FFFFFF",
+            boxShadow:
+              "0 4px 24px rgba(27,43,94,0.12), 0 1px 4px rgba(27,43,94,0.06)",
+            border: "1px solid rgba(27,43,94,0.08)",
+          }}
         >
-          <ul className="m-0 flex list-none items-center justify-between gap-1 p-0 relative">
+          <ul className="m-0 flex list-none items-center justify-between gap-1 p-0">
             {role === "landlord" ? (
               <>
                 {items.slice(0, 2).map(renderNavItem)}
-                <li className="relative w-[72px] flex items-center justify-center shrink-0">
-                  {/* Reserved space for the absolute action button positioned in the wrapper */}
-                </li>
+                {/* FAB spacer */}
+                <li className="relative w-[72px] flex items-center justify-center shrink-0" />
                 {items.slice(2).map(renderNavItem)}
               </>
             ) : (
@@ -205,17 +232,20 @@ const FloatingDock: React.FC<FloatingDockProps> = ({ role }) => {
           </ul>
         </nav>
 
+        {/* Landlord FAB */}
         {role === "landlord" && (
-          <div className="absolute top-[-28px] left-1/2 -translate-x-1/2 z-[10]">
+          <div className="absolute top-[-26px] left-1/2 -translate-x-1/2 z-[10]">
             <button
               type="button"
-              onClick={() => setActionSheetOpen((prev) => !prev)}
-              className="w-[64px] h-[64px] rounded-full bg-[#ff8a00] flex items-center justify-center text-white shadow-[0_12px_30px_rgba(255,138,0,0.4)] transition-transform duration-300 active:scale-95"
+              onClick={() => setActionSheetOpen((p) => !p)}
+              className="w-[60px] h-[60px] rounded-full flex items-center justify-center text-white transition-all duration-300 active:scale-95"
               style={{
+                background: "linear-gradient(145deg, #F5A623, #E8920F)",
+                boxShadow: "0 8px 24px rgba(245,166,35,0.45)",
                 transform: actionSheetOpen ? "rotate(45deg)" : "rotate(0deg)",
               }}
             >
-              <span className="material-symbols-outlined text-[28px]">add</span>
+              <span className="material-symbols-outlined text-[26px]">add</span>
             </button>
           </div>
         )}

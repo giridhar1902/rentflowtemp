@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const query = "(prefers-reduced-motion: reduce)";
-const FORCE_MOTION_STORAGE_KEY = "proptech.motion.force";
+const FORCE_MOTION_STORAGE_KEY = "domvio.motion.force";
 
 const readForcedMotion = (): boolean => {
   if (typeof window === "undefined") {

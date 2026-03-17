@@ -14,25 +14,41 @@ export const PremiumButton: React.FC<PremiumButtonProps> = ({
   className,
   ...props
 }) => {
-  let variantClass = "";
-  if (variant === "primary") {
-    variantClass =
-      "w-full bg-gradient-to-r from-[#FBA43C] to-[#F25A03] py-4 text-white shadow-[0_8px_20px_-6px_rgba(242,90,3,0.6)] hover:opacity-95";
-  } else if (variant === "secondary") {
-    variantClass =
-      "bg-white/80 border border-slate-200 text-slate-700 py-3 shadow-sm hover:bg-white backdrop-blur-sm";
-  } else if (variant === "action") {
-    variantClass =
-      "flex-col gap-3 rounded-[2rem] bg-[#F8F9FE]/80 p-6 shadow-sm border border-white/60 hover:bg-white backdrop-blur-sm text-sm text-[#374151]";
-  }
+  const styles: Record<string, React.CSSProperties> = {
+    primary: {
+      background: "linear-gradient(135deg, #F5A623, #E8920F)",
+      color: "#FFFFFF",
+      boxShadow: "0 4px 16px rgba(245,166,35,0.35)",
+      border: "none",
+    },
+    secondary: {
+      background: "#FFFFFF",
+      color: "#1B2B5E",
+      border: "1.5px solid rgba(27,43,94,0.14)",
+      boxShadow: "0 1px 4px rgba(27,43,94,0.06)",
+    },
+    action: {
+      background: "#F8F9FA",
+      color: "#1B2B5E",
+      border: "1px solid rgba(27,43,94,0.09)",
+      boxShadow: "0 1px 4px rgba(27,43,94,0.04)",
+      flexDirection: "column",
+      gap: "12px",
+      borderRadius: "20px",
+      padding: "24px",
+    },
+  };
 
   return (
     <button
       className={cn(
-        "flex items-center justify-center gap-2 rounded-full font-bold text-base transition-opacity",
-        variantClass,
+        "flex items-center justify-center gap-2 rounded-[14px] py-3.5 px-5 font-bold text-base transition-all active:scale-[0.97]",
         className,
       )}
+      style={{
+        fontFamily: '"Plus Jakarta Sans", sans-serif',
+        ...styles[variant],
+      }}
       {...props}
     >
       {icon}

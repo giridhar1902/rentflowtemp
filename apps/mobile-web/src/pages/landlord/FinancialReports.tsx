@@ -122,8 +122,8 @@ const FinancialReports: React.FC = () => {
       showBackButton={true}
       bottomNavRole="landlord"
       rightAction={
-        <div className="flex h-7 items-center rounded-full bg-[#FF9A3D]/10 px-3 border border-[#FF9A3D]/20 shadow-sm">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#FF7A00]">
+        <div className="flex h-7 items-center rounded-full bg-[#F5A623]/10 px-3 border border-[#F5A623]/20 shadow-sm">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]">
             6 Months
           </span>
         </div>
@@ -138,15 +138,15 @@ const FinancialReports: React.FC = () => {
         <>
           <section className="flex flex-col gap-4">
             {/* Primary Net Collected Card */}
-            <div className="relative overflow-hidden rounded-[24px] border border-white/40 bg-white/40 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.08)] backdrop-blur-[20px]">
-              <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-[#FF9A3D] to-[#FF7A00]"></div>
+            <div className="relative overflow-hidden rounded-[24px] border bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,0.08)] ">
+              <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-[#F5A623] to-[#F5A623]"></div>
               <div className="pl-2">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500 mb-1">
                       Net Collected
                     </p>
-                    <h2 className="text-[32px] font-black tracking-tighter text-[#1e293b] font-numeric">
+                    <h2 className="text-[32px] font-black tracking-tighter text-[#1B2B5E] font-numeric">
                       {money(summary?.totals.collected)}
                     </h2>
                     <p className="text-[12px] text-slate-500 mt-1 font-medium">
@@ -168,11 +168,11 @@ const FinancialReports: React.FC = () => {
 
             {/* Secondary Metrics */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-[20px] border border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm p-4">
+              <div className="rounded-[20px] border bg-white shadow-sm p-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-500 mb-1">
                   Total Billed
                 </p>
-                <p className="text-[20px] font-bold text-[#1e293b] font-numeric tracking-tight">
+                <p className="text-[20px] font-bold text-[#1B2B5E] font-numeric tracking-tight">
                   {money(summary?.totals.billed)}
                 </p>
                 <p className="mt-2 text-[11px] text-slate-500">
@@ -180,12 +180,12 @@ const FinancialReports: React.FC = () => {
                 </p>
               </div>
 
-              <div className="rounded-[20px] border border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm p-4 relative overflow-hidden">
+              <div className="rounded-[20px] border bg-white shadow-sm p-4 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-16 h-16 bg-[#F59E0B]/20 rounded-full blur-2xl"></div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#F59E0B] mb-1 relative z-10">
                   Outstanding
                 </p>
-                <p className="text-[20px] font-bold text-[#1e293b] font-numeric tracking-tight relative z-10">
+                <p className="text-[20px] font-bold text-[#1B2B5E] font-numeric tracking-tight relative z-10">
                   {money(summary?.totals.outstanding)}
                 </p>
                 <p className="mt-2 text-[11px] text-slate-500 relative z-10">
@@ -196,12 +196,12 @@ const FinancialReports: React.FC = () => {
           </section>
 
           {/* Ledger Mix Pie Chart */}
-          <div className="rounded-[24px] border border-white/40 bg-white/40 backdrop-blur-[20px] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+          <div className="rounded-[24px] border bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
             <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-[14px] font-bold tracking-wide text-[#1e293b]">
+              <h3 className="text-[14px] font-bold tracking-wide text-[#1B2B5E]">
                 Ledger Mix
               </h3>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500 bg-white/60 shadow-sm border border-white/50 px-2 py-1 rounded-md">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500 bg-white shadow-sm border px-2 py-1 rounded-md">
                 Allocation
               </span>
             </div>
@@ -227,7 +227,7 @@ const FinancialReports: React.FC = () => {
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">
                   Volume
                 </p>
-                <p className="font-numeric text-[22px] font-black tracking-tight text-[#1e293b] mt-0.5">
+                <p className="font-numeric text-[22px] font-black tracking-tight text-[#1B2B5E] mt-0.5">
                   {money(totalActivity)}
                 </p>
               </div>
@@ -237,7 +237,7 @@ const FinancialReports: React.FC = () => {
               {pieData.map((entry) => (
                 <div
                   key={entry.name}
-                  className="flex flex-col gap-1 rounded-[16px] bg-white/60 p-3 border border-white/40 shadow-sm backdrop-blur-[10px]"
+                  className="flex flex-col gap-1 rounded-[16px] bg-white p-3 border shadow-sm backdrop-blur-[10px]"
                 >
                   <div className="flex items-center gap-2">
                     <span
@@ -248,7 +248,7 @@ const FinancialReports: React.FC = () => {
                       {entry.name}
                     </span>
                   </div>
-                  <p className="text-[14px] font-bold text-[#1e293b] pl-4.5 font-numeric">
+                  <p className="text-[14px] font-bold text-[#1B2B5E] pl-4.5 font-numeric">
                     {money(entry.value)}
                   </p>
                 </div>
@@ -257,12 +257,12 @@ const FinancialReports: React.FC = () => {
           </div>
 
           {/* Billed vs Collected Bar Chart */}
-          <div className="rounded-[24px] border border-white/40 bg-white/40 backdrop-blur-[20px] shadow-[0_8px_30px_rgba(0,0,0,0.08)] p-5">
+          <div className="rounded-[24px] border bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] p-5">
             <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-[14px] font-bold tracking-wide text-[#1e293b]">
+              <h3 className="text-[14px] font-bold tracking-wide text-[#1B2B5E]">
                 Collection Trend
               </h3>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500 bg-white/60 border border-white/50 shadow-sm px-2 py-1 rounded-md">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500 bg-white border shadow-sm px-2 py-1 rounded-md">
                 Monthly
               </span>
             </div>
@@ -287,12 +287,12 @@ const FinancialReports: React.FC = () => {
                       border: "1px solid rgba(255,255,255,0.6)",
                       backgroundColor: "rgba(255,255,255,0.9)",
                       backdropFilter: "blur(12px)",
-                      color: "#1e293b",
+                      color: "#1B2B5E",
                       fontWeight: "bold",
                       fontSize: "13px",
                       boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
                     }}
-                    itemStyle={{ color: "#1e293b", fontWeight: "bold" }}
+                    itemStyle={{ color: "#1B2B5E", fontWeight: "bold" }}
                     formatter={(val: number) => money(val)}
                     labelStyle={{
                       color: "#475569",
@@ -312,7 +312,7 @@ const FinancialReports: React.FC = () => {
                   <Bar
                     dataKey="collected"
                     name="Collected"
-                    fill="#FF7A00"
+                    fill="#F5A623"
                     radius={[8, 8, 0, 0]}
                     barSize={12}
                   />

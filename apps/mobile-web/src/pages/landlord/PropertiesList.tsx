@@ -112,7 +112,7 @@ const PropertiesList: React.FC = () => {
             <button
               key={status}
               type="button"
-              className={`shrink-0 rounded-full px-5 py-2.5 text-[13px] font-bold transition-all shadow-sm ${active ? "bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] text-white border border-transparent shadow-[0_4px_15px_rgba(255,122,0,0.3)]" : "bg-white/40 text-slate-500 border border-white/60 hover:border-[#FF9A3D]/50 hover:text-[#1e293b] backdrop-blur-md"}`}
+              className={`shrink-0 rounded-full px-5 py-2.5 text-[13px] font-bold transition-all shadow-sm ${active ? "bg-gradient-to-r from-[#F5A623] to-[#F5A623] text-white border border-transparent shadow-[0_4px_15px_rgba(245,166,35,0.3)]" : "bg-white text-slate-500 border hover:border-[#F5A623]/50 hover:text-[#1B2B5E] "}`}
               onClick={() => setFilter(status)}
             >
               {status}{" "}
@@ -131,15 +131,15 @@ const PropertiesList: React.FC = () => {
       )}
 
       <PremiumCard
-        className="flex items-center justify-between gap-3 cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow relative overflow-hidden group !p-4 mb-4 backdrop-blur-[20px]"
+        className="flex items-center justify-between gap-3 cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow relative overflow-hidden group !p-4 mb-4 "
         onClick={() => navigate("/landlord/add-property")}
       >
-        <div className="absolute -right-4 -bottom-4 size-24 bg-gradient-to-tl from-[#FF9A3D]/20 to-[#FF7A00]/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+        <div className="absolute -right-4 -bottom-4 size-24 bg-gradient-to-tl from-[#F5A623]/20 to-[#F5A623]/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
         <div className="flex flex-col relative z-10">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
             Portfolio
           </p>
-          <h2 className="text-xl font-black text-[#1e293b] tracking-tight">
+          <h2 className="text-xl font-black text-[#1B2B5E] tracking-tight">
             Add Property
           </h2>
           <p className="text-[11px] font-medium text-slate-500 mt-1">
@@ -204,7 +204,7 @@ const PropertiesList: React.FC = () => {
                     {/* Status Badge overlay */}
                     <div className="absolute top-2 left-2 z-20">
                       <span
-                        className={`text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border shadow-sm backdrop-blur-md ${isOccupied ? "bg-[#10B981]/15 text-[#10B981] border-[#10B981]/20" : "bg-white/80 text-slate-500 border-white/40 shadow-sm"}`}
+                        className={`text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border shadow-sm  ${isOccupied ? "bg-[#10B981]/15 text-[#10B981] border-[#10B981]/20" : "bg-white/80 text-slate-500 shadow-sm"}`}
                       >
                         {status}
                       </span>
@@ -213,7 +213,7 @@ const PropertiesList: React.FC = () => {
 
                   <div className="flex flex-col justify-between p-4 flex-1 min-w-0 bg-gradient-to-l from-white/60 to-white/40 backdrop-blur-[10px]">
                     <div>
-                      <h2 className="text-[15px] font-black text-[#1e293b] truncate">
+                      <h2 className="text-[15px] font-black text-[#1B2B5E] truncate">
                         {property.name}
                       </h2>
                       <p className="mt-1 text-[11px] font-medium text-slate-500 truncate">
@@ -224,7 +224,7 @@ const PropertiesList: React.FC = () => {
                     <div className="flex items-end justify-between gap-2 mt-2">
                       {/* Amenities miniaturized */}
                       <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-0.5 text-slate-500 bg-white/40 px-1.5 py-0.5 rounded-md border border-white/50 shadow-sm backdrop-blur-sm">
+                        <div className="flex items-center gap-0.5 text-slate-500 bg-white px-1.5 py-0.5 rounded-md border shadow-sm backdrop-blur-sm">
                           <span className="material-symbols-outlined text-[12px]">
                             bed
                           </span>
@@ -232,7 +232,7 @@ const PropertiesList: React.FC = () => {
                             {unit?.bedrooms ?? 0}
                           </span>
                         </div>
-                        <div className="flex items-center gap-0.5 text-slate-500 bg-white/40 px-1.5 py-0.5 rounded-md border border-white/50 shadow-sm backdrop-blur-sm">
+                        <div className="flex items-center gap-0.5 text-slate-500 bg-white px-1.5 py-0.5 rounded-md border shadow-sm backdrop-blur-sm">
                           <span className="material-symbols-outlined text-[12px]">
                             bathtub
                           </span>
@@ -240,7 +240,7 @@ const PropertiesList: React.FC = () => {
                             {unit?.bathrooms ?? 0}
                           </span>
                         </div>
-                        <div className="flex items-center gap-0.5 text-slate-500 bg-white/40 px-1.5 py-0.5 rounded-md border border-white/50 shadow-sm backdrop-blur-sm">
+                        <div className="flex items-center gap-0.5 text-slate-500 bg-white px-1.5 py-0.5 rounded-md border shadow-sm backdrop-blur-sm">
                           <span className="material-symbols-outlined text-[12px]">
                             door_front
                           </span>
@@ -252,7 +252,7 @@ const PropertiesList: React.FC = () => {
                     </div>
 
                     <div className="mt-2 text-right">
-                      <p className="font-numeric text-lg font-black text-[#1e293b] leading-none">
+                      <p className="font-numeric text-lg font-black text-[#1B2B5E] leading-none">
                         {formatINRWhole(rent)}
                         <span className="text-[10px] font-bold text-slate-400 ml-0.5">
                           /mo

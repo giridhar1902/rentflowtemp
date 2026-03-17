@@ -1,44 +1,60 @@
 import React from "react";
 import { cn } from "../../lib/cn";
 
-type SwitchProps = Omit<
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
-  "onChange" | "type"
-> & {
+type SwitchProps = {
   checked: boolean;
-  onCheckedChange: (nextChecked: boolean) => void;
+  onChange?: (checked: boolean) => void;
+  onCheckedChange?: (checked: boolean) => void; // backward-compat alias
+  label?: string;
+  disabled?: boolean;
+  className?: string;
+  "aria-label"?: string;
 };
 
-export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
-  ({ checked, onCheckedChange, disabled, className, ...props }, ref) => (
-    <button
-      {...props}
-      ref={ref}
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      onClick={() => {
-        if (!disabled) {
-          onCheckedChange(!checked);
-        }
-      }}
+export const Switch: React.FC<SwitchProps> = ({
+  checked,
+  onChange,
+  onCheckedChange,
+  label,
+  disabled,
+  className,
+  "aria-label": ariaLabel,
+}) => {
+  const handleChange = (v: boolean) => {
+    onChange?.(v);
+    onCheckedChange?.(v);
+  };
+
+  return (
+    <label
       className={cn(
-        "motion-press relative inline-flex h-6 w-11 shrink-0 items-center rounded-[var(--radius-pill)] border border-border-subtle bg-surface-subtle",
-        checked && "border-primary bg-primary",
-        "disabled:cursor-not-allowed disabled:opacity-60",
+        "flex items-center gap-3 cursor-pointer select-none",
+        disabled && "opacity-50 cursor-not-allowed",
         className,
       )}
+      aria-label={ariaLabel}
     >
-      <span
-        aria-hidden
-        className={cn(
-          "absolute left-[2px] size-5 rounded-[var(--radius-pill)] bg-[var(--color-accent-contrast)] shadow-base [transition-duration:var(--motion-fast)] [transition-property:transform] [transition-timing-function:var(--motion-easing)]",
-          checked && "translate-x-[20px]",
-        )}
-      />
-    </button>
-  ),
-);
-
-Switch.displayName = "Switch";
+      <div
+        className="relative w-11 h-6 rounded-full transition-colors duration-200"
+        style={{ background: checked ? "#F5A623" : "rgba(27,43,94,0.15)" }}
+      >
+        <input
+          type="checkbox"
+          className="sr-only"
+          checked={checked}
+          disabled={disabled}
+          onChange={(e) => handleChange(e.target.checked)}
+        />
+        <span
+          className="absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow-sm transition-transform duration-200"
+          style={{ transform: checked ? "translateX(20px)" : "translateX(0)" }}
+        />
+      </div>
+      {label && (
+        <span className="text-sm font-semibold" style={{ color: "#1B2B5E" }}>
+          {label}
+        </span>
+      )}
+    </label>
+  );
+};

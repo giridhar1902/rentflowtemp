@@ -80,8 +80,8 @@ const AccountInformation: React.FC = () => {
         readOnly={readOnly}
         className={`w-full rounded-[16px] border py-3 px-4 text-[14px] font-bold outline-none transition-all ${
           readOnly
-            ? "border-white/40 bg-white/30 text-text-secondary opacity-70 cursor-not-allowed shadow-none"
-            : "border-white/50 bg-white/50 text-text-primary focus:border-primary focus:bg-white/80 focus:ring-1 focus:ring-primary shadow-inner placeholder:text-text-secondary/50"
+            ? "border-[rgba(27,43,94,0.08)] bg-white text-text-secondary opacity-70 cursor-not-allowed shadow-none"
+            : "border-[rgba(27,43,94,0.1)] bg-white text-text-primary focus:border-primary focus:bg-white/80 focus:ring-1 focus:ring-primary shadow-inner placeholder:text-text-secondary/50"
         }`}
       />
     </div>
@@ -89,11 +89,11 @@ const AccountInformation: React.FC = () => {
 
   return (
     <div className="min-h-screen font-sans pb-[120px] text-text-primary selection:bg-primary/30">
-      <header className="sticky top-0 z-20 border-b border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm px-5 pb-4 pt-6">
+      <header className="sticky top-0 z-20 border-b bg-white shadow-sm px-5 pb-4 pt-6">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 text-text-secondary hover:text-primary hover:bg-white/80 transition-colors shadow-sm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border text-text-secondary hover:text-primary  transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined text-[20px]">
               arrow_back
@@ -107,7 +107,7 @@ const AccountInformation: React.FC = () => {
       </header>
 
       <main className="px-5 pt-6 pb-8 flex flex-col gap-6 motion-page-enter">
-        <div className="rounded-[24px] border border-white/50 bg-white/40 backdrop-blur-[20px] shadow-sm p-6">
+        <div className="rounded-[24px] border bg-white shadow-sm p-6">
           <InputField
             label="First Name"
             value={firstName}
@@ -141,7 +141,7 @@ const AccountInformation: React.FC = () => {
 
           {profile?.role === "TENANT" && (
             <>
-              <div className="my-6 border-t border-white/50"></div>
+              <div className="my-6 border-t"></div>
               <h2 className="text-[15px] font-black text-text-primary mb-4 drop-shadow-sm">
                 Emergency Contact
               </h2>
@@ -173,14 +173,14 @@ const AccountInformation: React.FC = () => {
         )}
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/40 bg-white/40 backdrop-blur-[30px] shadow-[0_-10px_30px_rgba(0,0,0,0.02)] pb-[calc(env(safe-area-inset-bottom)+20px)] pt-5 px-5">
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white backdrop-blur-[30px] shadow-[0_-10px_30px_rgba(0,0,0,0.02)] pb-[calc(env(safe-area-inset-bottom)+20px)] pt-5 px-5">
         <button
           disabled={submitting}
           onClick={() => void handleSave()}
-          className="flex w-full items-center justify-center gap-2 rounded-full py-4 text-[15px] font-bold text-white bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] shadow-[0_8px_30px_rgba(255,122,0,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
+          className="flex w-full items-center justify-center gap-2 rounded-full py-4 text-[15px] font-bold text-white bg-gradient-to-r from-[#F5A623] to-[#F5A623] shadow-[0_8px_30px_rgba(245,166,35,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
         >
           {submitting ? (
-            <div className="size-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+            <div className="size-5 rounded-full border-2 border-[rgba(27,43,94,0.06)] border-t-white animate-spin"></div>
           ) : (
             "Save Changes"
           )}

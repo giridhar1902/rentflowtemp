@@ -92,12 +92,12 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-md bg-white/95 backdrop-blur-[20px] rounded-t-[28px] shadow-[0_-8px_40px_rgba(0,0,0,0.15)] px-6 pt-5 pb-10 flex flex-col gap-5">
+      <div className="relative w-full max-w-md bg-white/95  rounded-t-[28px] shadow-[0_-8px_40px_rgba(0,0,0,0.15)] px-6 pt-5 pb-10 flex flex-col gap-5">
         <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto -mt-1 mb-1" />
 
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[18px] font-black text-[#1e293b]">
+            <h2 className="text-[18px] font-black text-[#1B2B5E]">
               Add Tenant
             </h2>
             <p className="text-[12px] text-slate-500">To {unit.name}</p>
@@ -124,7 +124,7 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Rahul Sharma"
               className={cn(
-                "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40",
+                "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#F5A623]/40",
                 errors.name ? "border-red-300" : "border-slate-200",
               )}
             />
@@ -143,7 +143,7 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="e.g. rahul@example.com"
               type="email"
-              className="w-full rounded-[14px] bg-slate-50 border border-slate-200 px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40"
+              className="w-full rounded-[14px] bg-slate-50 border border-slate-200 px-4 py-3 text-[14px] text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#F5A623]/40"
             />
           </div>
 
@@ -158,7 +158,7 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
               placeholder="e.g. +91 98765 43210"
               type="tel"
               className={cn(
-                "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40",
+                "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#F5A623]/40",
                 errors.phone ? "border-red-300" : "border-slate-200",
               )}
             />
@@ -184,7 +184,7 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
                     className={cn(
                       "px-4 py-2 rounded-[12px] border text-[13px] font-semibold transition-all",
                       !bedId
-                        ? "border-[#FF9A3D] bg-[#FF9A3D]/10 text-[#FF7A00]"
+                        ? "border-[#F5A623] bg-[#F5A623]/10 text-[#F5A623]"
                         : "border-slate-200 bg-slate-50 text-slate-600",
                     )}
                   >
@@ -229,7 +229,7 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
                 placeholder="0"
                 type="number"
                 className={cn(
-                  "w-full rounded-[14px] bg-slate-50 border pl-8 pr-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40",
+                  "w-full rounded-[14px] bg-slate-50 border pl-8 pr-4 py-3 text-[14px] text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#F5A623]/40",
                   errors.rent ? "border-red-300" : "border-slate-200",
                 )}
               />
@@ -251,7 +251,7 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
                 placeholder="0"
                 type="number"
                 className={cn(
-                  "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40",
+                  "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#F5A623]/40",
                   errors.deposit ? "border-red-300" : "border-slate-200",
                 )}
               />
@@ -272,7 +272,7 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
                 onChange={(e) => setStartDate(e.target.value)}
                 type="date"
                 className={cn(
-                  "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40",
+                  "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#F5A623]/40",
                   errors.startDate ? "border-red-300" : "border-slate-200",
                 )}
               />
@@ -287,7 +287,7 @@ const AddTenantSheet: React.FC<Props> = ({ open, unit, onSave, onClose }) => {
 
         <button
           onClick={handleSave}
-          className="w-full rounded-[20px] bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-4 text-[16px] font-black text-white shadow-[0_8px_20px_rgba(255,122,0,0.3)] active:scale-[0.98] transition-all"
+          className="w-full rounded-[20px] bg-gradient-to-r from-[#F5A623] to-[#F5A623] py-4 text-[16px] font-black text-white shadow-[0_8px_20px_rgba(245,166,35,0.3)] active:scale-[0.98] transition-all"
         >
           Add Tenant
         </button>

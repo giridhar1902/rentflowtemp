@@ -74,12 +74,12 @@ const AddUnitSheet: React.FC<Props> = ({ open, onSave, onClose }) => {
       />
 
       {/* Sheet */}
-      <div className="relative w-full max-w-md bg-white/95 backdrop-blur-[20px] rounded-t-[28px] shadow-[0_-8px_40px_rgba(0,0,0,0.15)] px-6 pt-5 pb-10 flex flex-col gap-5">
+      <div className="relative w-full max-w-md bg-white/95  rounded-t-[28px] shadow-[0_-8px_40px_rgba(0,0,0,0.15)] px-6 pt-5 pb-10 flex flex-col gap-5">
         {/* Handle */}
         <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto -mt-1 mb-1" />
 
         <div className="flex items-center justify-between">
-          <h2 className="text-[18px] font-black text-[#1e293b]">Add Unit</h2>
+          <h2 className="text-[18px] font-black text-[#1B2B5E]">Add Unit</h2>
           <button
             onClick={() => {
               reset();
@@ -102,7 +102,7 @@ const AddUnitSheet: React.FC<Props> = ({ open, onSave, onClose }) => {
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Room 101, Flat 2A"
               className={cn(
-                "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40 transition-all",
+                "w-full rounded-[14px] bg-slate-50 border px-4 py-3 text-[14px] text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#F5A623]/40 transition-all",
                 errors.name ? "border-red-300" : "border-slate-200",
               )}
             />
@@ -120,7 +120,7 @@ const AddUnitSheet: React.FC<Props> = ({ open, onSave, onClose }) => {
               value={floor}
               onChange={(e) => setFloor(e.target.value)}
               placeholder="e.g. 1, Ground, Terrace"
-              className="w-full rounded-[14px] bg-slate-50 border border-slate-200 px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40"
+              className="w-full rounded-[14px] bg-slate-50 border border-slate-200 px-4 py-3 text-[14px] text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#F5A623]/40"
             />
           </div>
 
@@ -138,14 +138,14 @@ const AddUnitSheet: React.FC<Props> = ({ open, onSave, onClose }) => {
               >
                 −
               </button>
-              <span className="text-[22px] font-black text-[#1e293b] w-8 text-center">
+              <span className="text-[22px] font-black text-[#1B2B5E] w-8 text-center">
                 {bedCount}
               </span>
               <button
                 onClick={() =>
                   setBedCount(String(Math.min(8, parseInt(bedCount) + 1)))
                 }
-                className="size-10 rounded-full bg-[#FF9A3D]/15 flex items-center justify-center text-[#FF7A00] font-bold text-xl hover:bg-[#FF9A3D]/25 transition-colors"
+                className="size-10 rounded-full bg-[#F5A623]/15 flex items-center justify-center text-[#F5A623] font-bold text-xl hover:bg-[#F5A623]/25 transition-colors"
               >
                 +
               </button>
@@ -167,7 +167,7 @@ const AddUnitSheet: React.FC<Props> = ({ open, onSave, onClose }) => {
               value={meterNumber}
               onChange={(e) => setMeterNumber(e.target.value)}
               placeholder="e.g. RR123456"
-              className="w-full rounded-[14px] bg-slate-50 border border-slate-200 px-4 py-3 text-[14px] text-[#1e293b] outline-none focus:ring-2 focus:ring-[#FF9A3D]/40"
+              className="w-full rounded-[14px] bg-slate-50 border border-slate-200 px-4 py-3 text-[14px] text-[#1B2B5E] outline-none focus:ring-2 focus:ring-[#F5A623]/40"
             />
           </div>
 
@@ -190,7 +190,7 @@ const AddUnitSheet: React.FC<Props> = ({ open, onSave, onClose }) => {
                   className={cn(
                     "flex items-center gap-3 rounded-[14px] border px-4 py-3 text-left transition-all",
                     electricType === val
-                      ? "border-[#FF9A3D] bg-[#FF9A3D]/10"
+                      ? "border-[#F5A623] bg-[#F5A623]/10"
                       : "border-slate-200 bg-slate-50",
                   )}
                 >
@@ -198,7 +198,7 @@ const AddUnitSheet: React.FC<Props> = ({ open, onSave, onClose }) => {
                     className={cn(
                       "material-symbols-outlined text-[18px]",
                       electricType === val
-                        ? "text-[#FF7A00]"
+                        ? "text-[#F5A623]"
                         : "text-slate-400",
                     )}
                   >
@@ -208,7 +208,7 @@ const AddUnitSheet: React.FC<Props> = ({ open, onSave, onClose }) => {
                     className={cn(
                       "text-[13px] font-semibold",
                       electricType === val
-                        ? "text-[#FF7A00]"
+                        ? "text-[#F5A623]"
                         : "text-slate-600",
                     )}
                   >
@@ -294,7 +294,7 @@ const AddUnitSheet: React.FC<Props> = ({ open, onSave, onClose }) => {
 
         <button
           onClick={handleSave}
-          className="w-full rounded-[20px] bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-4 text-[16px] font-black text-white shadow-[0_8px_20px_rgba(255,122,0,0.3)] hover:shadow-[0_12px_25px_rgba(255,122,0,0.4)] active:scale-[0.98] transition-all"
+          className="w-full rounded-[20px] bg-gradient-to-r from-[#F5A623] to-[#F5A623] py-4 text-[16px] font-black text-white shadow-[0_8px_20px_rgba(245,166,35,0.3)] hover:shadow-[0_12px_25px_rgba(245,166,35,0.4)] active:scale-[0.98] transition-all"
         >
           Add Unit
         </button>

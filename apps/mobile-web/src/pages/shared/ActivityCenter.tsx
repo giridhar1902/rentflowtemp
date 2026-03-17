@@ -50,17 +50,17 @@ const ActivityCenter: React.FC = () => {
       time: "Oct 10",
       icon: "verified_user",
       color: "text-text-secondary",
-      bg: "bg-white/60 border border-white/50 shadow-inner",
+      bg: "bg-white border shadow-inner",
     },
   ];
 
   return (
     <div className="min-h-screen font-sans pb-[100px] text-text-primary selection:bg-primary/30">
-      <header className="sticky top-0 z-20 border-b border-white/40 bg-white/40 backdrop-blur-[20px] shadow-sm px-5 pb-4 pt-6">
+      <header className="sticky top-0 z-20 border-b bg-white shadow-sm px-5 pb-4 pt-6">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60 border border-white/50 text-text-secondary hover:text-primary hover:bg-white/80 transition-colors shadow-sm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border text-text-secondary hover:text-primary  transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined text-[20px]">
               arrow_back
@@ -86,11 +86,11 @@ const ActivityCenter: React.FC = () => {
             </button>
           </div>
 
-          <div className="rounded-[24px] border border-white/50 bg-white/40 backdrop-blur-[20px] overflow-hidden shadow-sm">
+          <div className="rounded-[24px] border bg-white overflow-hidden shadow-sm">
             {activities.map((activity, i) => (
               <div
                 key={activity.id}
-                className={`flex gap-4 p-4 hover:bg-white/60 active:bg-white/70 transition-all group cursor-pointer ${i !== activities.length - 1 ? "border-b border-white/40" : ""}`}
+                className={`flex gap-4 p-4  active:bg-white transition-all group cursor-pointer ${i !== activities.length - 1 ? "border-b" : ""}`}
               >
                 <div
                   className={`flex size-10 items-center justify-center rounded-full shrink-0 ${activity.bg}`}
@@ -119,7 +119,7 @@ const ActivityCenter: React.FC = () => {
           </div>
         </section>
 
-        <div className="rounded-[24px] border border-primary/30 bg-primary/5 p-6 text-center shadow-sm backdrop-blur-[20px] mt-4">
+        <div className="rounded-[24px] border border-primary/30 bg-primary/5 p-6 text-center shadow-sm  mt-4">
           <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-primary/10 border border-primary/20 shadow-inner">
             <span className="material-symbols-outlined text-[24px] text-primary">
               done_all

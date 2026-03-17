@@ -46,11 +46,7 @@ const ResetPassword: React.FC = () => {
       contentClassName="w-full !px-4 !py-8"
     >
       <div className="mx-auto flex w-full max-w-md flex-col gap-5 motion-page-enter">
-        <InstitutionCard
-          accentSpine
-          elevation="raised"
-          className="section-stack"
-        >
+        <InstitutionCard className="section-stack">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
               Set New Password

@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "../../lib/cn";
 import { useAuth } from "../../context/AuthContext";
-import BottomNav from "../BottomNav";
+import { DomvioLogo } from "./AppLayout";
 
 interface PremiumPageLayoutProps {
   children: React.ReactNode;
@@ -23,50 +23,51 @@ export const PremiumPageLayout: React.FC<PremiumPageLayoutProps> = ({
 
   return (
     <div
-      className={cn(
-        "min-h-screen bg-gradient-to-br from-[#EFE9FC] via-[#DFE9F9] to-[#D5EDFB] pb-24 font-sans text-slate-800",
-        className,
-      )}
+      className={cn("min-h-screen pb-24", className)}
+      style={{
+        background: "#EEF1F8",
+        fontFamily: '"Plus Jakarta Sans", sans-serif',
+      }}
     >
-      <header className="px-6 pt-12 pb-4 flex items-center justify-between">
+      <header
+        className="sticky top-0 z-40 px-5 py-4 flex items-center justify-between"
+        style={{
+          background: "#FFFFFF",
+          borderBottom: "1px solid rgba(27,43,94,0.08)",
+          boxShadow: "0 1px 8px rgba(27,43,94,0.05)",
+        }}
+      >
+        <DomvioLogo size="md" />
+
         <div className="flex items-center gap-3">
-          <div className="flex size-12 items-center justify-center rounded-full border-2 border-white shadow-sm overflow-hidden bg-slate-200 shrink-0">
-            {/* Avatar Placeholder */}
+          <div className="text-right">
+            <p
+              className="text-[10px] font-bold uppercase tracking-widest"
+              style={{ color: "#F5A623" }}
+            >
+              {greeting}
+            </p>
+            <h1
+              className="text-sm font-bold leading-none"
+              style={{ color: "#1B2B5E" }}
+            >
+              {userName}
+            </h1>
+          </div>
+          <div
+            className="size-10 rounded-full overflow-hidden border-2 shrink-0"
+            style={{ borderColor: "#F5A623" }}
+          >
             <img
-              src="https://i.pravatar.cc/150?img=11"
+              src={`https://api.dicebear.com/7.x/notionists/svg?seed=${profile?.email || "user"}&backgroundColor=EEF1F8`}
               alt="Profile"
               className="w-full h-full object-cover"
             />
           </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#6B7280] mb-0.5">
-              {greeting}
-            </p>
-            <h1 className="text-xl font-bold text-[#1F2937] leading-none line-clamp-1 break-all">
-              {userName}
-            </h1>
-          </div>
         </div>
-        <button className="relative flex size-10 items-center justify-center rounded-full bg-white shadow-sm text-slate-700 hover:bg-slate-50 transition-colors shrink-0">
-          <span className="material-symbols-outlined text-xl">
-            notifications
-          </span>
-          <span className="absolute right-3 top-2.5 size-2 rounded-full bg-red-500 border border-white"></span>
-        </button>
       </header>
 
-      <main className="px-6 space-y-7">{children}</main>
-
-      {showNav && (
-        <div className="fixed bottom-0 left-0 right-0 z-50">
-          <BottomNav
-            role={
-              (profile?.role?.toLowerCase() as "landlord" | "tenant") ??
-              "tenant"
-            }
-          />
-        </div>
-      )}
+      <main className="px-5 py-5 space-y-5">{children}</main>
     </div>
   );
 };

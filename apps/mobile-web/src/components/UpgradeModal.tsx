@@ -8,38 +8,37 @@ interface UpgradeModalDetail {
   upgradeUrl: string;
 }
 
-const SparklesIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+const DomvioIcon = () => (
+  <svg width="32" height="32" viewBox="0 0 56 56" fill="none" aria-hidden>
+    <path
+      d="M10 4 H28 C42 4 52 14 52 28 C52 42 42 52 28 52 H10 Z"
+      fill="#1B2B5E"
+    />
+    <rect
+      x="10"
+      y="4"
+      width="6"
+      height="48"
+      rx="3"
+      fill="#F5A623"
+      opacity="0.9"
+    />
+    <circle cx="32" cy="24" r="7" fill="#F5A623" />
+    <path d="M28.5 30 L28.5 39 Q32 42 35.5 39 L35.5 30 Z" fill="#F5A623" />
+    <circle cx="32" cy="24" r="3.5" fill="#1B2B5E" />
   </svg>
 );
 
-const CheckIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
+const CheckItem = ({ text, gold }: { text: string; gold?: boolean }) => (
+  <li className="flex items-center gap-2.5 text-sm">
+    <span
+      className="material-symbols-outlined text-[16px] shrink-0"
+      style={{ color: gold ? "#F5A623" : "#16A34A" }}
+    >
+      check_circle
+    </span>
+    <span style={{ color: "#5A6A8A" }}>{text}</span>
+  </li>
 );
 
 export function UpgradeModal() {
@@ -47,15 +46,13 @@ export function UpgradeModal() {
   const [detail, setDetail] = useState<UpgradeModalDetail | null>(null);
 
   useEffect(() => {
-    const handleUpgradeRequired = (e: Event) => {
-      const customEvent = e as CustomEvent<UpgradeModalDetail>;
-      setDetail(customEvent.detail);
+    const handler = (e: Event) => {
+      const ev = e as CustomEvent<UpgradeModalDetail>;
+      setDetail(ev.detail);
       setOpen(true);
     };
-
-    window.addEventListener("upgrade-required", handleUpgradeRequired);
-    return () =>
-      window.removeEventListener("upgrade-required", handleUpgradeRequired);
+    window.addEventListener("upgrade-required", handler);
+    return () => window.removeEventListener("upgrade-required", handler);
   }, []);
 
   if (!detail) return null;
@@ -63,121 +60,190 @@ export function UpgradeModal() {
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={setOpen}>
+        {/* Backdrop */}
         <Transition.Child
           as={Fragment}
-          enter="ease-out duration-300"
+          enter="ease-out duration-200"
           enterFrom="opacity-0"
           enterTo="opacity-100"
-          leave="ease-in duration-200"
+          leave="ease-in duration-150"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/50 transition-opacity" />
+          <div
+            className="fixed inset-0"
+            style={{ background: "rgba(27,43,94,0.45)" }}
+          />
         </Transition.Child>
 
-        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div className="fixed inset-0 z-10 overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 sm:items-center">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              enterFrom="opacity-0 translate-y-4 sm:scale-95"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              leaveTo="opacity-0 translate-y-4 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-background text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg p-6">
-                <div>
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
-                    <SparklesIcon className="h-8 w-8 text-primary" />
+              <Dialog.Panel
+                className="relative w-full sm:max-w-lg rounded-2xl overflow-hidden"
+                style={{
+                  background: "#FFFFFF",
+                  boxShadow: "0 24px 64px rgba(27,43,94,0.2)",
+                  fontFamily: '"Plus Jakarta Sans", sans-serif',
+                }}
+              >
+                {/* Navy header */}
+                <div
+                  className="px-6 pt-8 pb-6 text-center"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #1B2B5E 0%, #2D4A9E 100%)",
+                  }}
+                >
+                  <div
+                    className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl"
+                    style={{ background: "rgba(255,255,255,0.12)" }}
+                  >
+                    <DomvioIcon />
                   </div>
-                  <div className="mt-3 text-center sm:mt-5">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-2xl font-bold leading-6"
-                    >
-                      Upgrade Your Plan
-                    </Dialog.Title>
-                    <div className="mt-2">
-                      <p className="text-sm text-muted-foreground">
-                        {detail.message}
-                      </p>
-                    </div>
-                  </div>
+                  <Dialog.Title
+                    as="h3"
+                    className="text-2xl font-bold text-white"
+                  >
+                    Upgrade to NRI Mode
+                  </Dialog.Title>
+                  <p
+                    className="mt-2 text-sm"
+                    style={{ color: "rgba(255,255,255,0.7)" }}
+                  >
+                    {detail.message}
+                  </p>
                 </div>
 
-                <div className="mt-6 grid gap-6">
-                  {/* Essential Tier */}
-                  <div className="rounded-xl border bg-card p-5 shadow-sm">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg">NRI Essential</h3>
-                      <span className="font-bold text-xl">
+                {/* Tiers */}
+                <div className="p-6 flex flex-col gap-4">
+                  {/* Essential */}
+                  <div
+                    className="rounded-xl p-5"
+                    style={{
+                      border: "1.5px solid rgba(27,43,94,0.1)",
+                      background: "#F8F9FA",
+                    }}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h3
+                        className="font-bold text-base"
+                        style={{ color: "#1B2B5E" }}
+                      >
+                        NRI Essential
+                      </h3>
+                      <span
+                        className="font-extrabold text-lg"
+                        style={{ color: "#1B2B5E" }}
+                      >
                         ₹1,499
-                        <span className="text-sm font-normal text-muted-foreground">
+                        <span
+                          className="text-xs font-medium"
+                          style={{ color: "#5A6A8A" }}
+                        >
                           /mo
                         </span>
                       </span>
                     </div>
-                    <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                    <ul className="space-y-2 mb-4">
                       {[
                         "Dual currency dashboard",
                         "TDS compliance automation",
                         "Property health reports",
                         "Timezone-aware reminders",
-                      ].map((feature) => (
-                        <li key={feature} className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4 text-green-500" />
-                          {feature}
-                        </li>
+                      ].map((f) => (
+                        <CheckItem key={f} text={f} />
                       ))}
                     </ul>
                     <Button
-                      className="w-full mt-6 bg-transparent border border-primary text-primary hover:bg-primary/5"
-                      onClick={() => (window.location.href = detail.upgradeUrl)}
+                      variant="secondary"
+                      className="w-full"
+                      onClick={() =>
+                        (window.location.href = detail!.upgradeUrl)
+                      }
                     >
                       Upgrade to Essential
                     </Button>
                   </div>
 
-                  {/* Premium Tier */}
-                  <div className="rounded-xl border bg-primary/5 p-5 shadow-sm ring-1 ring-primary/20 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+                  {/* Premium */}
+                  <div
+                    className="rounded-xl p-5 relative overflow-hidden"
+                    style={{
+                      border: "2px solid #F5A623",
+                      background: "#FFFBF2",
+                    }}
+                  >
+                    <div
+                      className="absolute top-0 right-0 px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-bl-xl"
+                      style={{ background: "#F5A623", color: "#FFFFFF" }}
+                    >
                       Recommended
                     </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <h3 className="font-semibold text-lg text-primary">
+                    <div className="flex items-center justify-between mb-3 mt-1">
+                      <h3
+                        className="font-bold text-base"
+                        style={{ color: "#1B2B5E" }}
+                      >
                         NRI Premium
                       </h3>
-                      <span className="font-bold text-xl">
+                      <span
+                        className="font-extrabold text-lg"
+                        style={{ color: "#1B2B5E" }}
+                      >
                         ₹2,999
-                        <span className="text-sm font-normal text-muted-foreground">
+                        <span
+                          className="text-xs font-medium"
+                          style={{ color: "#5A6A8A" }}
+                        >
                           /mo
                         </span>
                       </span>
                     </div>
-                    <p className="text-sm mt-3 font-medium text-foreground">
+                    <p
+                      className="text-xs font-semibold mb-2"
+                      style={{ color: "#5A6A8A" }}
+                    >
                       Everything in Essential, plus:
                     </p>
-                    <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                    <ul className="space-y-2 mb-4">
                       {[
                         "TDS PDF reports for CA",
                         "Legal notice automation",
                         "Power of Attorney access",
                         "Daily WhatsApp morning digest",
-                      ].map((feature) => (
-                        <li key={feature} className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4 text-primary" />
-                          {feature}
-                        </li>
+                      ].map((f) => (
+                        <CheckItem key={f} text={f} gold />
                       ))}
                     </ul>
                     <Button
-                      className="w-full mt-6 bg-primary text-primary-foreground hover:bg-primary/90"
-                      onClick={() => (window.location.href = detail.upgradeUrl)}
+                      variant="primary"
+                      className="w-full"
+                      onClick={() =>
+                        (window.location.href = detail!.upgradeUrl)
+                      }
                     >
                       Upgrade to Premium
                     </Button>
                   </div>
+
+                  {/* Dismiss */}
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="w-full py-3 text-sm font-semibold transition-colors"
+                    style={{ color: "#8A9AB8" }}
+                  >
+                    Maybe later
+                  </button>
                 </div>
               </Dialog.Panel>
             </Transition.Child>

@@ -126,15 +126,15 @@ const TenantHome: React.FC = () => {
       className="px-5 pt-5 pb-6 flex flex-col gap-5 motion-page-enter"
     >
       {/* ── Rent Due Card ── */}
-      <section className="relative overflow-hidden rounded-[24px] bg-white/40 backdrop-blur-[20px] p-6 shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-white/50">
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00]" />
+      <section className="relative overflow-hidden rounded-[24px] bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.06)] border">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#F5A623] to-[#F5A623]" />
 
         <div className="flex items-start justify-between">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">
               {isOverdue ? "Overdue Payment" : "Upcoming Payment"}
             </p>
-            <h2 className="text-[32px] font-black text-[#1e293b] tracking-tight">
+            <h2 className="text-[32px] font-black text-[#1B2B5E] tracking-tight">
               {loading ? "…" : formatINRWhole(dueAmount)}
             </h2>
           </div>
@@ -164,9 +164,9 @@ const TenantHome: React.FC = () => {
           ].map(({ val, label }) => (
             <div
               key={label}
-              className="flex flex-col items-center justify-center size-[68px] rounded-full bg-white/60 shadow-sm border border-white/60"
+              className="flex flex-col items-center justify-center size-[68px] rounded-full bg-white shadow-sm border"
             >
-              <span className="text-[22px] font-black text-[#1e293b] leading-none font-numeric">
+              <span className="text-[22px] font-black text-[#1B2B5E] leading-none font-numeric">
                 {String(val).padStart(2, "0")}
               </span>
               <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mt-1">
@@ -177,7 +177,7 @@ const TenantHome: React.FC = () => {
         </div>
 
         <button
-          className="mt-5 w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] py-3.5 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(255,122,0,0.3)] active:scale-[0.98] transition-all"
+          className="mt-5 w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F5A623] to-[#F5A623] py-3.5 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(245,166,35,0.3)] active:scale-[0.98] transition-all"
           onClick={() => navigate("/tenant/pay")}
         >
           <span className="material-symbols-outlined text-[20px]">
@@ -199,12 +199,12 @@ const TenantHome: React.FC = () => {
       {/* ── Offline Rent Pending ── */}
       {offlinePayments.filter((p) => p.status === "PENDING_APPROVAL").length >
         0 && (
-        <section className="rounded-[22px] bg-white/40 backdrop-blur-[20px] p-5 border border-white/50 shadow-sm flex flex-col gap-3">
+        <section className="rounded-[22px] bg-white p-5 border shadow-sm flex flex-col gap-3">
           <div className="flex items-center gap-2 mb-1">
             <span className="material-symbols-outlined text-[#F59E0B] text-[20px]">
               pending_actions
             </span>
-            <h3 className="text-[13px] font-extrabold text-[#1e293b]">
+            <h3 className="text-[13px] font-extrabold text-[#1B2B5E]">
               Pending Offline Payments
             </h3>
           </div>
@@ -213,10 +213,10 @@ const TenantHome: React.FC = () => {
             .map((payment) => (
               <div
                 key={payment.id}
-                className="flex items-center justify-between bg-white/60 rounded-[16px] px-4 py-3 border border-white/60"
+                className="flex items-center justify-between bg-white rounded-[16px] px-4 py-3 border"
               >
                 <div>
-                  <p className="text-[13px] font-bold text-[#1e293b]">
+                  <p className="text-[13px] font-bold text-[#1B2B5E]">
                     ₹{payment.amount} – {payment.rentMonth}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-0.5">
@@ -249,14 +249,14 @@ const TenantHome: React.FC = () => {
           <button
             key={label}
             onClick={onClick}
-            className="flex flex-col items-center justify-center gap-3 rounded-[22px] bg-white/40 backdrop-blur-[20px] p-5 border border-white/50 hover:bg-white/60 active:scale-[0.97] transition-all shadow-sm"
+            className="flex flex-col items-center justify-center gap-3 rounded-[22px] bg-white p-5 border  active:scale-[0.97] transition-all shadow-sm"
           >
-            <div className="flex size-12 items-center justify-center rounded-full bg-white/60 border border-white/60 shadow-sm">
+            <div className="flex size-12 items-center justify-center rounded-full bg-white border shadow-sm">
               <span className="material-symbols-outlined text-[22px] text-slate-500">
                 {icon}
               </span>
             </div>
-            <span className="text-[13px] font-bold text-[#1e293b]">
+            <span className="text-[13px] font-bold text-[#1B2B5E]">
               {label}
             </span>
           </button>
@@ -285,14 +285,14 @@ const TenantHome: React.FC = () => {
           <button
             key={label}
             onClick={() => navigate(path)}
-            className="flex flex-col items-center justify-center gap-2 rounded-[18px] bg-white/40 backdrop-blur-[20px] p-4 border border-white/50 hover:bg-white/60 active:scale-[0.97] transition-all shadow-sm"
+            className="flex flex-col items-center justify-center gap-2 rounded-[18px] bg-white p-4 border  active:scale-[0.97] transition-all shadow-sm"
           >
-            <div className="flex size-10 items-center justify-center rounded-full bg-white/60 border border-white/60 shadow-sm">
+            <div className="flex size-10 items-center justify-center rounded-full bg-white border shadow-sm">
               <span className="material-symbols-outlined text-[18px] text-slate-500">
                 {icon}
               </span>
             </div>
-            <span className="text-[10px] font-bold text-center text-[#1e293b] leading-tight">
+            <span className="text-[10px] font-bold text-center text-[#1B2B5E] leading-tight">
               {label}
             </span>
           </button>
@@ -300,9 +300,9 @@ const TenantHome: React.FC = () => {
       </section>
 
       {/* ── Lease Overview ── */}
-      <section className="rounded-[22px] bg-white/40 backdrop-blur-[20px] p-5 border border-white/50 shadow-sm">
+      <section className="rounded-[22px] bg-white p-5 border shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[15px] font-black text-[#1e293b]">
+          <h3 className="text-[15px] font-black text-[#1B2B5E]">
             Lease Overview
           </h3>
           <span className="rounded-full bg-[#10B981]/10 border border-[#10B981]/20 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-[#10B981]">
@@ -311,19 +311,19 @@ const TenantHome: React.FC = () => {
         </div>
 
         {/* Progress bar */}
-        <div className="h-1.5 w-full rounded-full bg-white/50 border border-white/40 overflow-hidden mb-4">
+        <div className="h-1.5 w-full rounded-full bg-white border overflow-hidden mb-4">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#FF9A3D] to-[#FF7A00] shadow-[0_0_8px_rgba(255,122,0,0.4)]"
+            className="h-full rounded-full bg-gradient-to-r from-[#F5A623] to-[#F5A623] shadow-[0_0_8px_rgba(245,166,35,0.4)]"
             style={{ width: `${Math.round(leaseProgress * 100)}%` }}
           />
         </div>
 
-        <div className="flex items-center justify-between border-b border-white/40 pb-4 mb-4">
+        <div className="flex items-center justify-between border-b pb-4 mb-4">
           <div>
             <p className="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1">
               Expiry Date
             </p>
-            <p className="text-[13px] font-black text-[#1e293b]">
+            <p className="text-[13px] font-black text-[#1B2B5E]">
               {leaseEndStr}
             </p>
           </div>
@@ -331,7 +331,7 @@ const TenantHome: React.FC = () => {
             <p className="text-[10px] uppercase tracking-widest font-bold text-slate-500 mb-1">
               Remaining
             </p>
-            <p className="text-[13px] font-black text-[#FF7A00]">
+            <p className="text-[13px] font-black text-[#F5A623]">
               {leaseMonthsLeft} Months
             </p>
           </div>
@@ -348,7 +348,7 @@ const TenantHome: React.FC = () => {
           </div>
           <button
             onClick={() => navigate("/lease")}
-            className="text-[11px] font-bold uppercase tracking-widest text-[#FF7A00] hover:underline"
+            className="text-[11px] font-bold uppercase tracking-widest text-[#F5A623] hover:underline"
           >
             View Details
           </button>
@@ -360,14 +360,14 @@ const TenantHome: React.FC = () => {
         <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3 pl-1">
           Recent Activity
         </h3>
-        <div className="rounded-[22px] bg-white/40 backdrop-blur-[20px] overflow-hidden border border-white/50 shadow-sm">
+        <div className="rounded-[22px] bg-white overflow-hidden border shadow-sm">
           {charges.slice(0, 3).map((charge, i) => (
             <div
               key={charge.id}
               className={cn(
-                "flex items-center justify-between p-4 hover:bg-white/60 transition-colors",
+                "flex items-center justify-between p-4  transition-colors",
                 i < Math.min(charges.length - 1, 2)
-                  ? "border-b border-white/30"
+                  ? "border-b border-[rgba(27,43,94,0.06)]"
                   : "",
               )}
             >
@@ -377,7 +377,7 @@ const TenantHome: React.FC = () => {
                     "flex size-10 items-center justify-center rounded-full",
                     charge.status === "PAID"
                       ? "bg-[#10B981]/10 text-[#10B981]"
-                      : "bg-[#FF9A3D]/10 text-[#FF7A00]",
+                      : "bg-[#F5A623]/10 text-[#F5A623]",
                   )}
                 >
                   <span className="material-symbols-outlined text-[20px]">
@@ -385,7 +385,7 @@ const TenantHome: React.FC = () => {
                   </span>
                 </div>
                 <div>
-                  <p className="text-[13px] font-bold text-[#1e293b]">
+                  <p className="text-[13px] font-bold text-[#1B2B5E]">
                     {charge.status === "PAID" ? "Rent Paid" : "Rent Due"}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-0.5">
@@ -401,7 +401,7 @@ const TenantHome: React.FC = () => {
                   "text-[13px] font-bold",
                   charge.status === "PAID"
                     ? "text-[#10B981]"
-                    : "text-[#FF7A00]",
+                    : "text-[#F5A623]",
                 )}
               >
                 {charge.status === "PAID" ? "- " : ""}
