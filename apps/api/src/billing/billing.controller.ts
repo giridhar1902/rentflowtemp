@@ -127,6 +127,21 @@ export class BillingController {
     return this.billingService.setDefaultPaymentMethod(user, methodId);
   }
 
+  @Get("expenses")
+  listExpenses(
+    @Req() request: Request,
+    @Query() query: Record<string, string>,
+  ) {
+    const user = getRequestUser(request);
+    return this.billingService.listExpenses(user, query);
+  }
+
+  @Post("expenses")
+  createExpense(@Req() request: Request, @Body() payload: any) {
+    const user = getRequestUser(request);
+    return this.billingService.createExpense(user, payload);
+  }
+
   @Get("reports/summary")
   getSummary(@Req() request: Request, @Query() query: BillingSummaryQueryDto) {
     const user = getRequestUser(request);

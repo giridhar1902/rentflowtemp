@@ -13,6 +13,7 @@ import {
   type PropertyRecord,
   type NriIncomeSummaryResponse,
 } from "../../lib/api";
+import { FEATURES } from "../../lib/feature-flags";
 import { getRevealDelay } from "../../theme/motion";
 
 const money = (
@@ -55,53 +56,17 @@ const Dashboard: React.FC = () => {
       if (!session) return;
       setError(null);
       try {
-        // Mock data for seamless UI preview
-        const mockSummary: BillingSummaryResponse = {
-          totals: { billed: 45000, collected: 42000, overdue: 3000 },
-          counts: { activeLeases: 4, openCharges: 2 },
-          monthly: [
-            { month: "2025-09", billed: 38000, collected: 38000 },
-            { month: "2025-10", billed: 38000, collected: 38000 },
-            { month: "2025-11", billed: 40000, collected: 40000 },
-            { month: "2025-12", billed: 40000, collected: 39500 },
-            { month: "2026-01", billed: 40000, collected: 39500 },
-            { month: "2026-02", billed: 45000, collected: 42000 },
-          ],
-        } as any;
-        const mockProperties: PropertyRecord[] = [
-          {
-            units: [{ id: "u1" }, { id: "u2" }],
-            leases: [
-              { status: "ACTIVE", unitId: "u1" },
-              { status: "ACTIVE", unitId: "u2" },
-            ],
-          } as any,
-          {
-            units: [{ id: "u3" }, { id: "u4" }, { id: "u5" }],
-            leases: [
-              { status: "ACTIVE", unitId: "u3" },
-              { status: "ACTIVE", unitId: "u5" },
-            ],
-          } as any,
-        ];
-        const mockPending: PaymentRecord[] = [
-          {
-            amount: 1200,
-            charge: {
-              lease: {
-                tenant: { firstName: "Sarah", lastName: "Connor" },
-                unit: { name: "Apt 4B" },
-                property: { name: "Sunset Views" },
-              },
-            },
-          } as any,
-        ];
+        const [summaryData, propertiesData, pendingData] = await Promise.all([
+          api.getBillingSummary(session.access_token),
+          api.listProperties(session.access_token),
+          api.listPendingPaymentReviews(session.access_token),
+        ]);
 
-        setSummary(mockSummary);
-        setProperties(mockProperties);
-        setPendingReviews(mockPending);
+        setSummary(summaryData);
+        setProperties(propertiesData);
+        setPendingReviews(pendingData);
 
-        if (isNRI) {
+        if (FEATURES.NRI_MODE && isNRI) {
           try {
             // In real app, we fetch from API. We might intercept 402 Upgrade required via apiFetch
             const nriRes = await api.getNriIncomeSummary(session.access_token);
@@ -212,7 +177,7 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
-      {isNRI && nriSummary && (
+      {FEATURES.NRI_MODE && isNRI && nriSummary && (
         <div className="flex items-center justify-between rounded-[12px] border border-primary/20 bg-primary/5 p-3 mb-2 shadow-sm">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider text-primary">

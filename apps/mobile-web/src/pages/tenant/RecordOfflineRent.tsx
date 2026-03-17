@@ -25,7 +25,18 @@ export const RecordOfflineRent = ({
   const { profile, token } = useAuth();
 
   const [amount, setAmount] = useState("");
-  const [rentMonth, setRentMonth] = useState("November 2023");
+  const rentMonthOptions = (() => {
+    const months: string[] = [];
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push(
+        d.toLocaleString("en-IN", { month: "long", year: "numeric" }),
+      );
+    }
+    return months;
+  })();
+  const [rentMonth, setRentMonth] = useState(rentMonthOptions[0]);
   const [paymentDate, setPaymentDate] = useState(
     new Date().toISOString().split("T")[0],
   );
@@ -140,7 +151,7 @@ export const RecordOfflineRent = ({
         {/* Amount */}
         <div className="mb-6">
           <label className="block text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-2">
-            Amount Received
+            Amount Paid
           </label>
           <div className="relative flex items-center bg-white border border-slate-200 rounded-[20px] px-4 py-4 shadow-sm focus-within:ring-2 focus-within:ring-[#F5A623]/30 focus-within:border-[#F5A623] transition-all">
             <span className="text-[24px] font-semibold text-slate-400 mr-2">
@@ -169,10 +180,11 @@ export const RecordOfflineRent = ({
                 onChange={(e) => setRentMonth(e.target.value)}
                 className="w-full bg-transparent text-[14px] font-semibold text-slate-900 outline-none appearance-none pr-6"
               >
-                <option value="November 2023">November 2023</option>
-                <option value="December 2023">December 2023</option>
-                <option value="January 2024">January 2024</option>
-                <option value="February 2024">February 2024</option>
+                {rentMonthOptions.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
               </select>
               <span className="material-symbols-outlined absolute right-3 text-[18px] text-slate-400 pointer-events-none">
                 calendar_month

@@ -45,17 +45,18 @@ export class PaymentsService {
       );
     }
 
-    const { amount, ...rest } = payload;
+    const { amount, paymentDate, ...rest } = payload;
 
     const payment = await this.prisma.offlineRentPayment.create({
       data: {
         ...rest,
         amount,
+        paymentDate: new Date(paymentDate),
         tenantId: user.id,
       },
       include: {
         property: {
-          select: { name: true },
+          select: { name: true, ownerId: true },
         },
         unit: {
           select: { name: true },
@@ -65,6 +66,32 @@ export class PaymentsService {
         },
       },
     });
+
+    // Notify the landlord (fire-and-forget)
+    const landlordId = payment.property.ownerId;
+    const tenantName =
+      [payment.tenant?.firstName, payment.tenant?.lastName]
+        .filter(Boolean)
+        .join(" ") || "A tenant";
+    const formattedAmount = new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(Number(amount));
+
+    this.prisma.notification
+      .create({
+        data: {
+          userId: landlordId,
+          type: "PAYMENT_RECEIVED",
+          channel: "IN_APP",
+          title: "Cash payment pending approval",
+          body: `${tenantName} recorded a ${rest.paymentMode} payment of ${formattedAmount} for ${rest.rentMonth} (${payment.unit.name}, ${payment.property.name}). Tap to review.`,
+        },
+      })
+      .catch((err) =>
+        this.logger.error("Failed to create landlord notification", err),
+      );
 
     return payment;
   }

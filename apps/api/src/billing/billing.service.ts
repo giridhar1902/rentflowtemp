@@ -916,6 +916,69 @@ export class BillingService {
     return updated;
   }
 
+  async listExpenses(
+    user: RequestUser,
+    query: {
+      propertyId?: string;
+      category?: string;
+      from?: string;
+      to?: string;
+      limit?: number;
+    },
+  ) {
+    if (user.role !== UserRole.LANDLORD && user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException("Only landlords can view expenses");
+    }
+
+    const where: Prisma.ExpenseWhereInput = {
+      property: {
+        ownerId: user.role === UserRole.LANDLORD ? user.id : undefined,
+      },
+    };
+    if (query.propertyId) where.propertyId = query.propertyId;
+    if (query.category) where.category = query.category as any;
+    if (query.from || query.to) {
+      where.incurredAt = {
+        ...(query.from ? { gte: new Date(query.from) } : {}),
+        ...(query.to ? { lte: new Date(query.to) } : {}),
+      };
+    }
+
+    return this.prisma.expense.findMany({
+      where,
+      orderBy: { incurredAt: "desc" },
+      take: query.limit ? Number(query.limit) : 50,
+    });
+  }
+
+  async createExpense(
+    user: RequestUser,
+    payload: {
+      propertyId: string;
+      leaseId?: string;
+      category: string;
+      amount: number;
+      description?: string;
+      incurredAt: string;
+    },
+  ) {
+    if (user.role !== UserRole.LANDLORD && user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException("Only landlords can create expenses");
+    }
+
+    return this.prisma.expense.create({
+      data: {
+        propertyId: payload.propertyId,
+        leaseId: payload.leaseId,
+        createdById: user.id,
+        category: payload.category as any,
+        amount: payload.amount,
+        description: payload.description,
+        incurredAt: new Date(payload.incurredAt),
+      },
+    });
+  }
+
   async getBillingSummary(user: RequestUser, query: BillingSummaryQueryDto) {
     if (user.role !== UserRole.LANDLORD && user.role !== UserRole.ADMIN) {
       throw new ForbiddenException("Only landlords can view billing reports");

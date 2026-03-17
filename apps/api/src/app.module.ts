@@ -30,6 +30,7 @@ import { TenantsModule } from "./tenants/tenants.module";
 import { UtilitiesModule } from "./utilities/utilities.module";
 import { SharedModule } from "./shared/shared.module";
 import { NriModule } from "./nri/nri.module";
+import { WhatsappBotModule } from "./whatsapp-bot/whatsapp-bot.module";
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { NriModule } from "./nri/nri.module";
     TenantsModule,
     UtilitiesModule,
     NriModule,
+    WhatsappBotModule,
   ],
   providers: [
     {

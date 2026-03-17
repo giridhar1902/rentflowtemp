@@ -716,3 +716,22 @@ model AuditLog {
   @@index([entityType, entityId, createdAt])
   @@index([actorId, createdAt])
 }
+
+model WhatsappConversation {
+  id                         String    @id @default(cuid())
+  phone                      String    @unique
+  landlordId                 String
+  lastTenantMentioned        String?
+  lastPropertyMentioned      String?
+  recentMessages             Json      @default("[]")
+  pendingConfirmationAction  String?
+  pendingConfirmationParams  Json?
+  pendingConfirmationText    String?
+  pendingConfirmationExpiry  DateTime?
+  messageCountToday          Int       @default(0)
+  messageCountResetAt        DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  @@index([phone])
+  @@index([landlordId])
+}

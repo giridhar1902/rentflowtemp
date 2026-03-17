@@ -23,6 +23,11 @@ type AuthContextValue = {
   ) => Promise<SignUpResult>;
   signInWithPhone: (phone: string) => Promise<void>;
   verifyPhoneOTP: (phone: string, token: string) => Promise<MeResponse>;
+  registerWithPhone: (
+    phone: string,
+    otp: string,
+    role: AppRole,
+  ) => Promise<MeResponse>;
   signOut: () => Promise<void>;
   sendResetPasswordEmail: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
@@ -208,26 +213,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const verifyPhoneOTP = async (phone: string, token: string) => {
-    if (
-      !isSupabaseConfigured ||
-      !supabase ||
-      phone === "+910000000000" ||
-      phone === "+911111111111"
-    ) {
-      const role = phone === "+911111111111" ? "TENANT" : "LANDLORD";
-      const fakeSession = {
-        access_token: "fake-token",
-        user: { id: `fake-${role.toLowerCase()}-id` },
-      } as any;
-      const fakeProfile = {
-        id: `fake-${role.toLowerCase()}-id`,
-        phone,
-        role,
-        firstName: role === "TENANT" ? "Demo Tenant" : "Demo Landlord",
-      } as unknown as MeResponse;
-      setSession(fakeSession);
-      setProfile(fakeProfile);
-      return fakeProfile;
+    // Demo bypass — sign in with real Supabase email+password account
+    if (phone === "+910000000000" || phone === "+911111111111") {
+      if (!isSupabaseConfigured || !supabase) {
+        throw new Error("Supabase is not configured");
+      }
+      const email =
+        phone === "+910000000000"
+          ? "demo-landlord@domvio.app"
+          : "demo-tenant@domvio.app";
+      const { data, error: demoError } = await supabase.auth.signInWithPassword(
+        {
+          email,
+          password: "Demo@12345",
+        },
+      );
+      if (demoError) {
+        throw new Error(
+          "Demo account not set up yet. Run: cd apps/api && npx tsx prisma/seed-demo.ts",
+        );
+      }
+      if (!data.session) throw new Error("Demo sign-in failed");
+      const me = await loadProfile(data.session);
+      setSession(data.session);
+      return me;
     }
 
     const { data, error: verifyError } = await supabase.auth.verifyOtp({
@@ -277,6 +286,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setSession(data.session);
     setProfile(updatedProfile);
     return { needsEmailConfirmation: false, profile: updatedProfile };
+  };
+
+  const registerWithPhone = async (
+    phone: string,
+    otp: string,
+    role: AppRole,
+  ): Promise<MeResponse> => {
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error("Supabase is not configured");
+    }
+
+    const { data, error: verifyError } = await supabase.auth.verifyOtp({
+      phone,
+      token: otp,
+      type: "sms",
+    });
+
+    if (verifyError) throw verifyError;
+    if (!data.session) {
+      throw new Error("Verification succeeded but no session was returned.");
+    }
+
+    const updated = await api.setOnboardingRole(
+      data.session.access_token,
+      role,
+    );
+    await supabase.auth.refreshSession();
+    setSession(data.session);
+    setProfile(updated);
+    return updated;
   };
 
   const signOut = async () => {
@@ -350,6 +389,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     signUp,
     signInWithPhone,
     verifyPhoneOTP,
+    registerWithPhone,
     signOut,
     sendResetPasswordEmail,
     updatePassword,

@@ -5,6 +5,7 @@ import { AppLayout } from "../../components/layout/AppLayout";
 import { useAuth } from "../../context/AuthContext";
 import { formatINRWhole } from "../../lib/currency";
 import { api, type PaymentRecord, type RentChargeRecord } from "../../lib/api";
+import { FEATURES } from "../../lib/feature-flags";
 
 const amountToNumber = (value: string | number | null | undefined) =>
   Number(value ?? 0);
@@ -392,7 +393,7 @@ const PayRent: React.FC = () => {
 
           {paymentStatus !== "paid" && activeCharge && (
             <div className="fixed bottom-0 left-0 right-0 p-5 bg-white backdrop-blur-[30px] border-t pb-[calc(env(safe-area-inset-bottom)+1.5rem)] flex flex-col gap-3 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
-              {activeCharge.lease?.hasTdsObligation && (
+              {FEATURES.NRI_MODE && activeCharge.lease?.hasTdsObligation && (
                 <div className="bg-warning/10 border border-warning/20 rounded-[16px] p-4 mb-1">
                   <div className="flex gap-2 items-start mb-3">
                     <span className="material-symbols-outlined text-warning text-[18px]">
@@ -468,7 +469,9 @@ const PayRent: React.FC = () => {
                 disabled={
                   paymentStatus === "pending" ||
                   isLaunchingOnline ||
-                  (activeCharge.lease?.hasTdsObligation && !tdsAccepted)
+                  (FEATURES.NRI_MODE &&
+                    activeCharge.lease?.hasTdsObligation &&
+                    !tdsAccepted)
                 }
                 onClick={() => void handleOnlinePayment()}
                 className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F5A623] to-[#F5A623] py-4 text-white font-bold text-[15px] shadow-[0_8px_30px_rgba(245,166,35,0.3)] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
@@ -488,7 +491,9 @@ const PayRent: React.FC = () => {
               <button
                 disabled={
                   paymentStatus === "pending" ||
-                  (activeCharge.lease?.hasTdsObligation && !tdsAccepted)
+                  (FEATURES.NRI_MODE &&
+                    activeCharge.lease?.hasTdsObligation &&
+                    !tdsAccepted)
                 }
                 onClick={openCashModal}
                 className="w-full flex items-center justify-center gap-2 rounded-full bg-white border py-3.5 text-text-primary font-bold text-[14px]  active:scale-[0.98] transition-all disabled:opacity-50 shadow-sm"

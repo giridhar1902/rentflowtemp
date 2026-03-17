@@ -721,98 +721,11 @@ const getMockDataForPath = (path: string, method?: string): any => {
   return {};
 };
 
-let mockProperties: any[] = [];
-
 const apiFetch = async <T>(
   path: string,
   token: string,
   init?: RequestInit,
 ): Promise<T> => {
-  if (token === "fake-token") {
-    // Intercept development mock requests to avoid "failed to fetch"
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Special case for properties to make the demo feel alive
-        if (path === "/properties" && init?.method === "POST") {
-          const body = init.body ? JSON.parse(init.body as string) : {};
-          const newProperty = {
-            id: `prop-${Date.now()}`,
-            ownerId: "fake-id",
-            name: body.name || "Newly Created Property",
-            propertyType: body.propertyType || "Apartment",
-            status: "ACTIVE",
-            ownership: body.ownership || "SELF_OWNED",
-            addressLine1: body.addressLine1 || "Address",
-            city: body.city || "City",
-            state: body.state || "State",
-            postalCode: body.postalCode || "000000",
-            country: "US",
-            units: [],
-            _count: { units: body.totalUnits || 0, leases: 0 },
-          };
-          mockProperties.unshift(newProperty);
-          resolve(newProperty as unknown as T);
-          return;
-        }
-
-        if (
-          path === "/properties" &&
-          (!init?.method || init?.method === "GET")
-        ) {
-          resolve(mockProperties as unknown as T);
-          return;
-        }
-
-        // Single property GET — return matching mock or a safe stub with units: []
-        if (
-          /^\/properties\/[^/]+$/.test(path) &&
-          (!init?.method || init?.method === "GET")
-        ) {
-          const propertyId = path.split("/").pop();
-          const found = mockProperties.find((p) => p.id === propertyId);
-          resolve(
-            (found ?? {
-              id: propertyId,
-              ownerId: "fake-id",
-              name: "Property",
-              propertyType: "Apartment",
-              status: "ACTIVE",
-              ownership: "SELF_OWNED",
-              addressLine1: "",
-              city: "",
-              state: "",
-              postalCode: "",
-              country: "IN",
-              units: [],
-              leases: [],
-              _count: { units: 0, leases: 0 },
-            }) as unknown as T,
-          );
-          return;
-        }
-
-        if (path.includes("/payments/submit") && init?.method === "POST") {
-          const body = init.body ? JSON.parse(init.body as string) : {};
-          resolve({
-            id: `mock-payment-${Date.now()}`,
-            tenantId: "mock-tenant",
-            propertyId: body.propertyId || "mock-property",
-            unitId: body.unitId || "mock-unit",
-            amount: body.amount || 24500,
-            rentMonth: body.rentMonth || "November 2023",
-            paymentDate: body.paymentDate || new Date().toISOString(),
-            paymentMode: body.paymentMode || "CASH",
-            status: "PENDING_APPROVAL",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          } as unknown as T);
-          return;
-        }
-
-        resolve(getMockDataForPath(path, init?.method) as unknown as T);
-      }, 300); // simulate tiny network delay
-    });
-  }
   const response = await fetch(`${assertBaseUrl()}${path}`, {
     ...init,
     headers: {

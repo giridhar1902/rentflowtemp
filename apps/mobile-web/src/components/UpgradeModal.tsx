@@ -113,7 +113,7 @@ export function UpgradeModal() {
                     as="h3"
                     className="text-2xl font-bold text-white"
                   >
-                    Upgrade to NRI Mode
+                    Upgrade Your Plan
                   </Dialog.Title>
                   <p
                     className="mt-2 text-sm"
@@ -125,56 +125,7 @@ export function UpgradeModal() {
 
                 {/* Tiers */}
                 <div className="p-6 flex flex-col gap-4">
-                  {/* Essential */}
-                  <div
-                    className="rounded-xl p-5"
-                    style={{
-                      border: "1.5px solid rgba(27,43,94,0.1)",
-                      background: "#F8F9FA",
-                    }}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h3
-                        className="font-bold text-base"
-                        style={{ color: "#1B2B5E" }}
-                      >
-                        NRI Essential
-                      </h3>
-                      <span
-                        className="font-extrabold text-lg"
-                        style={{ color: "#1B2B5E" }}
-                      >
-                        ₹1,499
-                        <span
-                          className="text-xs font-medium"
-                          style={{ color: "#5A6A8A" }}
-                        >
-                          /mo
-                        </span>
-                      </span>
-                    </div>
-                    <ul className="space-y-2 mb-4">
-                      {[
-                        "Dual currency dashboard",
-                        "TDS compliance automation",
-                        "Property health reports",
-                        "Timezone-aware reminders",
-                      ].map((f) => (
-                        <CheckItem key={f} text={f} />
-                      ))}
-                    </ul>
-                    <Button
-                      variant="secondary"
-                      className="w-full"
-                      onClick={() =>
-                        (window.location.href = detail!.upgradeUrl)
-                      }
-                    >
-                      Upgrade to Essential
-                    </Button>
-                  </div>
-
-                  {/* Premium */}
+                  {/* Local Pro */}
                   <div
                     className="rounded-xl p-5 relative overflow-hidden"
                     style={{
@@ -193,13 +144,13 @@ export function UpgradeModal() {
                         className="font-bold text-base"
                         style={{ color: "#1B2B5E" }}
                       >
-                        NRI Premium
+                        Local Pro
                       </h3>
                       <span
                         className="font-extrabold text-lg"
                         style={{ color: "#1B2B5E" }}
                       >
-                        ₹2,999
+                        ₹499
                         <span
                           className="text-xs font-medium"
                           style={{ color: "#5A6A8A" }}
@@ -208,18 +159,13 @@ export function UpgradeModal() {
                         </span>
                       </span>
                     </div>
-                    <p
-                      className="text-xs font-semibold mb-2"
-                      style={{ color: "#5A6A8A" }}
-                    >
-                      Everything in Essential, plus:
-                    </p>
                     <ul className="space-y-2 mb-4">
                       {[
-                        "TDS PDF reports for CA",
-                        "Legal notice automation",
-                        "Power of Attorney access",
-                        "Daily WhatsApp morning digest",
+                        "Unlimited properties & tenants",
+                        "Automated rent reminders",
+                        "Expense & financial reports",
+                        "Maintenance request tracking",
+                        "WhatsApp bot access",
                       ].map((f) => (
                         <CheckItem key={f} text={f} gold />
                       ))}
@@ -231,9 +177,14 @@ export function UpgradeModal() {
                         (window.location.href = detail!.upgradeUrl)
                       }
                     >
-                      Upgrade to Premium
+                      Upgrade to Local Pro
                     </Button>
                   </div>
+
+                  {/* NRI_PHASE_2 — uncomment when ready
+                  <div ...NRI Essential card... />
+                  <div ...NRI Premium card... />
+                  */}
 
                   {/* Dismiss */}
                   <button

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
+import { FEATURES } from "../../lib/feature-flags";
 import { AppLayout } from "../../components/layout/AppLayout";
 import { useAuth } from "../../context/AuthContext";
 import { formatINRWhole } from "../../lib/currency";
@@ -70,6 +71,9 @@ const TdsConsent: React.FC = () => {
       );
     }
   };
+
+  // NRI_PHASE_2 — uncomment when ready
+  if (!FEATURES.NRI_MODE) return <Navigate to="/tenant/pay" replace />;
 
   return (
     <AppLayout

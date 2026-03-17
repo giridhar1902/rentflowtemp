@@ -122,19 +122,38 @@ export class WhatsappService {
   async sendCustomMessage(phone: string, text: string) {
     const interaktKey = this.configService.get<string>("INTERAKT_API_KEY");
     if (!interaktKey) {
-      this.logger.warn(
-        `INTERAKT_API_KEY not set. Stubbed WhatsApp Custom Message to +91${phone}:\n${text}`,
-      );
+      this.logger.warn(`[Stub] WhatsApp to +91${phone}: ${text}`);
       return;
     }
 
     try {
-      this.logger.log(
-        `[Interakt] Sending custom message to +91${phone}:\n${text}`,
+      const response = await fetch(
+        "https://api.interakt.ai/v1/public/message/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${Buffer.from(interaktKey).toString("base64")}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            countryCode: "+91",
+            phoneNumber: phone,
+            type: "Text",
+            data: { message: text },
+          }),
+        },
       );
-      // In production, we would map to a generic alert template if outside 24h window
+
+      if (!response.ok) {
+        throw new Error(`Interakt Error: ${response.status}`);
+      }
+      this.logger.log(`Sent custom message to +91${phone}`);
     } catch (e) {
       this.logger.error(`Failed to send custom message to +91${phone}`, e);
     }
+  }
+
+  async sendBotReply(phone: string, message: string): Promise<void> {
+    await this.sendCustomMessage(phone, message);
   }
 }

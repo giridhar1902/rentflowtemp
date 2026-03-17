@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, TextField } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
 import { AppRole } from "../lib/api";
 import { defaultRouteForRole } from "../lib/routes";
 
-const SIGNUP_RATE_LIMIT_COOLDOWN_MS = 60_000;
 const pendingInviteCodeKey = "pending-tenant-invite-code";
 
 const DomvioMark = () => (
@@ -29,23 +27,6 @@ const DomvioMark = () => (
   </svg>
 );
 
-const normalizeSignupError = (error: unknown) => {
-  const message =
-    error instanceof Error ? error.message : "Unable to create account";
-  const normalized = message.toLowerCase();
-  if (
-    normalized.includes("email rate limit exceeded") ||
-    (normalized.includes("rate limit") && normalized.includes("email"))
-  ) {
-    return {
-      userMessage:
-        "Signup email limit reached. Wait a bit, check spam, then try again.",
-      isRateLimit: true,
-    };
-  }
-  return { userMessage: message, isRateLimit: false };
-};
-
 const pageStyle: React.CSSProperties = {
   fontFamily: '"Plus Jakarta Sans", sans-serif',
   background: "#EEF1F8",
@@ -54,72 +35,53 @@ const pageStyle: React.CSSProperties = {
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
-  const [step, setStep] = useState<1 | 2>(1);
+  const { signInWithPhone, registerWithPhone } = useAuth();
+
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [role, setRole] = useState<AppRole>("LANDLORD");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [otp, setOtp] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
-  const [now, setNow] = useState(() => Date.now());
 
-  useEffect(() => {
-    if (!cooldownUntil) return;
-    const interval = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(interval);
-  }, [cooldownUntil]);
+  const formattedPhone = phone.startsWith("+") ? phone : `+91${phone}`;
 
-  useEffect(() => {
-    if (cooldownUntil && now >= cooldownUntil) setCooldownUntil(null);
-  }, [cooldownUntil, now]);
-
-  const cooldownSeconds = cooldownUntil
-    ? Math.max(0, Math.ceil((cooldownUntil - now) / 1000))
-    : 0;
-  const isCooldownActive = cooldownSeconds > 0;
-
-  const handleContinue = async () => {
-    if (isCooldownActive) {
-      setError(`Wait ${cooldownSeconds}s before retrying.`);
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+  const handleSendOTP = async () => {
     setSubmitting(true);
     setError(null);
-    setMessage(null);
     try {
-      if (role === "TENANT") {
+      await signInWithPhone(formattedPhone);
+      setStep(3);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to send OTP. Please try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      if (role === "TENANT" && inviteCode.trim()) {
         try {
-          inviteCode.trim()
-            ? window.sessionStorage.setItem(
-                pendingInviteCodeKey,
-                inviteCode.trim().toUpperCase(),
-              )
-            : window.sessionStorage.removeItem(pendingInviteCodeKey);
+          window.sessionStorage.setItem(
+            pendingInviteCodeKey,
+            inviteCode.trim().toUpperCase(),
+          );
         } catch {
           /* no-op */
         }
       }
-      const result = await signUp(email.trim(), password, role);
-      if (result.needsEmailConfirmation) {
-        setMessage(
-          role === "TENANT" && inviteCode.trim()
-            ? "Check your email to confirm, then log in to accept your invite."
-            : "Check your email to confirm your account, then log in.",
-        );
-        return;
-      }
+
+      await registerWithPhone(formattedPhone, otp, role);
+
       if (role === "TENANT") {
         const query = inviteCode.trim()
           ? `?code=${encodeURIComponent(inviteCode.trim().toUpperCase())}`
@@ -127,14 +89,12 @@ const Register: React.FC = () => {
         navigate(`/register/invite${query}`, { replace: true });
         return;
       }
-      navigate(defaultRouteForRole(result.profile?.role ?? role), {
-        replace: true,
-      });
+
+      navigate(defaultRouteForRole(role), { replace: true });
     } catch (err) {
-      const normalized = normalizeSignupError(err);
-      setError(normalized.userMessage);
-      if (normalized.isRateLimit)
-        setCooldownUntil(Date.now() + SIGNUP_RATE_LIMIT_COOLDOWN_MS);
+      setError(
+        err instanceof Error ? err.message : "Invalid OTP. Please try again.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -187,7 +147,6 @@ const Register: React.FC = () => {
             </p>
 
             <div className="flex flex-col gap-3 w-full">
-              {/* Landlord card */}
               {(["LANDLORD", "TENANT"] as AppRole[]).map((r) => {
                 const isSelected = role === r;
                 const isLandlord = r === "LANDLORD";
@@ -249,7 +208,6 @@ const Register: React.FC = () => {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="w-full max-w-[390px] flex flex-col items-center gap-4">
           <button
             type="button"
@@ -277,7 +235,217 @@ const Register: React.FC = () => {
     );
   }
 
-  /* ── Step 2: Account details ── */
+  /* ── Step 2: Phone + email entry ── */
+  if (step === 2) {
+    return (
+      <div
+        className="flex min-h-screen flex-col px-5 py-6 w-full"
+        style={pageStyle}
+      >
+        <div className="mx-auto flex w-full max-w-[390px] flex-col gap-5 motion-page-enter">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="size-10 flex items-center justify-center rounded-full border transition-colors"
+              style={{
+                border: "1.5px solid rgba(27,43,94,0.12)",
+                background: "#FFFFFF",
+                color: "#1B2B5E",
+              }}
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                arrow_back
+              </span>
+            </button>
+            <div>
+              <h1 className="text-lg font-bold" style={{ color: "#1B2B5E" }}>
+                Your details
+              </h1>
+              <p className="text-xs" style={{ color: "#5A6A8A" }}>
+                Registering as {role === "LANDLORD" ? "a Landlord" : "a Tenant"}
+              </p>
+            </div>
+          </div>
+
+          {/* Role pill */}
+          <div
+            className="flex items-center gap-3 rounded-2xl px-4 py-3"
+            style={{
+              background: "#FFFFFF",
+              border: "1px solid rgba(27,43,94,0.08)",
+              borderLeft: "3px solid #F5A623",
+            }}
+          >
+            <span
+              className="material-symbols-outlined text-[20px]"
+              style={{ color: "#F5A623" }}
+            >
+              {role === "LANDLORD" ? "real_estate_agent" : "home"}
+            </span>
+            <span className="text-sm font-bold" style={{ color: "#1B2B5E" }}>
+              {role === "LANDLORD" ? "Landlord Account" : "Tenant Account"}
+            </span>
+          </div>
+
+          {/* Form */}
+          <div
+            className="rounded-2xl px-6 py-6 flex flex-col gap-5"
+            style={{
+              background: "#FFFFFF",
+              border: "1px solid rgba(27,43,94,0.08)",
+              boxShadow: "0 2px 12px rgba(27,43,94,0.06)",
+            }}
+          >
+            {/* Phone */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                className="text-sm font-semibold"
+                style={{ color: "#1B2B5E" }}
+              >
+                Mobile Number
+              </label>
+              <div
+                className="flex rounded-[14px] overflow-hidden transition-all focus-within:ring-2 focus-within:ring-[rgba(245,166,35,0.3)]"
+                style={{
+                  border: "1.5px solid rgba(27,43,94,0.12)",
+                  background: "#F8F9FA",
+                }}
+              >
+                <div
+                  className="px-4 flex items-center text-sm font-bold border-r shrink-0"
+                  style={{
+                    color: "#1B2B5E",
+                    borderColor: "rgba(27,43,94,0.1)",
+                    background: "#EEF1F8",
+                  }}
+                >
+                  +91
+                </div>
+                <input
+                  type="tel"
+                  placeholder="9876543210"
+                  value={phone}
+                  onChange={(e) =>
+                    setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
+                  }
+                  className="w-full px-4 py-3.5 text-sm font-medium bg-transparent outline-none"
+                  style={{ color: "#1B2B5E" }}
+                />
+              </div>
+            </div>
+
+            {/* Email (optional) */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                className="text-sm font-semibold flex items-center gap-1.5"
+                style={{ color: "#1B2B5E" }}
+              >
+                Email
+                <span
+                  className="text-xs font-medium px-1.5 py-0.5 rounded-md"
+                  style={{ background: "#EEF1F8", color: "#8A9AB8" }}
+                >
+                  optional
+                </span>
+              </label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-[14px] px-4 py-3.5 text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-[rgba(245,166,35,0.3)]"
+                style={{
+                  border: "1.5px solid rgba(27,43,94,0.12)",
+                  background: "#F8F9FA",
+                  color: "#1B2B5E",
+                }}
+              />
+            </div>
+
+            {/* Invite code (tenant only) */}
+            {role === "TENANT" && (
+              <div className="flex flex-col gap-1.5">
+                <label
+                  className="text-sm font-semibold flex items-center gap-1.5"
+                  style={{ color: "#1B2B5E" }}
+                >
+                  Invite Code
+                  <span
+                    className="text-xs font-medium px-1.5 py-0.5 rounded-md"
+                    style={{ background: "#EEF1F8", color: "#8A9AB8" }}
+                  >
+                    optional
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="A7C9D2"
+                  value={inviteCode}
+                  onChange={(e) =>
+                    setInviteCode(
+                      e.target.value.toUpperCase().replace(/\s+/g, ""),
+                    )
+                  }
+                  className="w-full rounded-[14px] px-4 py-3.5 text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-[rgba(245,166,35,0.3)]"
+                  style={{
+                    border: "1.5px solid rgba(27,43,94,0.12)",
+                    background: "#F8F9FA",
+                    color: "#1B2B5E",
+                  }}
+                />
+                <p className="text-xs" style={{ color: "#8A9AB8" }}>
+                  Enter the code your landlord shared.
+                </p>
+              </div>
+            )}
+
+            {error && (
+              <div
+                className="rounded-xl px-4 py-3 text-sm font-medium"
+                style={{
+                  background: "#FEE2E2",
+                  color: "#B91C1C",
+                  border: "1px solid rgba(220,38,38,0.2)",
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleSendOTP}
+              disabled={phone.length < 10 || submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-[14px] py-3.5 text-base font-bold text-white transition-all active:scale-[0.98] disabled:opacity-50"
+              style={{
+                background: "linear-gradient(135deg, #F5A623, #E8920F)",
+                boxShadow: "0 4px 16px rgba(245,166,35,0.35)",
+              }}
+            >
+              {submitting ? "Sending…" : "Send OTP"}
+              <span className="material-symbols-outlined text-[18px]">sms</span>
+            </button>
+          </div>
+
+          <p className="text-center text-sm" style={{ color: "#5A6A8A" }}>
+            Already have an account?{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="font-bold hover:underline"
+              style={{ color: "#1B2B5E" }}
+            >
+              Sign in
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Step 3: OTP verification ── */
   return (
     <div
       className="flex min-h-screen flex-col px-5 py-6 w-full"
@@ -288,7 +456,11 @@ const Register: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => setStep(1)}
+            onClick={() => {
+              setStep(2);
+              setOtp("");
+              setError(null);
+            }}
             className="size-10 flex items-center justify-center rounded-full border transition-colors"
             style={{
               border: "1.5px solid rgba(27,43,94,0.12)",
@@ -302,35 +474,14 @@ const Register: React.FC = () => {
           </button>
           <div>
             <h1 className="text-lg font-bold" style={{ color: "#1B2B5E" }}>
-              Account details
+              Verify your number
             </h1>
             <p className="text-xs" style={{ color: "#5A6A8A" }}>
-              Registering as {role === "LANDLORD" ? "a Landlord" : "a Tenant"}
+              Code sent to +91 {phone}
             </p>
           </div>
         </div>
 
-        {/* Role pill */}
-        <div
-          className="flex items-center gap-3 rounded-2xl px-4 py-3"
-          style={{
-            background: "#FFFFFF",
-            border: "1px solid rgba(27,43,94,0.08)",
-            borderLeft: "3px solid #F5A623",
-          }}
-        >
-          <span
-            className="material-symbols-outlined text-[20px]"
-            style={{ color: "#F5A623" }}
-          >
-            {role === "LANDLORD" ? "real_estate_agent" : "home"}
-          </span>
-          <span className="text-sm font-bold" style={{ color: "#1B2B5E" }}>
-            {role === "LANDLORD" ? "Landlord Account" : "Tenant Account"}
-          </span>
-        </div>
-
-        {/* Form */}
         <div
           className="rounded-2xl px-6 py-6 flex flex-col gap-5"
           style={{
@@ -339,39 +490,44 @@ const Register: React.FC = () => {
             boxShadow: "0 2px 12px rgba(27,43,94,0.06)",
           }}
         >
-          <TextField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Min 8 characters"
-          />
-          <TextField
-            label="Confirm Password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Repeat password"
-          />
-
-          {role === "TENANT" && (
-            <TextField
-              label="Invite Code (optional)"
-              value={inviteCode}
-              placeholder="A7C9D2"
-              hint="Enter the code your landlord shared."
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <label
+                className="text-sm font-semibold"
+                style={{ color: "#1B2B5E" }}
+              >
+                6-Digit OTP
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  setStep(2);
+                  setOtp("");
+                  setError(null);
+                }}
+                className="text-xs font-bold hover:underline"
+                style={{ color: "#F5A623" }}
+              >
+                Change Number
+              </button>
+            </div>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="••••••"
+              value={otp}
               onChange={(e) =>
-                setInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ""))
+                setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
               }
+              className="w-full rounded-[14px] px-4 py-3.5 text-center text-[22px] font-bold tracking-[0.4em] outline-none transition-all focus:ring-2 focus:ring-[rgba(245,166,35,0.3)]"
+              style={{
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
+                color: "#1B2B5E",
+                background: "#F8F9FA",
+                border: "1.5px solid rgba(27,43,94,0.12)",
+              }}
             />
-          )}
+          </div>
 
           {error && (
             <div
@@ -385,35 +541,22 @@ const Register: React.FC = () => {
               {error}
             </div>
           )}
-          {message && (
-            <div
-              className="rounded-xl px-4 py-3 text-sm font-medium"
-              style={{
-                background: "#DCFCE7",
-                color: "#15803D",
-                border: "1px solid rgba(22,163,74,0.2)",
-              }}
-            >
-              {message}
-            </div>
-          )}
 
-          <Button
+          <button
             type="button"
-            onClick={handleContinue}
-            loading={submitting}
-            disabled={
-              isCooldownActive || !email || !password || !confirmPassword
-            }
-            size="lg"
-            className="w-full"
+            onClick={handleVerifyOTP}
+            disabled={otp.length < 6 || submitting}
+            className="flex w-full items-center justify-center gap-2 rounded-[14px] py-3.5 text-base font-bold text-white transition-all active:scale-[0.98] disabled:opacity-50"
+            style={{
+              background: "linear-gradient(135deg, #F5A623, #E8920F)",
+              boxShadow: "0 4px 16px rgba(245,166,35,0.35)",
+            }}
           >
-            {submitting
-              ? "Creating account…"
-              : isCooldownActive
-                ? `Retry in ${cooldownSeconds}s`
-                : "Create Account"}
-          </Button>
+            {submitting ? "Creating account…" : "Verify & Create Account"}
+            <span className="material-symbols-outlined text-[18px]">
+              check_circle
+            </span>
+          </button>
         </div>
 
         <p className="text-center text-sm" style={{ color: "#5A6A8A" }}>
